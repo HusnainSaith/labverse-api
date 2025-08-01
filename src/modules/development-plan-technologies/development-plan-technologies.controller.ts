@@ -1,0 +1,51 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { DevelopmentPlanTechnologiesService } from './development-plan-technologies.service';
+import { CreateDevelopmentPlanTechnologyDto } from './dto/create-development-plan-technology.dto';
+import { UpdateDevelopmentPlanTechnologyDto } from './dto/update-development-plan-technology.dto';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+
+@ApiTags('development-plan-technologies')
+@Controller('development-plan-technologies')
+export class DevelopmentPlanTechnologiesController {
+  constructor(private readonly dptService: DevelopmentPlanTechnologiesService) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Associate a technology with a development plan' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Association created.', type: CreateDevelopmentPlanTechnologyDto })
+  async create(@Body() createDptDto: CreateDevelopmentPlanTechnologyDto) {
+    return this.dptService.create(createDptDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Retrieve all development plan technology associations' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Successfully retrieved all associations.', type: [CreateDevelopmentPlanTechnologyDto] })
+  async findAll() {
+    return this.dptService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Retrieve a development plan technology association by ID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Association found.', type: CreateDevelopmentPlanTechnologyDto })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+  async findOne(@Param('id') id: string) {
+    return this.dptService.findOne(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a development plan technology association' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The association has been successfully updated.', type: CreateDevelopmentPlanTechnologyDto })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+  async update(@Param('id') id: string, @Body() updateDptDto: UpdateDevelopmentPlanTechnologyDto) {
+    return this.dptService.update(id, updateDptDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a development plan technology association' })
+  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'The association has been successfully deleted.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+  async remove(@Param('id') id: string) {
+    await this.dptService.remove(id);
+  }
+}

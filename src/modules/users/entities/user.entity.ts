@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
+import { ClientPlanQuotation } from '../../../modules/client-plan-quotations/entities/client-plan-quotation.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -35,4 +37,7 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => ClientPlanQuotation, quotation => quotation.createdBy)
+  createdClientPlanQuotations: ClientPlanQuotation[];
 }
