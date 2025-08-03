@@ -1,0 +1,95 @@
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { EmployeeSkill } from './entities/employee-skills.entity';
+import { CreateEmployeeSkillDto } from './dto/create-employee-skill.dto';
+import { UpdateEmployeeSkillDto } from './dto/update-employee-skill.dto';
+import { EmployeeProfile } from '../employees/entities/employee.entity';
+import { Skill } from '../skills/entities/skills.entity';
+
+@Injectable()
+export class EmployeeSkillsService {
+  constructor(
+    @InjectRepository(EmployeeSkill)
+    private readonly employeeSkillRepository: Repository<EmployeeSkill>,
+    @InjectRepository(EmployeeProfile)
+    private readonly employeeRepository: Repository<EmployeeProfile>,
+    @InjectRepository(Skill)
+    private readonly skillRepository: Repository<Skill>,
+  ) {}
+
+  async create(createEmployeeSkillDto: CreateEmployeeSkillDto): Promise<EmployeeSkill> {
+    const { employeeId, skillId } = createEmployeeSkillDto;
+
+    const employee = await this.employeeRepository.findOne({ where: { id: employeeId } });
+    if (!employee) {
+      throw new NotFoundException(`Employee with ID "${employeeId}" not found.`);
+    }
+
+    const skill = await this.skillRepository.findOne({ where: { id: skillId } });
+    if (!skill) {
+      throw new NotFoundException(`Skill with ID "${skillId}" not found.`);
+    }
+
+    const existingEmployeeSkill = await this.employeeSkillRepository.findOne({
+      where: { employeeId, skillId }
+    });
+    if (existingEmployeeSkill) {
+      throw new ConflictException(`Employee already has this skill assigned.`);
+    }
+
+    console.log('Creating employee skill with:', {
+      employeeId,
+      skillId,
+      proficiencyLevel: createEmployeeSkillDto.proficiencyLevel,
+      yearsOfExperience: createEmployeeSkillDto.yearsOfExperience
+    });
+    
+    const employeeSkill = this.employeeSkillRepository.create({
+      employeeId,
+      skillId,
+      proficiencyLevel: createEmployeeSkillDto.proficiencyLevel,
+      yearsOfExperience: createEmployeeSkillDto.yearsOfExperience
+    });
+    
+    console.log('Created entity:', employeeSkill);
+    return this.employeeSkillRepository.save(employeeSkill);
+  }
+
+  async findAll(): Promise<EmployeeSkill[]> {
+    return this.employeeSkillRepository.find({
+      relations: ['employee', 'skill']
+    });
+  }
+
+  async findByEmployee(employeeId: string): Promise<EmployeeSkill[]> {
+    return this.employeeSkillRepository.find({
+      where: { employeeId },
+      relations: ['skill']
+    });
+  }
+
+  async findOne(employeeId: string, skillId: string): Promise<EmployeeSkill> {
+    const employeeSkill = await this.employeeSkillRepository.findOne({
+      where: { employeeId, skillId },
+      relations: ['employee', 'skill']
+    });
+    if (!employeeSkill) {
+      throw new NotFoundException(`EmployeeSkill not found.`);
+    }
+    return employeeSkill;
+  }
+
+  async update(employeeId: string, skillId: string, updateEmployeeSkillDto: UpdateEmployeeSkillDto): Promise<EmployeeSkill> {
+    const employeeSkill = await this.findOne(employeeId, skillId);
+    Object.assign(employeeSkill, updateEmployeeSkillDto);
+    return this.employeeSkillRepository.save(employeeSkill);
+  }
+
+  async remove(employeeId: string, skillId: string): Promise<void> {
+    const result = await this.employeeSkillRepository.delete({ employeeId, skillId });
+    if (result.affected === 0) {
+      throw new NotFoundException(`EmployeeSkill not found.`);
+    }
+  }
+}
