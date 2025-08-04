@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Invoice } from '../invoices/entities/invoice.entity';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class PaymentsService {
@@ -17,12 +22,18 @@ export class PaymentsService {
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
     try {
+      SecurityUtil.validateObject(createPaymentDto);
       const { invoiceId } = createPaymentDto;
 
       if (invoiceId) {
-        const invoice = await this.invoiceRepository.findOne({ where: { id: invoiceId } });
+        const validInvoiceId = SecurityUtil.validateId(invoiceId);
+        const invoice = await this.invoiceRepository.findOne({
+          where: { id: validInvoiceId },
+        });
         if (!invoice) {
-          throw new NotFoundException(`Invoice with ID "${invoiceId}" not found.`);
+          throw new NotFoundException(
+            `Invoice with ID "${invoiceId}" not found.`,
+          );
         }
       }
 
@@ -44,9 +55,10 @@ export class PaymentsService {
   }
 
   async findOne(id: string): Promise<Payment> {
+    const validId = SecurityUtil.validateId(id);
     const payment = await this.paymentRepository.findOne({
-      where: { id },
-      relations: ['invoice']
+      where: { id: validId },
+      relations: ['invoice'],
     });
     if (!payment) {
       throw new NotFoundException(`Payment with ID "${id}" not found.`);
@@ -54,16 +66,26 @@ export class PaymentsService {
     return payment;
   }
 
-  async update(id: string, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
+  async update(
+    id: string,
+    updatePaymentDto: UpdatePaymentDto,
+  ): Promise<Payment> {
     try {
+      SecurityUtil.validateObject(updatePaymentDto);
       if (updatePaymentDto.invoiceId) {
-        const invoice = await this.invoiceRepository.findOne({ where: { id: updatePaymentDto.invoiceId } });
+        const validInvoiceId = SecurityUtil.validateId(updatePaymentDto.invoiceId);
+        const invoice = await this.invoiceRepository.findOne({
+          where: { id: validInvoiceId },
+        });
         if (!invoice) {
-          throw new NotFoundException(`Invoice with ID "${updatePaymentDto.invoiceId}" not found.`);
+          throw new NotFoundException(
+            `Invoice with ID "${updatePaymentDto.invoiceId}" not found.`,
+          );
         }
       }
 
-      await this.paymentRepository.update(id, updatePaymentDto);
+      const validId = SecurityUtil.validateId(id);
+      await this.paymentRepository.update(validId, updatePaymentDto);
       return this.findOne(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -77,7 +99,8 @@ export class PaymentsService {
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const result = await this.paymentRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.paymentRepository.delete(validId);
     if (result.affected === 0) {
       throw new NotFoundException(`Payment with ID "${id}" not found.`);
     }

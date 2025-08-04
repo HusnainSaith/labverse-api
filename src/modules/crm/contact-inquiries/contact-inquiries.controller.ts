@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ContactInquiriesService } from './contact-inquiries.service';
 import { CreateContactInquiryDto } from './dto/create-contact-inquiry.dto';
 import { UpdateContactInquiryDto } from './dto/update-contact-inquiry.dto';
 
 @Controller('contact-inquiries')
 export class ContactInquiriesController {
-  constructor(private readonly contactInquiriesService: ContactInquiriesService) {}
+  constructor(
+    private readonly contactInquiriesService: ContactInquiriesService,
+  ) {}
 
   @Post()
   create(@Body() createContactInquiryDto: CreateContactInquiryDto) {
@@ -23,7 +33,10 @@ export class ContactInquiriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateContactInquiryDto: UpdateContactInquiryDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateContactInquiryDto: UpdateContactInquiryDto,
+  ) {
     return this.contactInquiriesService.update(id, updateContactInquiryDto);
   }
 

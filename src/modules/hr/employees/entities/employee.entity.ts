@@ -42,8 +42,6 @@ export class EmployeeProfile {
   @Column({ type: 'varchar', length: 50, default: EmployeeStatus.ACTIVE })
   status: EmployeeStatus;
 
-
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

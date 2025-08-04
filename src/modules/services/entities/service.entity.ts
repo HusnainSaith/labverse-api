@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { DevelopmentPlanService } from 'src/modules/development/development-plan-services/entities/development-plan-service.entity';
+import { DevelopmentPlanService } from '../../development/development-plan-services/entities/development-plan-service.entity';
 import { InvoiceItem } from '../../billing/invoice-items/entities/invoice-item.entity';
 
 @Entity('services')
@@ -25,13 +25,20 @@ export class Service {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships
-  @OneToMany(() => DevelopmentPlanService, developmentPlanService => developmentPlanService.service)
+  @OneToMany(
+    () => DevelopmentPlanService,
+    (developmentPlanService) => developmentPlanService.service,
+  )
   developmentPlanServices: DevelopmentPlanService[];
 
-  @OneToMany(() => InvoiceItem, invoiceItem => invoiceItem.serviceId)
+  @OneToMany(() => InvoiceItem, (invoiceItem) => invoiceItem.serviceId)
   invoiceItems: InvoiceItem[];
 }

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { TaskService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -7,7 +16,6 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { RoleEnum } from '../../roles/role.enum';
 import { UuidValidationPipe } from '../../../common/pipes/uuid-validation.pipe';
-
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tasks')
@@ -34,7 +42,10 @@ export class TaskController {
 
   @Patch(':id')
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.EMPLOYEE)
-  update(@Param('id', UuidValidationPipe) id: string, @Body() dto: UpdateTaskDto) {
+  update(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() dto: UpdateTaskDto,
+  ) {
     return this.taskService.update(id, dto);
   }
 

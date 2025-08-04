@@ -12,7 +12,9 @@ export class TestimonialsService {
     private testimonialRepository: Repository<Testimonial>,
   ) {}
 
-  async create(createTestimonialDto: CreateTestimonialDto): Promise<Testimonial> {
+  async create(
+    createTestimonialDto: CreateTestimonialDto,
+  ): Promise<Testimonial> {
     const testimonial = this.testimonialRepository.create(createTestimonialDto);
     return await this.testimonialRepository.save(testimonial);
   }
@@ -22,14 +24,19 @@ export class TestimonialsService {
   }
 
   async findOne(id: string): Promise<Testimonial> {
-    const testimonial = await this.testimonialRepository.findOne({ where: { id } });
+    const testimonial = await this.testimonialRepository.findOne({
+      where: { id },
+    });
     if (!testimonial) {
       throw new NotFoundException(`Testimonial with ID "${id}" not found.`);
     }
     return testimonial;
   }
 
-  async update(id: string, updateTestimonialDto: UpdateTestimonialDto): Promise<Testimonial> {
+  async update(
+    id: string,
+    updateTestimonialDto: UpdateTestimonialDto,
+  ): Promise<Testimonial> {
     await this.testimonialRepository.update(id, updateTestimonialDto);
     return this.findOne(id);
   }

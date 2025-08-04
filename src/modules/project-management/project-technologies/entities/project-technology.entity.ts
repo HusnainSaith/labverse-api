@@ -18,11 +18,13 @@ export class ProjectTechnology {
   @PrimaryColumn({ name: 'technology_id', type: 'uuid' })
   technologyId: string;
 
-  @ManyToOne(() => Project, project => project.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Project, (project) => project.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
-  @ManyToOne(() => Technology, technology => technology.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Technology, (technology) => technology.id, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'technology_id' })
   technology: Technology;
 

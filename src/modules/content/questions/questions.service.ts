@@ -22,7 +22,10 @@ export class QuestionsService {
   }
 
   findOne(id: string) {
-    return this.questionRepository.findOne({ where: { id }, relations: ['category'] });
+    return this.questionRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
   }
 
   update(id: string, updateQuestionDto: UpdateQuestionDto) {
@@ -30,11 +33,10 @@ export class QuestionsService {
   }
 
   async remove(id: string) {
-  const result = await this.questionRepository.delete(id);
-  if (result.affected === 0) {
-    throw new NotFoundException(`Question with ID "${id}" not found.`);
+    const result = await this.questionRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Question with ID "${id}" not found.`);
+    }
+    return { message: 'Question successfully deleted' };
   }
-  return { message: 'Question successfully deleted' };
-}
-
 }

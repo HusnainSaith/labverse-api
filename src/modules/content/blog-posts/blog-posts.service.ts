@@ -22,7 +22,10 @@ export class BlogPostsService {
   }
 
   findOne(id: string) {
-    return this.blogPostRepository.findOne({ where: { id }, relations: ['category'] });
+    return this.blogPostRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
   }
 
   update(id: string, updateBlogPostDto: UpdateBlogPostDto) {

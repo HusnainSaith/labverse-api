@@ -4,7 +4,6 @@ import {
   Get,
   Body,
   Param,
-
   Query,
   Patch,
   Delete,
@@ -20,7 +19,9 @@ export class MessagingController {
   constructor(private readonly messagingService: MessagingService) {}
 
   @Post('conversations')
-  async createConversation(@Body() createConversationDto: CreateConversationDto) {
+  async createConversation(
+    @Body() createConversationDto: CreateConversationDto,
+  ) {
     return this.messagingService.createConversation(createConversationDto);
   }
 
@@ -37,20 +38,25 @@ export class MessagingController {
   @Post('conversations/:conversationId/participants')
   async addParticipant(
     @Param('conversationId') conversationId: string,
-    @Body() body: { participantUserIds?: string[], userId?: string },
+    @Body() body: { participantUserIds?: string[]; userId?: string },
   ) {
     // Handle both single user and multiple users
     if (body.participantUserIds && Array.isArray(body.participantUserIds)) {
       const results = [];
       for (const userId of body.participantUserIds) {
-        const participant = await this.messagingService.addParticipant(conversationId, userId);
+        const participant = await this.messagingService.addParticipant(
+          conversationId,
+          userId,
+        );
         results.push(participant);
       }
       return results;
     } else if (body.userId) {
       return this.messagingService.addParticipant(conversationId, body.userId);
     } else {
-      throw new BadRequestException('Either userId or participantUserIds array is required.');
+      throw new BadRequestException(
+        'Either userId or participantUserIds array is required.',
+      );
     }
   }
 
@@ -77,7 +83,11 @@ export class MessagingController {
     @Query('take') take: string = '50',
     @Query('skip') skip: string = '0',
   ) {
-    return this.messagingService.findMessagesByConversationId(conversationId, +take, +skip);
+    return this.messagingService.findMessagesByConversationId(
+      conversationId,
+      +take,
+      +skip,
+    );
   }
 
   @Patch('messages/:id/read')
@@ -86,7 +96,11 @@ export class MessagingController {
     @Body('conversationId') conversationId: string,
     @Body('userId') userId: string,
   ) {
-    await this.messagingService.markMessageAsRead(conversationId, userId, messageId);
+    await this.messagingService.markMessageAsRead(
+      conversationId,
+      userId,
+      messageId,
+    );
     return { message: 'Message marked as read.' };
   }
 

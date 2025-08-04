@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Client } from '../../crm/clients/entities/clients.entity';
-import { DevelopmentPlan } from 'src/modules/development/development-plans/entities/development-plan.entity';
+import { DevelopmentPlan } from '../../development/development-plans/entities/development-plan.entity';
 import { User } from '../../users/entities/user.entity'; // Assuming users module exists
 import { ClientPlanQuotationStatus } from '../enums/client-plan-quotation-status.enum';
 import { Invoice } from '../../billing/invoices/entities/invoice.entity';
@@ -24,7 +31,7 @@ export class ClientPlanQuotation {
   })
   status: ClientPlanQuotationStatus;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0.00 })
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0.0 })
   discount_percent: number;
 
   @Column({ type: 'text', nullable: true })
@@ -39,22 +46,32 @@ export class ClientPlanQuotation {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships
-  @ManyToOne(() => Client, client => client.clientPlanQuotations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Client, (client) => client.clientPlanQuotations, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'client_id' })
   client: Client;
 
-  @ManyToOne(() => DevelopmentPlan, plan => plan.clientPlanQuotations, { onDelete: 'SET NULL' })
+  @ManyToOne(() => DevelopmentPlan, (plan) => plan.clientPlanQuotations, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'plan_id' })
   plan: DevelopmentPlan;
 
-  @ManyToOne(() => User, user => user.createdClientPlanQuotations, { onDelete: 'SET NULL' })
+  @ManyToOne(() => User, (user) => user.createdClientPlanQuotations, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @OneToMany(() => Invoice, invoice => invoice.quotation)
+  @OneToMany(() => Invoice, (invoice) => invoice.quotation)
   invoices: Invoice[];
 }

@@ -22,20 +22,22 @@ export class AnswersService {
   }
 
   findOne(id: string) {
-    return this.answerRepository.findOne({ where: { id }, relations: ['question'] });
+    return this.answerRepository.findOne({
+      where: { id },
+      relations: ['question'],
+    });
   }
 
-async update(id: string, updateAnswerDto: UpdateAnswerDto) {
-  await this.answerRepository.update(id, updateAnswerDto);
-  return this.findOne(id);
-}
-
-async remove(id: string) {
-  const result = await this.answerRepository.delete(id);
-  if (result.affected === 0) {
-    throw new NotFoundException(`Answer with ID "${id}" not found.`);
+  async update(id: string, updateAnswerDto: UpdateAnswerDto) {
+    await this.answerRepository.update(id, updateAnswerDto);
+    return this.findOne(id);
   }
-  return { message: 'Answer successfully deleted' };
-}
 
+  async remove(id: string) {
+    const result = await this.answerRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Answer with ID "${id}" not found.`);
+    }
+    return { message: 'Answer successfully deleted' };
+  }
 }

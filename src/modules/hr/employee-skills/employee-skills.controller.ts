@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { EmployeeSkillsService } from './employee-skills.service';
 import { CreateEmployeeSkillDto } from './dto/create-employee-skill.dto';
 import { UpdateEmployeeSkillDto } from './dto/update-employee-skill.dto';
@@ -29,17 +38,31 @@ export class EmployeeSkillsController {
   }
 
   @Get(':employeeId/:skillId')
-  findOne(@Param('employeeId') employeeId: string, @Param('skillId') skillId: string) {
+  findOne(
+    @Param('employeeId') employeeId: string,
+    @Param('skillId') skillId: string,
+  ) {
     return this.employeeSkillsService.findOne(employeeId, skillId);
   }
 
   @Patch(':employeeId/:skillId')
-  update(@Param('employeeId') employeeId: string, @Param('skillId') skillId: string, @Body() updateEmployeeSkillDto: UpdateEmployeeSkillDto) {
-    return this.employeeSkillsService.update(employeeId, skillId, updateEmployeeSkillDto);
+  update(
+    @Param('employeeId') employeeId: string,
+    @Param('skillId') skillId: string,
+    @Body() updateEmployeeSkillDto: UpdateEmployeeSkillDto,
+  ) {
+    return this.employeeSkillsService.update(
+      employeeId,
+      skillId,
+      updateEmployeeSkillDto,
+    );
   }
 
   @Delete(':employeeId/:skillId')
-  remove(@Param('employeeId') employeeId: string, @Param('skillId') skillId: string) {
+  remove(
+    @Param('employeeId') employeeId: string,
+    @Param('skillId') skillId: string,
+  ) {
     return this.employeeSkillsService.remove(employeeId, skillId);
   }
 }

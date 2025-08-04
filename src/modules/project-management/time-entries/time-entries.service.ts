@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TimeEntry } from './entities/time-entry.entity';
@@ -7,6 +11,7 @@ import { UpdateTimeEntryDto } from './dto/update-time-entry.dto';
 import { EmployeeProfile } from '../../hr/employees/entities/employee.entity';
 import { Project } from '../projects/entities/projects.entity';
 import { Task } from '../tasks/entities/task.entity';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class TimeEntriesService {
@@ -27,23 +32,33 @@ export class TimeEntriesService {
 
       // Validate employee exists
       if (employeeId) {
-        const employee = await this.employeeRepository.findOne({ where: { id: employeeId } });
+        const employee = await this.employeeRepository.findOne({
+          where: { id: employeeId },
+        });
         if (!employee) {
-          throw new NotFoundException(`Employee with ID "${employeeId}" not found.`);
+          throw new NotFoundException(
+            `Employee with ID "${employeeId}" not found.`,
+          );
         }
       }
 
       // Validate project exists
       if (projectId) {
-        const project = await this.projectRepository.findOne({ where: { id: projectId } });
+        const project = await this.projectRepository.findOne({
+          where: { id: projectId },
+        });
         if (!project) {
-          throw new NotFoundException(`Project with ID "${projectId}" not found.`);
+          throw new NotFoundException(
+            `Project with ID "${projectId}" not found.`,
+          );
         }
       }
 
       // Validate task exists
       if (taskId) {
-        const task = await this.taskRepository.findOne({ where: { id: taskId } });
+        const task = await this.taskRepository.findOne({
+          where: { id: taskId },
+        });
         if (!task) {
           throw new NotFoundException(`Task with ID "${taskId}" not found.`);
         }
@@ -56,7 +71,9 @@ export class TimeEntriesService {
         throw error;
       }
       if (error.code === '23503') {
-        throw new NotFoundException('Referenced employee, project, or task not found.');
+        throw new NotFoundException(
+          'Referenced employee, project, or task not found.',
+        );
       }
       throw error;
     }
@@ -64,28 +81,31 @@ export class TimeEntriesService {
 
   async findAll(): Promise<TimeEntry[]> {
     return this.timeEntryRepository.find({
-      relations: ['employee', 'project', 'task']
+      relations: ['employee', 'project', 'task'],
     });
   }
 
   async findByEmployee(employeeId: string): Promise<TimeEntry[]> {
+    const validEmployeeId = SecurityUtil.validateId(employeeId);
     return this.timeEntryRepository.find({
-      where: { employeeId },
-      relations: ['project', 'task']
+      where: { employeeId: validEmployeeId },
+      relations: ['project', 'task'],
     });
   }
 
   async findByProject(projectId: string): Promise<TimeEntry[]> {
+    const validProjectId = SecurityUtil.validateId(projectId);
     return this.timeEntryRepository.find({
-      where: { projectId },
-      relations: ['employee', 'task']
+      where: { projectId: validProjectId },
+      relations: ['employee', 'task'],
     });
   }
 
   async findOne(id: string): Promise<TimeEntry> {
+    const validId = SecurityUtil.validateId(id);
     const timeEntry = await this.timeEntryRepository.findOne({
-      where: { id },
-      relations: ['employee', 'project', 'task']
+      where: { id: validId },
+      relations: ['employee', 'project', 'task'],
     });
     if (!timeEntry) {
       throw new NotFoundException(`Time entry with ID "${id}" not found.`);
@@ -93,45 +113,64 @@ export class TimeEntriesService {
     return timeEntry;
   }
 
-  async update(id: string, updateTimeEntryDto: UpdateTimeEntryDto): Promise<TimeEntry> {
+  async update(
+    id: string,
+    updateTimeEntryDto: UpdateTimeEntryDto,
+  ): Promise<TimeEntry> {
     try {
       // Validate references if they're being updated
       if (updateTimeEntryDto.employeeId) {
-        const employee = await this.employeeRepository.findOne({ where: { id: updateTimeEntryDto.employeeId } });
+        const employee = await this.employeeRepository.findOne({
+          where: { id: updateTimeEntryDto.employeeId },
+        });
         if (!employee) {
-          throw new NotFoundException(`Employee with ID "${updateTimeEntryDto.employeeId}" not found.`);
+          throw new NotFoundException(
+            `Employee with ID "${updateTimeEntryDto.employeeId}" not found.`,
+          );
         }
       }
 
       if (updateTimeEntryDto.projectId) {
-        const project = await this.projectRepository.findOne({ where: { id: updateTimeEntryDto.projectId } });
+        const project = await this.projectRepository.findOne({
+          where: { id: updateTimeEntryDto.projectId },
+        });
         if (!project) {
-          throw new NotFoundException(`Project with ID "${updateTimeEntryDto.projectId}" not found.`);
+          throw new NotFoundException(
+            `Project with ID "${updateTimeEntryDto.projectId}" not found.`,
+          );
         }
       }
 
       if (updateTimeEntryDto.taskId) {
-        const task = await this.taskRepository.findOne({ where: { id: updateTimeEntryDto.taskId } });
+        const task = await this.taskRepository.findOne({
+          where: { id: updateTimeEntryDto.taskId },
+        });
         if (!task) {
-          throw new NotFoundException(`Task with ID "${updateTimeEntryDto.taskId}" not found.`);
+          throw new NotFoundException(
+            `Task with ID "${updateTimeEntryDto.taskId}" not found.`,
+          );
         }
       }
 
-      await this.timeEntryRepository.update(id, updateTimeEntryDto);
+      const validId = SecurityUtil.validateId(id);
+      await this.timeEntryRepository.update(validId, updateTimeEntryDto);
       return this.findOne(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       if (error.code === '23503') {
-        throw new NotFoundException('Referenced employee, project, or task not found.');
+        throw new NotFoundException(
+          'Referenced employee, project, or task not found.',
+        );
       }
       throw error;
     }
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const result = await this.timeEntryRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.timeEntryRepository.delete(validId);
     if (result.affected === 0) {
       throw new NotFoundException(`Time entry with ID "${id}" not found.`);
     }

@@ -1,14 +1,26 @@
-import { Controller, Post, Get, Body, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { ClientApprovalsService } from './client-approvals.service';
 import { CreateClientApprovalDto } from './dto/create-client-approval.dto';
 import { UpdateClientApprovalDto } from './dto/update-client-approval.dto';
 
 @Controller('client-approvals')
 export class ClientApprovalsController {
-  constructor(private readonly clientApprovalsService: ClientApprovalsService) {}
+  constructor(
+    private readonly clientApprovalsService: ClientApprovalsService,
+  ) {}
 
   @Post()
-  async createApproval(@Body() createClientApprovalDto: CreateClientApprovalDto) {
+  async createApproval(
+    @Body() createClientApprovalDto: CreateClientApprovalDto,
+  ) {
     return this.clientApprovalsService.createApproval(createClientApprovalDto);
   }
 
@@ -28,8 +40,14 @@ export class ClientApprovalsController {
   }
 
   @Patch(':id/respond')
-  async respondToApproval(@Param('id') id: string, @Body() updateClientApprovalDto: UpdateClientApprovalDto) {
-    return this.clientApprovalsService.respondToApproval(id, updateClientApprovalDto);
+  async respondToApproval(
+    @Param('id') id: string,
+    @Body() updateClientApprovalDto: UpdateClientApprovalDto,
+  ) {
+    return this.clientApprovalsService.respondToApproval(
+      id,
+      updateClientApprovalDto,
+    );
   }
 
   @Delete(':id')

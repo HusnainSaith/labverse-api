@@ -14,6 +14,6 @@ import { ServicesModule } from 'src/modules/services/services.module';
   ],
   controllers: [DevelopmentPlanServicesController],
   providers: [DevelopmentPlanServicesService],
-  exports: [DevelopmentPlanServicesService, TypeOrmModule]
+  exports: [DevelopmentPlanServicesService, TypeOrmModule],
 })
 export class DevelopmentPlanServicesModule {}

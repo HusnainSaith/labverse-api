@@ -24,7 +24,7 @@ export class Conversation {
   @OneToMany(
     () => ConversationParticipant,
     (participant) => participant.conversation,
-    { cascade: true }
+    { cascade: true },
   )
   participants: ConversationParticipant[];
 
@@ -37,4 +37,3 @@ export class Conversation {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticket } from './entities/ticket.entity';
@@ -7,12 +11,14 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { CreateTicketReplyDto } from './dto/create-reply.dto';
 import { UpdateReplyDto } from './dto/update-reply.dto';
+import { SecurityUtil } from '../../common/utils/security.util';
 
 @Injectable()
 export class SupportTicketsService {
   constructor(
     @InjectRepository(Ticket) private ticketRepository: Repository<Ticket>,
-    @InjectRepository(TicketReply) private ticketReplyRepository: Repository<TicketReply>,
+    @InjectRepository(TicketReply)
+    private ticketReplyRepository: Repository<TicketReply>,
   ) {}
 
   /**
@@ -39,7 +45,8 @@ export class SupportTicketsService {
    * @returns An array of tickets.
    */
   async findTicketsByClient(clientId: string): Promise<Ticket[]> {
-    return this.ticketRepository.find({ where: { clientId } });
+    const validClientId = SecurityUtil.validateId(clientId);
+    return this.ticketRepository.find({ where: { clientId: validClientId } });
   }
 
   /**
@@ -48,14 +55,15 @@ export class SupportTicketsService {
    * @returns The ticket with its replies.
    */
   async findTicketById(id: string): Promise<Ticket> {
+    const validId = SecurityUtil.validateId(id);
     const ticket = await this.ticketRepository.findOne({
-      where: { id },
+      where: { id: validId },
       relations: ['replies'],
       order: {
         replies: {
-          createdAt: 'ASC'
-        }
-      }
+          createdAt: 'ASC',
+        },
+      },
     });
 
     if (!ticket) {
@@ -71,14 +79,17 @@ export class SupportTicketsService {
    * @returns Array of ticket replies.
    */
   async getTicketMessages(ticketId: string): Promise<TicketReply[]> {
-    const ticket = await this.ticketRepository.findOne({ where: { id: ticketId } });
+    const validTicketId = SecurityUtil.validateId(ticketId);
+    const ticket = await this.ticketRepository.findOne({
+      where: { id: validTicketId },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found.`);
     }
 
     return this.ticketReplyRepository.find({
-      where: { ticketId },
-      order: { createdAt: 'ASC' }
+      where: { ticketId: validTicketId },
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -88,7 +99,10 @@ export class SupportTicketsService {
    * @param updateTicketDto DTO for updating the ticket.
    * @returns The updated ticket.
    */
-  async updateTicket(id: string, updateTicketDto: UpdateTicketDto): Promise<Ticket> {
+  async updateTicket(
+    id: string,
+    updateTicketDto: UpdateTicketDto,
+  ): Promise<Ticket> {
     const ticket = await this.findTicketById(id);
     this.ticketRepository.merge(ticket, updateTicketDto);
     return await this.ticketRepository.save(ticket);
@@ -99,7 +113,8 @@ export class SupportTicketsService {
    * @param id The ID of the ticket to delete.
    */
   async deleteTicket(id: string): Promise<void> {
-    const result = await this.ticketRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.ticketRepository.delete(validId);
     if (result.affected === 0) {
       throw new NotFoundException(`Ticket with ID ${id} not found.`);
     }
@@ -111,8 +126,13 @@ export class SupportTicketsService {
    * @param createTicketReplyDto DTO for the reply.
    * @returns The new reply.
    */
-  async addReplyToTicket(ticketId: string, createTicketReplyDto: CreateTicketReplyDto): Promise<TicketReply> {
-    const ticket = await this.ticketRepository.findOne({ where: { id: ticketId } });
+  async addReplyToTicket(
+    ticketId: string,
+    createTicketReplyDto: CreateTicketReplyDto,
+  ): Promise<TicketReply> {
+    const ticket = await this.ticketRepository.findOne({
+      where: { id: ticketId },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found.`);
     }
@@ -130,8 +150,13 @@ export class SupportTicketsService {
    * @param updateReplyDto DTO for updating the reply.
    * @returns The updated reply.
    */
-  async updateReply(replyId: string, updateReplyDto: UpdateReplyDto): Promise<TicketReply> {
-    const reply = await this.ticketReplyRepository.findOne({ where: { id: replyId } });
+  async updateReply(
+    replyId: string,
+    updateReplyDto: UpdateReplyDto,
+  ): Promise<TicketReply> {
+    const reply = await this.ticketReplyRepository.findOne({
+      where: { id: replyId },
+    });
     if (!reply) {
       throw new NotFoundException(`Reply with ID ${replyId} not found.`);
     }
@@ -146,32 +171,34 @@ export class SupportTicketsService {
    * @param userId The ID of the user marking as read.
    * @returns Success message with count of marked messages.
    */
-  async markTicketAsRead(ticketId: string, userId: string): Promise<{ message: string; markedCount: number }> {
-    const ticket = await this.ticketRepository.findOne({ where: { id: ticketId } });
+  async markTicketAsRead(
+    ticketId: string,
+    userId: string,
+  ): Promise<{ message: string; markedCount: number }> {
+    const validTicketId = SecurityUtil.validateId(ticketId);
+    const validUserId = SecurityUtil.validateId(userId);
+    const ticket = await this.ticketRepository.findOne({
+      where: { id: validTicketId },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found.`);
     }
 
-    if (!userId) {
-      throw new BadRequestException('User ID is required.');
-    }
-
     // Mark all unread replies as read (excluding user's own messages)
     const result = await this.ticketReplyRepository.update(
-      { 
-        ticketId, 
+      {
+        ticketId: validTicketId,
         isRead: false,
-        senderId: { $ne: userId } as any // Not the current user's messages
       },
-      { 
-        isRead: true, 
-        readAt: new Date() 
-      }
+      {
+        isRead: true,
+        readAt: new Date(),
+      },
     );
 
-    return { 
+    return {
       message: 'Messages marked as read successfully.',
-      markedCount: result.affected || 0
+      markedCount: result.affected || 0,
     };
   }
 
@@ -181,13 +208,16 @@ export class SupportTicketsService {
    * @param userId The ID of the user.
    * @returns Count of unread messages.
    */
-  async getUnreadCount(ticketId: string, userId: string): Promise<{ unreadCount: number }> {
+  async getUnreadCount(
+    ticketId: string,
+    userId: string,
+  ): Promise<{ unreadCount: number }> {
     const count = await this.ticketReplyRepository.count({
       where: {
         ticketId,
         isRead: false,
-        senderId: { $ne: userId } as any // Not the current user's messages
-      }
+        senderId: { $ne: userId } as any, // Not the current user's messages
+      },
     });
 
     return { unreadCount: count };

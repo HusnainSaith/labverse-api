@@ -16,6 +16,6 @@ import { UsersModule } from '../users/users.module'; // Assuming you have a user
   ],
   controllers: [ClientPlanQuotationsController],
   providers: [ClientPlanQuotationsService],
-  exports: [ClientPlanQuotationsService, TypeOrmModule]
+  exports: [ClientPlanQuotationsService, TypeOrmModule],
 })
 export class ClientPlanQuotationsModule {}

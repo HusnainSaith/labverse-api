@@ -8,7 +8,9 @@ import { ConversationParticipant } from './entities/conversation-participant.ent
 import { Message } from './entities/message.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Conversation, ConversationParticipant, Message])],
+  imports: [
+    TypeOrmModule.forFeature([Conversation, ConversationParticipant, Message]),
+  ],
   controllers: [MessagingController],
   providers: [MessagingService, MessagesGateway],
 })

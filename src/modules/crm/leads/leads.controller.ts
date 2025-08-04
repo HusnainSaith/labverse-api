@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Controller('leads')
 export class LeadsController {
@@ -19,6 +28,7 @@ export class LeadsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
+    const validId = SecurityUtil.validateId(id);
     return this.leadsService.findOne(id);
   }
 
@@ -29,6 +39,7 @@ export class LeadsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
+    const validId = SecurityUtil.validateId(id);
     return this.leadsService.remove(id);
   }
 }

@@ -16,6 +16,6 @@ import { ClientPlanQuotationsModule } from '../../client-plan-quotations/client-
   ],
   controllers: [InvoicesController],
   providers: [InvoicesService],
-  exports: [InvoicesService, TypeOrmModule]
+  exports: [InvoicesService, TypeOrmModule],
 })
 export class InvoicesModule {}

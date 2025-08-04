@@ -1,14 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ClientApproval, ApprovalStatus } from './entities/client-approval.entity';
+import {
+  ClientApproval,
+  ApprovalStatus,
+} from './entities/client-approval.entity';
 import { CreateClientApprovalDto } from './dto/create-client-approval.dto';
 import { UpdateClientApprovalDto } from './dto/update-client-approval.dto';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class ClientApprovalsService {
   constructor(
-    @InjectRepository(ClientApproval) private approvalRepository: Repository<ClientApproval>,
+    @InjectRepository(ClientApproval)
+    private approvalRepository: Repository<ClientApproval>,
   ) {}
 
   /**
@@ -16,7 +21,9 @@ export class ClientApprovalsService {
    * @param createClientApprovalDto DTO for the approval request.
    * @returns The newly created approval request.
    */
-  async createApproval(createClientApprovalDto: CreateClientApprovalDto): Promise<ClientApproval> {
+  async createApproval(
+    createClientApprovalDto: CreateClientApprovalDto,
+  ): Promise<ClientApproval> {
     const approval = this.approvalRepository.create(createClientApprovalDto);
     return await this.approvalRepository.save(approval);
   }
@@ -44,7 +51,10 @@ export class ClientApprovalsService {
    * @returns The approval request.
    */
   async findApprovalById(id: string): Promise<ClientApproval> {
-    const approval = await this.approvalRepository.findOne({ where: { id } });
+    const validId = SecurityUtil.validateId(id);
+    const approval = await this.approvalRepository.findOne({
+      where: { id: validId },
+    });
 
     if (!approval) {
       throw new NotFoundException(`Client Approval with ID ${id} not found.`);
@@ -59,12 +69,17 @@ export class ClientApprovalsService {
    * @param updateClientApprovalDto The client's response (status and notes).
    * @returns The updated approval request.
    */
-  async respondToApproval(id: string, updateClientApprovalDto: UpdateClientApprovalDto): Promise<ClientApproval> {
+  async respondToApproval(
+    id: string,
+    updateClientApprovalDto: UpdateClientApprovalDto,
+  ): Promise<ClientApproval> {
     const approval = await this.findApprovalById(id);
 
     // Ensure the request is still pending before updating
     if (approval.status !== ApprovalStatus.PENDING) {
-      throw new NotFoundException('Cannot respond to an approval request that is not pending.');
+      throw new NotFoundException(
+        'Cannot respond to an approval request that is not pending.',
+      );
     }
 
     // Set the response time
@@ -78,7 +93,8 @@ export class ClientApprovalsService {
    * @param id The ID of the approval request to delete.
    */
   async deleteApproval(id: string): Promise<void> {
-    const result = await this.approvalRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.approvalRepository.delete(validId);
     if (result.affected === 0) {
       throw new NotFoundException(`Client Approval with ID ${id} not found.`);
     }

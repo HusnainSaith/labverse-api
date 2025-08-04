@@ -4,6 +4,7 @@ import { Role } from '../src/modules/roles/entities/role.entity';
 import { User } from '../src/modules/users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { RoleEnum } from '../src/modules/roles/role.enum';
+import { SecurityUtil } from '../src/common/utils/security.util';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -22,14 +23,14 @@ async function seed() {
     if (!role) {
       role = roleRepo.create(roleData);
       await roleRepo.save(role);
-      console.log(`Role "${roleData.name}" created.`);
+      console.log(`Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" created.`);
     } else {
-      console.log(`Role "${roleData.name}" already exists.`);
+      console.log(`Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" already exists.`);
     }
   }
 
   // Seed admin user
-  const adminEmail = 'admin@labverse.org';
+  const adminEmail = 'admin_labverse@gmail.com';
   let adminUser = await userRepo.findOne({ where: { email: adminEmail } });
 
   if (!adminUser) {

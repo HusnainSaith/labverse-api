@@ -12,8 +12,12 @@ export class DevelopmentPlansService {
     private developmentPlansRepository: Repository<DevelopmentPlan>,
   ) {}
 
-  async create(createDevelopmentPlanDto: CreateDevelopmentPlanDto): Promise<DevelopmentPlan> {
-    const plan = this.developmentPlansRepository.create(createDevelopmentPlanDto);
+  async create(
+    createDevelopmentPlanDto: CreateDevelopmentPlanDto,
+  ): Promise<DevelopmentPlan> {
+    const plan = this.developmentPlansRepository.create(
+      createDevelopmentPlanDto,
+    );
     return this.developmentPlansRepository.save(plan);
   }
 
@@ -29,7 +33,10 @@ export class DevelopmentPlansService {
     return plan;
   }
 
-  async update(id: string, updateDevelopmentPlanDto: UpdateDevelopmentPlanDto): Promise<DevelopmentPlan> {
+  async update(
+    id: string,
+    updateDevelopmentPlanDto: UpdateDevelopmentPlanDto,
+  ): Promise<DevelopmentPlan> {
     const plan = await this.findOne(id);
     this.developmentPlansRepository.merge(plan, updateDevelopmentPlanDto);
     return this.developmentPlansRepository.save(plan);

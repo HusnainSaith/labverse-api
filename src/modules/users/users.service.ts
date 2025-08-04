@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from '../roles/entities/role.entity';
+import { SecurityUtil } from '../../common/utils/security.util';
 
 @Injectable()
 export class UsersService {
@@ -16,9 +17,11 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
+    SecurityUtil.validateObject(dto);
     let role: Role | undefined;
     if (dto.roleId) {
-      role = await this.roleRepository.findOne({ where: { id: dto.roleId } });
+      const validRoleId = SecurityUtil.validateId(dto.roleId);
+      role = await this.roleRepository.findOne({ where: { id: validRoleId } });
     }
     const user = this.userRepository.create({
       ...dto,
@@ -32,8 +35,9 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
+    const validId = SecurityUtil.validateId(id);
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { id: validId },
       relations: ['role'],
     });
     if (!user) throw new NotFoundException('User not found');
@@ -41,12 +45,17 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {
+    SecurityUtil.validateObject(dto);
     const user = await this.findOne(id);
 
     if (dto.roleId) {
+      const validRoleId = SecurityUtil.validateId(dto.roleId);
       const role = await this.roleRepository.findOne({
-        where: { id: dto.roleId },
+        where: { id: validRoleId },
       });
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
       user.role = role;
     }
 
@@ -55,13 +64,18 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+    await this.findOne(id); // Validates ID and checks existence
+    const validId = SecurityUtil.validateId(id);
+    await this.userRepository.delete(validId);
   }
 
   async findByEmail(
     email: string,
     opts: { includePassword?: boolean } = {},
   ): Promise<User | undefined> {
+    if (!SecurityUtil.validateEmail(email)) {
+      return undefined;
+    }
     return this.userRepository.findOne({
       where: { email },
       select: opts.includePassword
@@ -69,5 +83,10 @@ export class UsersService {
         : undefined,
       relations: ['role'],
     });
+  }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    const validId = SecurityUtil.validateId(id);
+    await this.userRepository.update(validId, { password: hashedPassword });
   }
 }

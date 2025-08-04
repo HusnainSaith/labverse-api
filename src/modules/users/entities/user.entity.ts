@@ -38,6 +38,6 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => ClientPlanQuotation, quotation => quotation.createdBy)
+  @OneToMany(() => ClientPlanQuotation, (quotation) => quotation.createdBy)
   createdClientPlanQuotations: ClientPlanQuotation[];
 }

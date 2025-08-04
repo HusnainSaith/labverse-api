@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmployeeProfile } from './entities/employee.entity';
 import { CreateEmployeeProfileDto } from './dto/create-employee.dto';
 import { UpdateEmployeeProfileDto } from './dto/update-employee.dto';
 import { User } from '../../users/entities/user.entity';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class EmployeeProfilesService {
@@ -15,28 +20,41 @@ export class EmployeeProfilesService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createEmployeeProfileDto: CreateEmployeeProfileDto): Promise<EmployeeProfile> {
+  async create(
+    createEmployeeProfileDto: CreateEmployeeProfileDto,
+  ): Promise<EmployeeProfile> {
+    SecurityUtil.validateObject(createEmployeeProfileDto);
     const { userId, employeeCode } = createEmployeeProfileDto;
 
     // Check if user exists
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found.`);
+      throw new NotFoundException('User not found.');
     }
 
     // Check if an employee profile already exists for this user
-    const existingProfileByUser = await this.employeeProfileRepository.findOne({ where: { userId } });
+    const existingProfileByUser = await this.employeeProfileRepository.findOne({
+      where: { userId },
+    });
     if (existingProfileByUser) {
-      throw new ConflictException(`Employee profile already exists for user with ID "${userId}".`);
+      throw new ConflictException(
+        'Employee profile already exists for this user.',
+      );
     }
 
     // Check if employee code is unique
-    const existingProfileByCode = await this.employeeProfileRepository.findOne({ where: { employeeCode } });
+    const existingProfileByCode = await this.employeeProfileRepository.findOne({
+      where: { employeeCode },
+    });
     if (existingProfileByCode) {
-      throw new ConflictException(`Employee profile with code "${employeeCode}" already exists.`);
+      throw new ConflictException(
+        'Employee profile with this code already exists.',
+      );
     }
 
-    const employeeProfile = this.employeeProfileRepository.create(createEmployeeProfileDto);
+    const employeeProfile = this.employeeProfileRepository.create(
+      createEmployeeProfileDto,
+    );
     return this.employeeProfileRepository.save(employeeProfile);
   }
 
@@ -45,36 +63,60 @@ export class EmployeeProfilesService {
   }
 
   async findOne(id: string): Promise<EmployeeProfile> {
+    const validId = SecurityUtil.validateId(id);
     const employeeProfile = await this.employeeProfileRepository.findOne({
-      where: { id },
+      where: { id: validId },
       relations: ['user'],
     });
     if (!employeeProfile) {
-      throw new NotFoundException('ID is not match or found');
+      throw new NotFoundException('Employee profile not found');
     }
     return employeeProfile;
   }
 
-  async update(id: string, updateEmployeeProfileDto: UpdateEmployeeProfileDto): Promise<EmployeeProfile> {
+  async update(
+    id: string,
+    updateEmployeeProfileDto: UpdateEmployeeProfileDto,
+  ): Promise<EmployeeProfile> {
+    SecurityUtil.validateObject(updateEmployeeProfileDto);
+    const validId = SecurityUtil.validateId(id);
     const employeeProfile = await this.findOne(id); // Reuses findOne to check existence
 
-    if (updateEmployeeProfileDto.userId && updateEmployeeProfileDto.userId !== employeeProfile.userId) {
+    if (
+      updateEmployeeProfileDto.userId &&
+      updateEmployeeProfileDto.userId !== employeeProfile.userId
+    ) {
       // If userId is being changed, ensure the new userId exists and doesn't already have a profile
-      const newUser = await this.userRepository.findOne({ where: { id: updateEmployeeProfileDto.userId } });
+      const newUser = await this.userRepository.findOne({
+        where: { id: updateEmployeeProfileDto.userId },
+      });
       if (!newUser) {
-        throw new NotFoundException(`User with ID "${updateEmployeeProfileDto.userId}" not found.`);
+        throw new NotFoundException('User not found.');
       }
-      const existingProfileForNewUser = await this.employeeProfileRepository.findOne({ where: { userId: updateEmployeeProfileDto.userId } });
+      const existingProfileForNewUser =
+        await this.employeeProfileRepository.findOne({
+          where: { userId: updateEmployeeProfileDto.userId },
+        });
       if (existingProfileForNewUser && existingProfileForNewUser.id !== id) {
-        throw new ConflictException(`Employee profile already exists for user with ID "${updateEmployeeProfileDto.userId}".`);
+        throw new ConflictException(
+          'Employee profile already exists for this user.',
+        );
       }
     }
 
-    if (updateEmployeeProfileDto.employeeCode && updateEmployeeProfileDto.employeeCode !== employeeProfile.employeeCode) {
+    if (
+      updateEmployeeProfileDto.employeeCode &&
+      updateEmployeeProfileDto.employeeCode !== employeeProfile.employeeCode
+    ) {
       // Check if the new employeeCode is unique
-      const existingProfileByCode = await this.employeeProfileRepository.findOne({ where: { employeeCode: updateEmployeeProfileDto.employeeCode } });
+      const existingProfileByCode =
+        await this.employeeProfileRepository.findOne({
+          where: { employeeCode: updateEmployeeProfileDto.employeeCode },
+        });
       if (existingProfileByCode && existingProfileByCode.id !== id) {
-        throw new ConflictException(`Employee profile with code "${updateEmployeeProfileDto.employeeCode}" already exists.`);
+        throw new ConflictException(
+          'Employee profile with this code already exists.',
+        );
       }
     }
 
@@ -83,9 +125,10 @@ export class EmployeeProfilesService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.employeeProfileRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.employeeProfileRepository.delete(validId);
     if (result.affected === 0) {
-      throw new NotFoundException('ID is not match or found');
+      throw new NotFoundException('Employee profile not found');
     }
   }
 }

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Project } from '../../../project-management/projects/entities/projects.entity';
 import { ClientPlanQuotation } from '../../../client-plan-quotations/entities/client-plan-quotation.entity';
 import { InvoiceStatus } from '../enums/invoice-status.enum';
@@ -42,31 +49,41 @@ export class Invoice {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   total_amount: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.0 })
   paid_amount: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships
-  @ManyToOne(() => Client, clients => clients.invoices, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Client, (clients) => clients.invoices, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'client_id' })
   client: Client;
 
-  @ManyToOne(() => Project, project => project.invoices, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Project, (project) => project.invoices, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
-  @ManyToOne(() => ClientPlanQuotation, quotation => quotation.invoices, { onDelete: 'SET NULL' })
+  @ManyToOne(() => ClientPlanQuotation, (quotation) => quotation.invoices, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'quotation_id' })
   quotation: ClientPlanQuotation;
 
-  @OneToMany(() => InvoiceItem, invoiceItem => invoiceItem.invoice)
+  @OneToMany(() => InvoiceItem, (invoiceItem) => invoiceItem.invoice)
   invoiceItems: InvoiceItem[];
 
-  @OneToMany(() => Payment, payment => payment.invoice)
+  @OneToMany(() => Payment, (payment) => payment.invoice)
   payments: Payment[];
 }

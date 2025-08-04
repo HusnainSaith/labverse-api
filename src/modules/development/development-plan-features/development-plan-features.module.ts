@@ -10,10 +10,10 @@ import { PlanFeaturesModule } from 'src/modules/plan-features/plan-features.modu
   imports: [
     TypeOrmModule.forFeature([DevelopmentPlanFeature]),
     DevelopmentPlansModule, // So DPF can access DevelopmentPlan
-    PlanFeaturesModule,     // So DPF can access PlanFeature
+    PlanFeaturesModule, // So DPF can access PlanFeature
   ],
   controllers: [DevelopmentPlanFeaturesController],
   providers: [DevelopmentPlanFeaturesService],
-  exports: [DevelopmentPlanFeaturesService, TypeOrmModule]
+  exports: [DevelopmentPlanFeaturesService, TypeOrmModule],
 })
 export class DevelopmentPlanFeaturesModule {}

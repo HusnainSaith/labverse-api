@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum ContactInquiryStatus {
   NEW = 'New',
@@ -27,7 +33,11 @@ export class ContactInquiry {
   @Column({ type: 'text' })
   message: string;
 
-  @Column({ type: 'enum', enum: ContactInquiryStatus, default: ContactInquiryStatus.NEW })
+  @Column({
+    type: 'enum',
+    enum: ContactInquiryStatus,
+    default: ContactInquiryStatus.NEW,
+  })
   status: ContactInquiryStatus;
 
   @CreateDateColumn({ name: 'created_at' })

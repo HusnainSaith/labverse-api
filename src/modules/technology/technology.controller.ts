@@ -35,7 +35,10 @@ export class TechnologiesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTechnologyDto: UpdateTechnologyDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTechnologyDto: UpdateTechnologyDto,
+  ) {
     return this.technologiesService.update(id, updateTechnologyDto);
   }
 

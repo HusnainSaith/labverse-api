@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class CategoriesService {
@@ -13,11 +18,12 @@ export class CategoriesService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    SecurityUtil.validateObject(createCategoryDto);
     const existingCategory = await this.categoryRepository.findOne({
       where: [
         { name: createCategoryDto.name },
-        { slug: createCategoryDto.slug }
-      ]
+        { slug: createCategoryDto.slug },
+      ],
     });
 
     if (existingCategory) {
@@ -30,30 +36,38 @@ export class CategoriesService {
 
   async findAll(): Promise<Category[]> {
     return this.categoryRepository.find({
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: string): Promise<Category> {
-    const category = await this.categoryRepository.findOne({ where: { id } });
+    const validId = SecurityUtil.validateId(id);
+    const category = await this.categoryRepository.findOne({
+      where: { id: validId },
+    });
     if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+      throw new NotFoundException(`Category with ID ${validId} not found`);
     }
     return category;
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
-    const category = await this.findOne(id);
-    
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
+    SecurityUtil.validateObject(updateCategoryDto);
+    const validId = SecurityUtil.validateId(id);
+    const category = await this.findOne(validId);
+
     if (updateCategoryDto.name || updateCategoryDto.slug) {
       const existingCategory = await this.categoryRepository.findOne({
         where: [
           { name: updateCategoryDto.name },
-          { slug: updateCategoryDto.slug }
-        ]
+          { slug: updateCategoryDto.slug },
+        ],
       });
 
-      if (existingCategory && existingCategory.id !== id) {
+      if (existingCategory && existingCategory.id !== validId) {
         throw new ConflictException('Category name or slug already exists');
       }
     }

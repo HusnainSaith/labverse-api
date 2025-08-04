@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Skill } from './entities/skills.entity';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class SkillsService {
@@ -13,9 +18,14 @@ export class SkillsService {
   ) {}
 
   async create(createSkillDto: CreateSkillDto): Promise<Skill> {
-    const existingSkill = await this.skillRepository.findOne({ where: { name: createSkillDto.name } });
+    SecurityUtil.validateObject(createSkillDto);
+    const existingSkill = await this.skillRepository.findOne({
+      where: { name: createSkillDto.name },
+    });
     if (existingSkill) {
-      throw new ConflictException(`Skill with name "${createSkillDto.name}" already exists.`);
+      throw new ConflictException(
+        `Skill with name "${createSkillDto.name}" already exists.`,
+      );
     }
 
     const skill = this.skillRepository.create(createSkillDto);
@@ -27,20 +37,29 @@ export class SkillsService {
   }
 
   async findOne(id: string): Promise<Skill> {
-    const skill = await this.skillRepository.findOne({ where: { id } });
+    const validId = SecurityUtil.validateId(id);
+    const skill = await this.skillRepository.findOne({
+      where: { id: validId },
+    });
     if (!skill) {
-      throw new NotFoundException(`Skill with ID "${id}" not found.`);
+      throw new NotFoundException(`Skill with ID "${validId}" not found.`);
     }
     return skill;
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto): Promise<Skill> {
-    const skill = await this.findOne(id);
+    SecurityUtil.validateObject(updateSkillDto);
+    const validId = SecurityUtil.validateId(id);
+    const skill = await this.findOne(validId);
 
     if (updateSkillDto.name && updateSkillDto.name !== skill.name) {
-      const existingSkill = await this.skillRepository.findOne({ where: { name: updateSkillDto.name } });
-      if (existingSkill && existingSkill.id !== id) {
-        throw new ConflictException(`Skill with name "${updateSkillDto.name}" already exists.`);
+      const existingSkill = await this.skillRepository.findOne({
+        where: { name: updateSkillDto.name },
+      });
+      if (existingSkill && existingSkill.id !== validId) {
+        throw new ConflictException(
+          `Skill with name "${updateSkillDto.name}" already exists.`,
+        );
       }
     }
 
@@ -49,9 +68,10 @@ export class SkillsService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.skillRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    const result = await this.skillRepository.delete(validId);
     if (result.affected === 0) {
-      throw new NotFoundException(`Skill with ID "${id}" not found.`);
+      throw new NotFoundException(`Skill with ID "${validId}" not found.`);
     }
   }
 }

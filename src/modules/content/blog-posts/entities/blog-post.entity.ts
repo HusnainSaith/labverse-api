@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { BlogComment } from '../../blog-comments/entities/blog-comment.entity';
 
@@ -41,6 +50,6 @@ export class BlogPost {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @OneToMany(() => BlogComment, comment => comment.blogPost)
+  @OneToMany(() => BlogComment, (comment) => comment.blogPost)
   comments: BlogComment[];
 }

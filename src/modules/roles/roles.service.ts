@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { SecurityUtil } from '../../common/utils/security.util';
 
 @Injectable()
 export class RolesService {
@@ -13,6 +14,7 @@ export class RolesService {
   ) {}
 
   async create(dto: CreateRoleDto): Promise<Role> {
+    SecurityUtil.validateObject(dto);
     const role = this.roleRepository.create(dto);
     return this.roleRepository.save(role);
   }
@@ -22,18 +24,21 @@ export class RolesService {
   }
 
   async findOne(id: string): Promise<Role> {
-    const role = await this.roleRepository.findOne({ where: { id } });
+    const validId = SecurityUtil.validateId(id);
+    const role = await this.roleRepository.findOne({ where: { id: validId } });
     if (!role) throw new NotFoundException('Role not found');
     return role;
   }
 
   async update(id: string, dto: UpdateRoleDto): Promise<Role> {
+    SecurityUtil.validateObject(dto);
     const role = await this.findOne(id);
     Object.assign(role, dto);
     return this.roleRepository.save(role);
   }
 
   async remove(id: string): Promise<void> {
-    await this.roleRepository.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    await this.roleRepository.delete(validId);
   }
 }

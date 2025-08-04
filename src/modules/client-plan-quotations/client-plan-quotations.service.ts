@@ -12,7 +12,9 @@ export class ClientPlanQuotationsService {
     private clientPlanQuotationsRepository: Repository<ClientPlanQuotation>,
   ) {}
 
-  async create(createDto: CreateClientPlanQuotationDto): Promise<ClientPlanQuotation> {
+  async create(
+    createDto: CreateClientPlanQuotationDto,
+  ): Promise<ClientPlanQuotation> {
     const quotation = this.clientPlanQuotationsRepository.create(createDto);
     return this.clientPlanQuotationsRepository.save(quotation);
   }
@@ -29,12 +31,17 @@ export class ClientPlanQuotationsService {
       relations: ['client', 'plan', 'createdBy'],
     });
     if (!quotation) {
-      throw new NotFoundException(`Client Plan Quotation with ID "${id}" not found`);
+      throw new NotFoundException(
+        `Client Plan Quotation with ID "${id}" not found`,
+      );
     }
     return quotation;
   }
 
-  async update(id: string, updateDto: UpdateClientPlanQuotationDto): Promise<ClientPlanQuotation> {
+  async update(
+    id: string,
+    updateDto: UpdateClientPlanQuotationDto,
+  ): Promise<ClientPlanQuotation> {
     const quotation = await this.findOne(id);
     this.clientPlanQuotationsRepository.merge(quotation, updateDto);
     return this.clientPlanQuotationsRepository.save(quotation);
@@ -43,7 +50,9 @@ export class ClientPlanQuotationsService {
   async remove(id: string): Promise<void> {
     const result = await this.clientPlanQuotationsRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Client Plan Quotation with ID "${id}" not found`);
+      throw new NotFoundException(
+        `Client Plan Quotation with ID "${id}" not found`,
+      );
     }
   }
 }

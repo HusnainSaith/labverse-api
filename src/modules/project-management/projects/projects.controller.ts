@@ -35,14 +35,22 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.CLIENT, RoleEnum.EMPLOYEE)
+  @Roles(
+    RoleEnum.ADMIN,
+    RoleEnum.PROJECT_MANAGER,
+    RoleEnum.CLIENT,
+    RoleEnum.EMPLOYEE,
+  )
   findOne(@Param('id', UuidValidationPipe) id: string) {
     return this.projectsService.findOne(id);
   }
 
   @Patch(':id')
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER)
-  update(@Param('id', UuidValidationPipe) id: string, @Body() updateProjectDto: UpdateProjectDto) {
+  update(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
     return this.projectsService.update(id, updateProjectDto);
   }
 
@@ -63,5 +71,4 @@ export class ProjectsController {
   findByClient(@Param('clientId', UuidValidationPipe) clientId: string) {
     return this.projectsService.findByClient(clientId);
   }
-
 }

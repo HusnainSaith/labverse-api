@@ -32,9 +32,8 @@ export class Task {
   @Column({ type: 'timestamptz', nullable: true })
   due_date: Date;
 
- @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
   project: Project;
-
 
   @ManyToOne(() => ProjectMilestone, (milestone) => milestone.tasks, {
     onDelete: 'SET NULL',

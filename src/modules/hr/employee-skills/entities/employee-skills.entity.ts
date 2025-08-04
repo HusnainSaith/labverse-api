@@ -1,4 +1,12 @@
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  PrimaryColumn,
+} from 'typeorm';
 import { EmployeeProfile } from '../../employees/entities/employee.entity';
 import { Skill } from '../../skills/entities/skills.entity';
 
@@ -10,7 +18,12 @@ export class EmployeeSkill {
   @PrimaryColumn({ name: 'skill_id', type: 'uuid' })
   skillId: string;
 
-  @Column({ name: 'proficiency_level', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'proficiency_level',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   proficiencyLevel: string;
 
   @Column({ name: 'years_of_experience', type: 'int', nullable: true })

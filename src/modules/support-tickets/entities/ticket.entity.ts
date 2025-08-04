@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { TicketReply } from './ticket-reply.entity';
 
 export enum TicketStatus {
@@ -32,7 +39,11 @@ export class Ticket {
   @Column({ type: 'enum', enum: TicketStatus, default: TicketStatus.OPEN })
   status: TicketStatus;
 
-  @Column({ type: 'enum', enum: TicketPriority, default: TicketPriority.MEDIUM })
+  @Column({
+    type: 'enum',
+    enum: TicketPriority,
+    default: TicketPriority.MEDIUM,
+  })
   priority: TicketPriority;
 
   @Column({ name: 'assignedTo', nullable: true })

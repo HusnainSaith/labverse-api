@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { DevelopmentPlanFeature } from '../../development-plan-features/entities/development-plan-feature.entity';
 import { DevelopmentPlanService } from '../../development-plan-services/entities/development-plan-service.entity';
 import { DevelopmentPlanTechnology } from '../../development-plan-technologies/entities/development-plan-technology.entity';
-import { ClientPlanQuotation } from 'src/modules/client-plan-quotations/entities/client-plan-quotation.entity';
+import { ClientPlanQuotation } from '../../../client-plan-quotations/entities/client-plan-quotation.entity';
 
 @Entity('development_plans')
 export class DevelopmentPlan {
@@ -18,19 +18,23 @@ export class DevelopmentPlan {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships
-  @OneToMany(() => DevelopmentPlanFeature, dpf => dpf.plan)
+  @OneToMany(() => DevelopmentPlanFeature, (dpf) => dpf.plan)
   developmentPlanFeatures: DevelopmentPlanFeature[];
 
-  @OneToMany(() => DevelopmentPlanService, dps => dps.plan)
+  @OneToMany(() => DevelopmentPlanService, (dps) => dps.plan)
   developmentPlanServices: DevelopmentPlanService[];
 
-  @OneToMany(() => DevelopmentPlanTechnology, dpt => dpt.plan)
+  @OneToMany(() => DevelopmentPlanTechnology, (dpt) => dpt.plan)
   developmentPlanTechnologies: DevelopmentPlanTechnology[];
 
-  @OneToMany(() => ClientPlanQuotation, quotation => quotation.plan)
+  @OneToMany(() => ClientPlanQuotation, (quotation) => quotation.plan)
   clientPlanQuotations: ClientPlanQuotation[];
 }

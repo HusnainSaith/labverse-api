@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProjectMilestone } from './entities/project-milestone.entity';
 import { CreateProjectMilestoneDto } from './dto/create-project-milestone.dto';
 import { UpdateProjectMilestoneDto } from './dto/update-project-milestone.dto';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class ProjectMilestoneService {
@@ -11,40 +12,44 @@ export class ProjectMilestoneService {
     @InjectRepository(ProjectMilestone)
     private milestoneRepo: Repository<ProjectMilestone>,
   ) {}
-async create(dto: CreateProjectMilestoneDto) {
-  const milestone = this.milestoneRepo.create({
-    name: dto.name,
-    description: dto.description,
-    due_date: dto.due_date,
-    status: dto.status,
-    project: { id: dto.project_id }, 
-  });
+  async create(dto: CreateProjectMilestoneDto) {
+    SecurityUtil.validateObject(dto);
+    const validProjectId = SecurityUtil.validateId(dto.project_id);
+    const milestone = this.milestoneRepo.create({
+      name: dto.name,
+      description: dto.description,
+      due_date: dto.due_date,
+      status: dto.status,
+      project: { id: validProjectId },
+    });
 
-  return this.milestoneRepo.save(milestone);
-}
-
-
-
+    return this.milestoneRepo.save(milestone);
+  }
 
   findAll() {
     return this.milestoneRepo.find();
   }
 
   async findOne(id: string) {
-    const milestone = await this.milestoneRepo.findOne({ where: { id } });
+    const validId = SecurityUtil.validateId(id);
+    const milestone = await this.milestoneRepo.findOne({
+      where: { id: validId },
+    });
     if (!milestone) throw new NotFoundException('Milestone not found');
     return milestone;
   }
 
   async update(id: string, dto: UpdateProjectMilestoneDto) {
-  await this.findOne(id);
-  await this.milestoneRepo.update(id, dto);
-  return this.findOne(id);
-}
-
+    SecurityUtil.validateObject(dto);
+    const validId = SecurityUtil.validateId(id);
+    await this.findOne(validId);
+    await this.milestoneRepo.update(validId, dto);
+    return this.findOne(validId);
+  }
 
   async remove(id: string) {
-    await this.findOne(id);
-    return this.milestoneRepo.delete(id);
+    const validId = SecurityUtil.validateId(id);
+    await this.findOne(validId);
+    return this.milestoneRepo.delete(validId);
   }
 }

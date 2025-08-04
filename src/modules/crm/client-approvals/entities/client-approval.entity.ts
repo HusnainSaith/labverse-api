@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum ApprovalStatus {
   PENDING = 'pending',
@@ -20,7 +26,11 @@ export class ClientApproval {
   @Column({ name: 'requestDetails', type: 'text' })
   requestDetails: string;
 
-  @Column({ type: 'enum', enum: ApprovalStatus, default: ApprovalStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: ApprovalStatus,
+    default: ApprovalStatus.PENDING,
+  })
   status: ApprovalStatus;
 
   @Column({ name: 'responseNotes', type: 'text', nullable: true })

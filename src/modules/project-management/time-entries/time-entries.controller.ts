@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { TimeEntriesService } from './time-entries.service';
 import { CreateTimeEntryDto } from './dto/create-time-entry.dto';
 import { UpdateTimeEntryDto } from './dto/update-time-entry.dto';
@@ -38,7 +47,10 @@ export class TimeEntriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTimeEntryDto: UpdateTimeEntryDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTimeEntryDto: UpdateTimeEntryDto,
+  ) {
     return this.timeEntriesService.update(id, updateTimeEntryDto);
   }
 

@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 
 import databaseConfig from './config/database.config';
 import { ServicesModule } from './modules/services/services.module';
-import { DevelopmentPlansModule } from './modules/development/development-plans/development-plans.module'; 
+import { DevelopmentPlansModule } from './modules/development/development-plans/development-plans.module';
 import { PlanFeaturesModule } from './modules/plan-features/plan-features.module';
 import { DevelopmentPlanFeaturesModule } from './modules/development/development-plan-features/development-plan-features.module';
 import { DevelopmentPlanServicesModule } from './modules/development/development-plan-services/development-plan-services.module';
@@ -47,6 +47,7 @@ import { AnswersModule } from './modules/content/answers/answers.module';
 import { CaseStudiesModule } from './modules/content/case-studies/case-studies.module';
 import { TestimonialsModule } from './modules/content/testimonials/testimonials.module';
 import { ContactInquiriesModule } from './modules/crm/contact-inquiries/contact-inquiries.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 
 @Module({
   imports: [
@@ -96,7 +97,7 @@ import { ContactInquiriesModule } from './modules/crm/contact-inquiries/contact-
     CaseStudiesModule,
     TestimonialsModule,
     ContactInquiriesModule,
-    
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

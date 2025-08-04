@@ -1,4 +1,3 @@
-import { DevelopmentPlanTechnology } from 'src/modules/development/development-plan-technologies/entities/development-plan-technology.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import {DevelopmentPlanTechnology} from '../../development/development-plan-technologies/entities/development-plan-technology.entity';
 
 @Entity({ name: 'technologies' })
 export class Technology {
@@ -28,7 +28,6 @@ export class Technology {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => DevelopmentPlanTechnology, dpt => dpt.technology)
+  @OneToMany(() => DevelopmentPlanTechnology, (dpt) => dpt.technology)
   developmentPlanTechnologies: DevelopmentPlanTechnology[]; // This property name matches the error
-
 }

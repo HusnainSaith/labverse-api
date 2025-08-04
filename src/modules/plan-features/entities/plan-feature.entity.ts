@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { DevelopmentPlanFeature } from 'src/modules/development/development-plan-features/entities/development-plan-feature.entity';
+import { DevelopmentPlanFeature } from '../../development/development-plan-features/entities/development-plan-feature.entity';
 
 @Entity('plan_features')
 export class PlanFeature {
@@ -13,6 +13,6 @@ export class PlanFeature {
   description: string;
 
   // Relationships
-  @OneToMany(() => DevelopmentPlanFeature, dpf => dpf.feature)
+  @OneToMany(() => DevelopmentPlanFeature, (dpf) => dpf.feature)
   developmentPlanFeatures: DevelopmentPlanFeature[];
 }

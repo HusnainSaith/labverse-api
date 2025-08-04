@@ -1,4 +1,11 @@
-import { IsString, IsBoolean, IsUUID, IsOptional, IsArray, ArrayMinSize } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsUUID,
+  IsOptional,
+  IsArray,
+  ArrayMinSize,
+} from 'class-validator';
 
 export class CreateConversationDto {
   @IsOptional()

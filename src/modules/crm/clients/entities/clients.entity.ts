@@ -16,13 +16,17 @@ export class Client {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships (assuming these entities exist and reference Client)
-  @OneToMany(() => ClientPlanQuotation, quotation => quotation.client)
+  @OneToMany(() => ClientPlanQuotation, (quotation) => quotation.client)
   clientPlanQuotations: ClientPlanQuotation[];
 
-  @OneToMany(() => Invoice, invoice => invoice.client)
+  @OneToMany(() => Invoice, (invoice) => invoice.client)
   invoices: Invoice[];
 }

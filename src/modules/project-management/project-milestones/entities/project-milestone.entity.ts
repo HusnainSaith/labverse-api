@@ -1,8 +1,12 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
-  UpdateDateColumn, ManyToOne,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
   JoinColumn,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { Project } from '../../projects/entities/projects.entity';
 import { Task } from '../../tasks/entities/task.entity';
@@ -12,7 +16,9 @@ export class ProjectMilestone {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Project, (project) => project.milestones, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Project, (project) => project.milestones, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
@@ -28,7 +34,7 @@ export class ProjectMilestone {
   @Column({ default: 'Not Started' })
   status: string;
   @OneToMany(() => Task, (task) => task.project_milestone)
-tasks: Task[];
+  tasks: Task[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -15,7 +15,9 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('project-technologies')
 export class ProjectTechnologiesController {
-  constructor(private readonly projectTechnologiesService: ProjectTechnologiesService) {}
+  constructor(
+    private readonly projectTechnologiesService: ProjectTechnologiesService,
+  ) {}
 
   @Post()
   create(@Body() createProjectTechnologyDto: CreateProjectTechnologyDto) {

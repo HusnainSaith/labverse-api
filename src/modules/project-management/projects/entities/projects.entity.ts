@@ -29,10 +29,18 @@ export class Project {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ name: 'start_date', type: 'timestamp with time zone', nullable: true })
+  @Column({
+    name: 'start_date',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   startDate: Date;
 
-  @Column({ name: 'end_date', type: 'timestamp with time zone', nullable: true })
+  @Column({
+    name: 'end_date',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   endDate: Date;
 
   @Column({ type: 'varchar', length: 50, default: ProjectStatus.PLANNING })
@@ -66,9 +74,8 @@ export class Project {
   @OneToMany(() => ProjectTechnology, (pt) => pt.project)
   projectTechnologies: ProjectTechnology[];
 
-   @OneToMany(() => Invoice, invoice => invoice.project)
+  @OneToMany(() => Invoice, (invoice) => invoice.project)
   invoices: Invoice[]; // This property name 'invoices' matches the error message
-
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

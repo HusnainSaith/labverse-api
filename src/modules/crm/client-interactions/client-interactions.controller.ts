@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ClientInteractionsService } from './client-interactions.service';
 import { CreateClientInteractionDto } from './dto/create-client-interaction.dto';
 import { UpdateClientInteractionDto } from './dto/update-client-interaction.dto';
 
 @Controller('client-interactions')
 export class ClientInteractionsController {
-  constructor(private readonly clientInteractionsService: ClientInteractionsService) {}
+  constructor(
+    private readonly clientInteractionsService: ClientInteractionsService,
+  ) {}
 
   @Post()
   create(@Body() createClientInteractionDto: CreateClientInteractionDto) {
@@ -28,8 +38,14 @@ export class ClientInteractionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClientInteractionDto: UpdateClientInteractionDto) {
-    return this.clientInteractionsService.update(id, updateClientInteractionDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateClientInteractionDto: UpdateClientInteractionDto,
+  ) {
+    return this.clientInteractionsService.update(
+      id,
+      updateClientInteractionDto,
+    );
   }
 
   @Delete(':id')

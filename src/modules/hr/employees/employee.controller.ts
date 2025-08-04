@@ -16,11 +16,14 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RoleEnum } from '../../roles/role.enum';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { UuidValidationPipe } from '../../../common/pipes/uuid-validation.pipe';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('employee-profiles')
 export class EmployeeProfilesController {
-  constructor(private readonly employeeProfilesService: EmployeeProfilesService) {}
+  constructor(
+    private readonly employeeProfilesService: EmployeeProfilesService,
+  ) {}
 
   @Post()
   @Roles(RoleEnum.ADMIN)
@@ -37,18 +40,27 @@ export class EmployeeProfilesController {
   @Get(':id')
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.EMPLOYEE)
   findOne(@Param('id', UuidValidationPipe) id: string) {
-    return this.employeeProfilesService.findOne(id);
+    const validId = SecurityUtil.validateId(id);
+    return this.employeeProfilesService.findOne(validId);
   }
 
   @Patch(':id')
   @Roles(RoleEnum.ADMIN)
-  update(@Param('id', UuidValidationPipe) id: string, @Body() updateEmployeeProfileDto: UpdateEmployeeProfileDto) {
-    return this.employeeProfilesService.update(id, updateEmployeeProfileDto);
+  update(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() updateEmployeeProfileDto: UpdateEmployeeProfileDto,
+  ) {
+    const validId = SecurityUtil.validateId(id);
+    return this.employeeProfilesService.update(
+      validId,
+      updateEmployeeProfileDto,
+    );
   }
 
   @Delete(':id')
   @Roles(RoleEnum.ADMIN)
   remove(@Param('id', UuidValidationPipe) id: string) {
-    return this.employeeProfilesService.remove(id);
+    const validId = SecurityUtil.validateId(id);
+    return this.employeeProfilesService.remove(validId);
   }
 }

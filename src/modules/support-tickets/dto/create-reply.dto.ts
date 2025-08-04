@@ -1,4 +1,10 @@
-import { IsString, IsUUID, IsNotEmpty, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsNotEmpty,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateTicketReplyDto {
   @IsUUID('4')

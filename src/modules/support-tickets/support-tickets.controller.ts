@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, Param, Patch, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Patch,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { SupportTicketsService } from './support-tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -43,7 +53,10 @@ export class SupportTicketsController {
   }
 
   @Patch(':id')
-  async updateTicket(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
+  async updateTicket(
+    @Param('id') id: string,
+    @Body() updateTicketDto: UpdateTicketDto,
+  ) {
     return this.supportTicketsService.updateTicket(id, updateTicketDto);
   }
 
@@ -59,7 +72,10 @@ export class SupportTicketsController {
     @Param('ticketId', UuidValidationPipe) ticketId: string,
     @Body() createTicketReplyDto: CreateTicketReplyDto,
   ) {
-    return this.supportTicketsService.addReplyToTicket(ticketId, createTicketReplyDto);
+    return this.supportTicketsService.addReplyToTicket(
+      ticketId,
+      createTicketReplyDto,
+    );
   }
 
   @Patch('replies/:replyId')

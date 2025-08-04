@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaskComment } from './entities/task-comment.entity';
 import { CreateTaskCommentDto } from './dto/create-task-comment.dto';
 import { UpdateTaskCommentDto } from './dto/update-task-comment.dto';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()
 export class TaskCommentService {
@@ -14,21 +19,23 @@ export class TaskCommentService {
   ) {}
 
   async create(dto: CreateTaskCommentDto) {
+    SecurityUtil.validateObject(dto);
     // Task ID is typically required for a comment to make sense,
     // assuming 'task' relation is implicitly non-nullable in your DB schema.
     if (!dto.task_id) {
       throw new BadRequestException('Task ID is required to create a comment.');
     }
+    const validTaskId = SecurityUtil.validateId(dto.task_id);
     // commented_by_employee_profile_id is now nullable according to your entity,
     // so no check is needed here. If it's not provided, it will be null.
 
     const comment = this.taskCommentRepo.create({
       comment_text: dto.comment_text,
-      task: { id: dto.task_id },
+      task: { id: validTaskId },
       // Conditionally set commented_by_employee_profile based on DTO.
       // If dto.commented_by_employee_profile_id is provided, use it, otherwise it will be null.
       commented_by_employee_profile: dto.commented_by_employee_profile_id
-        ? { id: dto.commented_by_employee_profile_id }
+        ? { id: SecurityUtil.validateId(dto.commented_by_employee_profile_id) }
         : null, // Explicitly set to null if not provided, aligning with nullable: true
     });
 
@@ -42,20 +49,23 @@ export class TaskCommentService {
   }
 
   async findOne(id: string) {
+    const validId = SecurityUtil.validateId(id);
     const comment = await this.taskCommentRepo.findOne({
-      where: { id },
+      where: { id: validId },
       relations: ['task', 'commented_by_employee_profile'],
     });
 
     if (!comment) {
-      throw new NotFoundException(`Task comment with ID ${id} not found`);
+      throw new NotFoundException(`Task comment with ID ${validId} not found`);
     }
 
     return comment;
   }
 
   async update(id: string, dto: UpdateTaskCommentDto) {
-    await this.findOne(id); // ensure it exists
+    SecurityUtil.validateObject(dto);
+    const validId = SecurityUtil.validateId(id);
+    await this.findOne(validId); // ensure it exists
 
     const updateData: QueryDeepPartialEntity<TaskComment> = {};
 
@@ -70,23 +80,29 @@ export class TaskCommentService {
       // If task_id is explicitly null, throw an error if the 'task' relation is non-nullable.
       // This prevents 'null value violates not-null constraint' errors at the database level.
       if (dto.task_id === null) {
-        throw new BadRequestException('Task ID cannot be null for updating a comment as it is a required field.');
+        throw new BadRequestException(
+          'Task ID cannot be null for updating a comment as it is a required field.',
+        );
       }
       // If task_id is present and not null, set the task relation by its ID.
-      updateData.task = { id: dto.task_id };
+      const validTaskId = SecurityUtil.validateId(dto.task_id);
+      updateData.task = { id: validTaskId };
     }
 
     // Handle commented_by_employee_profile_id update:
     // Check if commented_by_employee_profile_id is present in the DTO.
     // Since 'commented_by_employee_profile' is nullable, it's permissible to set it to null.
     if (dto.commented_by_employee_profile_id !== undefined) {
-      updateData.commented_by_employee_profile = dto.commented_by_employee_profile_id
-        ? { id: dto.commented_by_employee_profile_id }
-        : null; // Allow setting the relation to null
+      updateData.commented_by_employee_profile =
+        dto.commented_by_employee_profile_id
+          ? {
+              id: SecurityUtil.validateId(dto.commented_by_employee_profile_id),
+            }
+          : null; // Allow setting the relation to null
     }
 
-    await this.taskCommentRepo.update(id, updateData);
-    return this.findOne(id);
+    await this.taskCommentRepo.update(validId, updateData);
+    return this.findOne(validId);
   }
 
   async remove(id: string) {

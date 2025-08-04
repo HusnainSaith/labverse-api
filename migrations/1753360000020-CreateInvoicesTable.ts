@@ -109,10 +109,10 @@ export class CreateInvoicesTable1753360000020 implements MigrationInterface {
             }),
         );
 
-        // Optional: Add CHECK constraint
-        // await queryRunner.query(
-        //     `ALTER TABLE invoices ADD CONSTRAINT chk_invoice_status CHECK (status IN ('unpaid', 'partially_paid', 'paid', 'overdue'))`
-        // );
+        // Add CHECK constraint with safe enum values
+        await queryRunner.query(
+            `ALTER TABLE invoices ADD CONSTRAINT chk_invoice_status CHECK (status IN ('unpaid', 'partially_paid', 'paid', 'overdue'))`
+        );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -131,8 +131,8 @@ export class CreateInvoicesTable1753360000020 implements MigrationInterface {
             await queryRunner.dropForeignKey('invoices', foreignKeyQuotation);
         }
 
-        // If you added a CHECK constraint, drop it here
-        // await queryRunner.query(`ALTER TABLE invoices DROP CONSTRAINT IF EXISTS chk_invoice_status`);
+        // Drop CHECK constraint
+        await queryRunner.query(`ALTER TABLE invoices DROP CONSTRAINT IF EXISTS chk_invoice_status`);
 
         await queryRunner.dropTable('invoices');
     }

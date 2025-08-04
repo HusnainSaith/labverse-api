@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { Answer } from '../../answers/entities/answer.entity';
 
@@ -29,6 +38,6 @@ export class Question {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @OneToMany(() => Answer, answer => answer.question)
+  @OneToMany(() => Answer, (answer) => answer.question)
   answers: Answer[];
 }
