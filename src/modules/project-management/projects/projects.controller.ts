@@ -58,4 +58,10 @@ export class ProjectsController {
     return this.projectsService.getProjectDetails(id);
   }
 
+  @Get('client/:clientId')
+  @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.CLIENT)
+  findByClient(@Param('clientId', UuidValidationPipe) clientId: string) {
+    return this.projectsService.findByClient(clientId);
+  }
+
 }

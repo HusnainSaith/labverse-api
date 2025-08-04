@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './entities/projects.entity';
@@ -16,97 +16,169 @@ export class ProjectsService {
   ) {}
 
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
-    const { name, creatorId } = createProjectDto;
+    try {
+      const { name, creatorId, startDate, endDate } = createProjectDto;
 
-    // Check if project name already exists
-    const existingProject = await this.projectRepository.findOne({ where: { name } });
-    if (existingProject) {
-      throw new ConflictException(`Project with name "${name}" already exists.`);
-    }
-
-    // Validate creator exists if provided
-    if (creatorId) {
-      const creator = await this.clientRepository.findOne({ where: { id: creatorId } });
-      if (!creator) {
-        throw new NotFoundException(`Client with ID "${creatorId}" not found.`);
+      // Validate date logic
+      if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+        throw new BadRequestException('Start date must be before end date');
       }
-    }
 
-    const project = this.projectRepository.create(createProjectDto);
-    return this.projectRepository.save(project);
+      // Check if project name already exists
+      const existingProject = await this.projectRepository.findOne({ where: { name } });
+      if (existingProject) {
+        throw new ConflictException(`Project with name "${name}" already exists.`);
+      }
+
+      // Validate creator exists if provided
+      if (creatorId) {
+        const creator = await this.clientRepository.findOne({ where: { id: creatorId } });
+        if (!creator) {
+          throw new NotFoundException(`Client with ID "${creatorId}" not found.`);
+        }
+      }
+
+      const project = this.projectRepository.create(createProjectDto);
+      return await this.projectRepository.save(project);
+    } catch (error) {
+      if (error instanceof ConflictException || error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to create project');
+    }
   }
 
   async findAll(): Promise<Project[]> {
-    return this.projectRepository.find({ relations: ['creator'] });
+    try {
+      return await this.projectRepository.find({ relations: ['creator'] });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve projects');
+    }
   }
 
   async findOne(id: string): Promise<Project> {
-    const project = await this.projectRepository.findOne({ 
-      where: { id },
-      relations: ['creator']
-    });
-    if (!project) {
-      throw new NotFoundException('ID is not match or found');
+    try {
+      const project = await this.projectRepository.findOne({ 
+        where: { id },
+        relations: ['creator']
+      });
+      if (!project) {
+        throw new NotFoundException(`Project with ID "${id}" not found`);
+      }
+      return project;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to retrieve project');
     }
-    return project;
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
-    const project = await this.findOne(id); // Reuses findOne to check existence
+    try {
+      const project = await this.findOne(id);
+      const { startDate, endDate } = updateProjectDto;
 
-    if (updateProjectDto.name && updateProjectDto.name !== project.name) {
-      // Check if the new name is unique
-      const existingProject = await this.projectRepository.findOne({ where: { name: updateProjectDto.name } });
-      if (existingProject && existingProject.id !== id) {
-        throw new ConflictException(`Project with name "${updateProjectDto.name}" already exists.`);
+      // Validate date logic
+      const newStartDate = startDate || project.startDate;
+      const newEndDate = endDate || project.endDate;
+      if (newStartDate && newEndDate && new Date(newStartDate) >= new Date(newEndDate)) {
+        throw new BadRequestException('Start date must be before end date');
       }
-    }
 
-    // Validate creator exists if being updated
-    if (updateProjectDto.creatorId) {
-      const creator = await this.clientRepository.findOne({ where: { id: updateProjectDto.creatorId } });
-      if (!creator) {
-        throw new NotFoundException(`Client with ID "${updateProjectDto.creatorId}" not found.`);
+      if (updateProjectDto.name && updateProjectDto.name !== project.name) {
+        const existingProject = await this.projectRepository.findOne({ where: { name: updateProjectDto.name } });
+        if (existingProject && existingProject.id !== id) {
+          throw new ConflictException(`Project with name "${updateProjectDto.name}" already exists.`);
+        }
       }
-    }
 
-    Object.assign(project, updateProjectDto);
-    return this.projectRepository.save(project);
+      if (updateProjectDto.creatorId) {
+        const creator = await this.clientRepository.findOne({ where: { id: updateProjectDto.creatorId } });
+        if (!creator) {
+          throw new NotFoundException(`Client with ID "${updateProjectDto.creatorId}" not found.`);
+        }
+      }
+
+      Object.assign(project, updateProjectDto);
+      return await this.projectRepository.save(project);
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof ConflictException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to update project');
+    }
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const result = await this.projectRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('ID is not match or found');
+    try {
+      const result = await this.projectRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException(`Project with ID "${id}" not found`);
+      }
+      return { message: 'Project successfully deleted' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to delete project');
     }
-    return { message: 'Project successfully deleted' };
   }
 
   async getProjectDetails(id: string): Promise<any> {
-  const project = await this.projectRepository.findOne({
-    where: { id },
-    relations: [
-      'projectTechnologies', 'projectTechnologies.technology', 'members', 'members.employee', 'members.employee.user',
+    try {
+      const project = await this.projectRepository.findOne({
+        where: { id },
+        relations: [
+          'projectTechnologies', 'projectTechnologies.technology', 'members', 'members.employee', 'members.employee.user',
+        ],
+      });
 
-    ],
-  });
+      if (!project) {
+        throw new NotFoundException(`Project with ID "${id}" not found`);
+      }
 
-  if (!project) {
-    throw new NotFoundException('ID is not match or found');
+      return {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        status: project.status,
+        technologies: project.projectTechnologies?.map((pt) => ({
+          id: pt.technology.id,
+          name: pt.technology.name,
+        })) || [],
+        members: project.members.map((member) => ({
+          id: member.employee?.id,
+          name: member.employee?.user?.fullName ?? '',
+        })),
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to retrieve project details');
+    }
   }
 
-return {
-  id: project.id,
-  name: project.name,
-  description: project.description,
-  status: project.status,
-  technologies: project.projectTechnologies?.map((pt) => ({
-    id: pt.technology.id,
-    name: pt.technology.name,
-  })) || [],
-  members: project.members.map((member) => ({
-    id: member.employee?.id,
-    name: member.employee?.user?.fullName ?? '',
-  })),
-};
+  async findByClient(clientId: string): Promise<Project[]> {
+    try {
+      // Validate client exists
+      const client = await this.clientRepository.findOne({ where: { id: clientId } });
+      if (!client) {
+        throw new NotFoundException(`Client with ID "${clientId}" not found.`);
+      }
+
+      // Find all projects for the client
+      const projects = await this.projectRepository.find({ 
+        where: { creatorId: clientId },
+        relations: ['creator']
+      });
+
+      return projects;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException('Error retrieving projects for client');
+    }
   }}

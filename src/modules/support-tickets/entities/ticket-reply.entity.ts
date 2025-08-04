@@ -18,6 +18,12 @@ export class TicketReply {
   @Column({ name: 'isInternal', default: false })
   isInternal: boolean;
 
+  @Column({ name: 'isRead', default: false })
+  isRead: boolean;
+
+  @Column({ name: 'readAt', nullable: true })
+  readAt: Date;
+
   @ManyToOne(() => Ticket, (ticket) => ticket.replies)
   @JoinColumn({ name: 'ticketId' })
   ticket: Ticket;
