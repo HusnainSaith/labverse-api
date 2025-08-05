@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { Project } from './entities/projects.entity';
 import { CreateProjectDto } from './dto/create-projects.dto';
 import { UpdateProjectDto } from './dto/update-projects.dto';
-import { Client } from 'src/modules/crm/clients/entities/clients.entity';
+import { Client } from '../../crm/clients/entities/clients.entity';
 import { SecurityUtil } from '../../../common/utils/security.util';
 
 @Injectable()

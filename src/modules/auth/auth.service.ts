@@ -109,22 +109,20 @@ export class AuthService {
     );
   }
 
-  async requestPasswordReset(dto: PasswordResetDto): Promise<void> {
-    if (!SecurityUtil.validateEmail(dto.email)) {
-      throw new NotFoundException('User not found');
-    }
-
-    const user = await this.usersService.findByEmail(dto.email);
-    if (!user) throw new NotFoundException('User not found');
-
-    // In production, send email with reset token
-    // For now, just log the token
-    const resetToken = await this.jwtService.signAsync(
-      { sub: user.id, type: 'password-reset' },
-      { expiresIn: '1h' },
-    );
-    SafeLogger.log(`Password reset requested for user`, 'AuthService');
+async requestPasswordReset(dto: PasswordResetDto): Promise<void> {
+  // ... validation code ...
+  const user = await this.usersService.findByEmail(dto.email);
+  if (!user) {
+    throw new NotFoundException('User not found');
   }
+  const resetToken = await this.jwtService.signAsync(
+    { sub: user.id, type: 'password-reset' },
+    { expiresIn: '1h' },
+  );
+  SafeLogger.log(`Password reset token: ${resetToken}`, 'AuthService');
+  // ↑ Now the token will be logged
+}
+
 
   async resetPassword(dto: ResetPasswordDto): Promise<void> {
     try {

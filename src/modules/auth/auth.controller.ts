@@ -46,7 +46,7 @@ export class AuthController {
     return this.authService.logout(dto.refreshToken);
   }
 
-  @Post('password-reset')
+  @Post('password-forgot')
   @HttpCode(HttpStatus.OK)
   async requestPasswordReset(@Body() dto: PasswordResetDto) {
     return this.authService.requestPasswordReset(dto);
