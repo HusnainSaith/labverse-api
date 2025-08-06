@@ -5,6 +5,8 @@ import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { SecurityUtil } from '../../../common/utils/security.util';
+import { ValidationUtil } from '../../../common/utils/validation.util';
+import { SafeLogger } from '../../../common/utils/logger.util';
 
 @Injectable()
 export class TaskService {
@@ -13,11 +15,34 @@ export class TaskService {
     private taskRepo: Repository<Task>,
   ) {}
 
-  async create(dto: CreateTaskDto) {
-    SecurityUtil.validateObject(dto);
+  async create(dto: CreateTaskDto): Promise<{ success: boolean; message: string; data: Task }> {
+    ValidationUtil.validateString(dto.name, 'name', 2, 200);
+    if (dto.description) {
+      ValidationUtil.validateString(dto.description, 'description', 0, 1000);
+    }
+    if (dto.status) {
+      ValidationUtil.validateString(dto.status, 'status', 1, 50);
+    }
+    if (dto.priority) {
+      ValidationUtil.validateString(dto.priority, 'priority', 1, 50);
+    }
+    if (dto.due_date) {
+      ValidationUtil.validateDate(dto.due_date, 'due_date');
+    }
+    ValidationUtil.validateUUID(dto.project_id, 'project_id');
+    if (dto.project_milestone_id) {
+      ValidationUtil.validateUUID(dto.project_milestone_id, 'project_milestone_id');
+    }
+    if (dto.created_by_employee_profile_id) {
+      ValidationUtil.validateUUID(dto.created_by_employee_profile_id, 'created_by_employee_profile_id');
+    }
+    if (dto.assigned_to_employee_profile_id) {
+      ValidationUtil.validateUUID(dto.assigned_to_employee_profile_id, 'assigned_to_employee_profile_id');
+    }
+
     const task = this.taskRepo.create({
-      name: dto.name,
-      description: dto.description,
+      name: ValidationUtil.sanitizeString(dto.name),
+      description: dto.description ? ValidationUtil.sanitizeString(dto.description) : undefined,
       status: dto.status,
       priority: dto.priority,
       due_date: dto.due_date,
@@ -33,41 +58,94 @@ export class TaskService {
         : undefined,
     });
 
-    return this.taskRepo.save(task);
+    const savedTask = await this.taskRepo.save(task);
+    
+    SafeLogger.log(`Task created successfully: ${dto.name}`, 'TaskService');
+    return {
+      success: true,
+      message: 'Task created successfully',
+      data: savedTask
+    };
   }
 
-  async findAll() {
-    return this.taskRepo.find({
+  async findAll(): Promise<{ success: boolean; message: string; data: Task[] }> {
+    const tasks = await this.taskRepo.find({
       relations: [
         'project',
         'project_milestone',
         'assigned_to_employee_profile',
       ],
     });
+    
+    return {
+      success: true,
+      message: 'Tasks retrieved successfully',
+      data: tasks
+    };
   }
 
-  async findOne(id: string) {
-    const validId = SecurityUtil.validateId(id);
+  async findOne(id: string): Promise<{ success: boolean; message: string; data: Task }> {
+    ValidationUtil.validateUUID(id, 'taskId');
+    
     const task = await this.taskRepo.findOne({
-      where: { id: validId },
+      where: { id },
       relations: [
         'project',
         'project_milestone',
         'assigned_to_employee_profile',
       ],
     });
-    if (!task) throw new NotFoundException('Task not found');
-    return task;
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    
+    return {
+      success: true,
+      message: 'Task retrieved successfully',
+      data: task
+    };
   }
 
-  async update(id: string, dto: UpdateTaskDto) {
-    SecurityUtil.validateObject(dto);
-    const validId = SecurityUtil.validateId(id);
-    const task = await this.findOne(id); // Fetch current task or throw
+  async update(id: string, dto: UpdateTaskDto): Promise<{ success: boolean; message: string; data: Task }> {
+    ValidationUtil.validateUUID(id, 'taskId');
+    
+    if (dto.name) {
+      ValidationUtil.validateString(dto.name, 'name', 2, 200);
+    }
+    if (dto.description !== undefined) {
+      if (dto.description) {
+        ValidationUtil.validateString(dto.description, 'description', 0, 1000);
+      }
+    }
+    if (dto.status) {
+      ValidationUtil.validateString(dto.status, 'status', 1, 50);
+    }
+    if (dto.priority) {
+      ValidationUtil.validateString(dto.priority, 'priority', 1, 50);
+    }
+    if (dto.due_date) {
+      ValidationUtil.validateDate(dto.due_date, 'due_date');
+    }
+    if (dto.project_id) {
+      ValidationUtil.validateUUID(dto.project_id, 'project_id');
+    }
+    if (dto.project_milestone_id) {
+      ValidationUtil.validateUUID(dto.project_milestone_id, 'project_milestone_id');
+    }
+    if (dto.created_by_employee_profile_id) {
+      ValidationUtil.validateUUID(dto.created_by_employee_profile_id, 'created_by_employee_profile_id');
+    }
+    if (dto.assigned_to_employee_profile_id) {
+      ValidationUtil.validateUUID(dto.assigned_to_employee_profile_id, 'assigned_to_employee_profile_id');
+    }
+
+    const taskResult = await this.findOne(id);
+    const task = taskResult.data;
 
     // Update scalar fields
-    task.name = dto.name ?? task.name;
-    task.description = dto.description ?? task.description;
+    task.name = dto.name ? ValidationUtil.sanitizeString(dto.name) : task.name;
+    task.description = dto.description !== undefined ? 
+      (dto.description ? ValidationUtil.sanitizeString(dto.description) : null) : task.description;
     task.status = dto.status ?? task.status;
     task.priority = dto.priority ?? task.priority;
     task.due_date = dto.due_date ?? task.due_date;
@@ -95,13 +173,27 @@ export class TaskService {
         : null;
     }
 
-    await this.taskRepo.save(task);
-    return this.findOne(id);
+    const updatedTask = await this.taskRepo.save(task);
+    
+    SafeLogger.log(`Task updated successfully: ${id}`, 'TaskService');
+    return {
+      success: true,
+      message: 'Task updated successfully',
+      data: updatedTask
+    };
   }
 
-  async remove(id: string) {
-    const validId = SecurityUtil.validateId(id);
-    const task = await this.findOne(id);
-    return this.taskRepo.remove(task);
+  async remove(id: string): Promise<{ success: boolean; message: string }> {
+    ValidationUtil.validateUUID(id, 'taskId');
+    
+    const taskResult = await this.findOne(id);
+    const task = taskResult.data;
+    await this.taskRepo.remove(task);
+    
+    SafeLogger.log(`Task deleted successfully: ${id}`, 'TaskService');
+    return {
+      success: true,
+      message: 'Task deleted successfully'
+    };
   }
 }

@@ -13,6 +13,18 @@ export class Client {
   @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
   email: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  company: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  website: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

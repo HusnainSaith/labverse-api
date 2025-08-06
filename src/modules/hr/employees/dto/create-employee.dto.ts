@@ -5,8 +5,10 @@ import {
   IsDateString,
   MaxLength,
   IsEnum,
+  IsNumber,
+  Min,
 } from 'class-validator';
-import { EmployeeStatus } from './employee-status.enum'; // Assuming you'll create this enum
+import { EmployeeStatus } from './employee-status.enum';
 
 export class CreateEmployeeProfileDto {
   @IsUUID()
@@ -29,6 +31,7 @@ export class CreateEmployeeProfileDto {
   @IsString()
   @MaxLength(255)
   department?: string;
+
 
   @IsOptional()
   @IsEnum(EmployeeStatus)

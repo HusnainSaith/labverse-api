@@ -23,6 +23,9 @@ export class TicketReply {
   @Column('text')
   content: string;
 
+  @Column('text')
+  message: string;
+
   @Column({ name: 'isInternal', default: false })
   isInternal: boolean;
 

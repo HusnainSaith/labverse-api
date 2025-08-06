@@ -89,4 +89,14 @@ export class CreateInvoiceDto {
   @IsNumber()
   @Min(0)
   paid_amount?: number;
+
+  @ApiProperty({
+    description: 'Description or notes for the invoice',
+    required: false,
+    example: 'Invoice for web development services',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 1000)
+  description?: string;
 }

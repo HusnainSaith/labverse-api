@@ -15,6 +15,10 @@ export class CreateTicketReplyDto {
   @IsNotEmpty()
   content: string;
 
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
   @IsOptional()
   @IsBoolean()
   isInternal?: boolean;

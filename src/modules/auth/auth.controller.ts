@@ -61,6 +61,13 @@ export class AuthController {
   @Post('me')
   @UseGuards(JwtAuthGuard)
   async me(@Request() req) {
-    return req.user;
+    return {
+      success: true,
+      message: 'User details retrieved successfully',
+      data: {
+        id: req.user.userId,
+        email: req.user.email
+      }
+    };
   }
 }

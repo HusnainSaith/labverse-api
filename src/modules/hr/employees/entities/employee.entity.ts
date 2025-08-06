@@ -39,6 +39,10 @@ export class EmployeeProfile {
   @Column({ length: 255, nullable: true })
   department: string;
 
+
+
+ 
+
   @Column({ type: 'varchar', length: 50, default: EmployeeStatus.ACTIVE })
   status: EmployeeStatus;
 

@@ -52,6 +52,9 @@ export class Invoice {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.0 })
   paid_amount: number;
 
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

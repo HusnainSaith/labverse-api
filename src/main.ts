@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { ValidationPipe as CustomValidationPipe } from './common/pipes/validation.pipe';
+import { GlobalValidationPipe } from './common/pipes/global-validation.pipe';
 import { SecurityConfig } from './config/security.config';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
@@ -18,15 +18,8 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors(SecurityConfig.cors);
 
-  // Global validation pipes
-  app.useGlobalPipes(
-    new CustomValidationPipe(),
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  // Global validation pipe with strict validation
+  app.useGlobalPipes(new GlobalValidationPipe());
 
   // Global exception filter
   app.useGlobalFilters(new HttpExceptionFilter());

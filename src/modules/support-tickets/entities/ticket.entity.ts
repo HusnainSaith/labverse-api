@@ -30,8 +30,14 @@ export class Ticket {
   @Column({ name: 'clientId' })
   clientId: string;
 
+  @Column({ length: 200 })
+  title: string;
+
   @Column()
   subject: string;
+
+  @Column({ length: 50, nullable: true })
+  category: string;
 
   @Column('text')
   description: string;

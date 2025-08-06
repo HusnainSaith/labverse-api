@@ -28,7 +28,7 @@ export class EmployeeProfilesController {
   @Post()
   @Roles(RoleEnum.ADMIN)
   create(@Body() createEmployeeProfileDto: CreateEmployeeProfileDto) {
-    return this.employeeProfilesService.create(createEmployeeProfileDto);
+    return this.employeeProfilesService.create(createEmployeeProfileDto); 
   }
 
   @Get()
