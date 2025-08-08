@@ -4,19 +4,20 @@ export class SecurityUtil {
   /**
    * Sanitize string input to prevent injection attacks
    */
- static sanitizeString(input: string): string {
-  if (!input || typeof input !== 'string') return input;
+  static sanitizeString(input: string): string {
+    if (!input || typeof input !== 'string') return input;
 
-  return input
-    .replace(/[<>]/g, '') // Remove HTML tags
-    .replace(/['\"]/g, '') // Remove quotes
-    .replace(/[{}]/g, '') // Remove braces
-    .replace(/[\\[\\]]/g, '') // Remove brackets
-    .replace(/\\$/g, '') // Remove dollar signs (MongoDB operators)
-    // Remove the line that removes dots and @ symbols for email compatibility
-    .trim();
-}
-
+    return (
+      input
+        .replace(/[<>]/g, '') // Remove HTML tags
+        .replace(/['\"]/g, '') // Remove quotes
+        .replace(/[{}]/g, '') // Remove braces
+        .replace(/[\\[\\]]/g, '') // Remove brackets
+        .replace(/\\$/g, '') // Remove dollar signs (MongoDB operators)
+        // Remove the line that removes dots and @ symbols for email compatibility
+        .trim()
+    );
+  }
 
   /**
    * Validate and sanitize ID input to prevent NoSQL injection
@@ -113,8 +114,30 @@ export class SecurityUtil {
    * Validate email format
    */
   static validateEmail(email: string): boolean {
+    if (!email || typeof email !== 'string') {
+      throw new BadRequestException('Invalid email format');
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    if (!emailRegex.test(email.trim())) {
+      throw new BadRequestException('Invalid email format');
+    }
+
+    return true;
+  }
+
+  /**
+   * Sanitizes string input by trimming and removing dangerous characters
+   */
+  static sanitizeInput(input: string): string {
+    if (!input || typeof input !== 'string') {
+      return '';
+    }
+
+    return input
+      .trim()
+      .replace(/[<>\"'%;()&+]/g, '') // Remove potentially dangerous characters
+      .substring(0, 1000); // Limit length
   }
 
   /**
@@ -127,7 +150,10 @@ export class SecurityUtil {
     for (const key in sanitized) {
       if (typeof sanitized[key] === 'string') {
         sanitized[key] = this.sanitizeString(sanitized[key]);
-      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      } else if (
+        typeof sanitized[key] === 'object' &&
+        sanitized[key] !== null
+      ) {
         this.validateObject(sanitized[key]);
       }
     }
@@ -141,6 +167,24 @@ export class SecurityUtil {
     if (!Array.isArray(ids)) {
       throw new BadRequestException('Expected array of IDs');
     }
-    return ids.map(id => this.validateId(id));
+    return ids.map((id) => this.validateId(id));
+  }
+
+  /**
+   * Validates password strength
+   */
+  static validatePassword(password: string): boolean {
+    if (!password || typeof password !== 'string') {
+      throw new BadRequestException('Password is required');
+    }
+
+    if (password.length < 8) {
+      throw new BadRequestException(
+        'Password must be at least 8 characters long',
+      );
+    }
+
+    // Add more password validation rules as needed
+    return true;
   }
 }

@@ -2,30 +2,52 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { RoleEnum } from '../role.enum';
+import { RolePermission } from './role-permission.entity';
+import { Permission } from './permission.entity';
 
-@Entity({ name: 'roles' })
+@Entity('roles')
 export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, type: 'enum', enum: RoleEnum })
-  name: RoleEnum;
+  @Column({ unique: true })
+  name: string;
 
   @Column({ nullable: true })
   description: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
-
   @OneToMany(() => User, (user) => user.role)
   users: User[];
+
+  @OneToMany(() => RolePermission, (rolePermission) => rolePermission.role)
+  rolePermissions: RolePermission[];
+
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'role_permissions',
+    joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+  })
+  permissions: Permission[];
+
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
+  @Column({
+    name: 'updated_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
 }

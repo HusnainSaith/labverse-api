@@ -74,4 +74,10 @@ export class ClientPlanQuotation {
 
   @OneToMany(() => Invoice, (invoice) => invoice.quotation)
   invoices: Invoice[];
+
+  @ManyToOne(() => User, (user) => user.createdClientPlanQuotations, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'created_by' })
+  createdByUser: User;
 }

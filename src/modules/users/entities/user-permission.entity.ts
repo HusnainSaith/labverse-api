@@ -1,3 +1,4 @@
+// User-Permission junction entity
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,27 +6,26 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Role } from './role.entity';
-import { Permission } from './permission.entity';
+import { User } from './user.entity';
+import { Permission } from '../../roles/entities/permission.entity';
 
-@Entity('role_permissions')
-export class RolePermission {
+@Entity('user_permissions')
+export class UserPermission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'role_id' })
-  roleId: string;
+  @Column({ name: 'user_id' })
+  userId: string;
 
   @Column({ name: 'permission_id' })
   permissionId: string;
 
-  @ManyToOne(() => Role, (role) => role.rolePermissions, {
+  @ManyToOne(() => User, (user) => user.userPermissions, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
+  user: User;
 
-  @ManyToOne(() => Permission, (permission) => permission.rolePermissions, {
+  @ManyToOne(() => Permission, (permission) => permission.userPermissions, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'permission_id' })

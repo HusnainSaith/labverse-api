@@ -28,4 +28,11 @@ export class SafeLogger extends Logger {
         : message;
     super.warn(sanitizedMessage, context);
   }
+  static debug(message: string, context?: string): void {
+    if (process.env.NODE_ENV !== 'production') {
+      const timestamp = new Date().toISOString();
+      const contextStr = context ? `[${context}] ` : '';
+      console.debug(`${timestamp} ${contextStr}DEBUG: ${message}`);
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersModule } from './modules/users/users.module';
@@ -49,14 +49,52 @@ import { TestimonialsModule } from './modules/content/testimonials/testimonials.
 import { ContactInquiriesModule } from './modules/crm/contact-inquiries/contact-inquiries.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 
+// Global Guards and Interceptors
+
+import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptor/response.interceptor';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { SharedModule } from './modules/shared/shared.module';
+
 @Module({
   imports: [
+    // ConfigModule.forRoot({
+    //   isGlobal: true,
+    // }),
+    // TypeOrmModule.forRootAsync({
+    //   useFactory: databaseConfig,
+    // }),
+    // Core Configuration
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+      cache: true,
+      expandVariables: true,
     }),
+
+    // Database Configuration
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: databaseConfig,
+      inject: [ConfigService],
     }),
+
+    // Rate Limiting
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: config.get<number>('THROTTLE_TTL', 60000), // 1 minute
+            limit: config.get<number>('THROTTLE_LIMIT', 100), // 100 requests
+          },
+        ],
+      }),
+    }),
+    SharedModule,
     UsersModule,
     RolesModule,
     AuthModule,
@@ -100,6 +138,47 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     PermissionsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    // Global Rate Limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+
+    // Global Authentication Guard (Optional - Uncomment if needed)
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
+
+    // Global Roles Guard (Optional - Uncomment if needed)
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
+
+    // Global Permissions Guard (Optional - Uncomment if needed)
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
+
+    // Global Response Interceptor
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+
+    // Global Exception Filters
+    {
+      provide: APP_FILTER,
+      useClass: ValidationExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    AppService,
+  ],
 })
 export class AppModule {}

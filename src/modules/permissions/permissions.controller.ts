@@ -7,48 +7,75 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
-import { CreatePermissionDto } from './dto/create-permission.dto';
-import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { CreatePermissionDto } from '../roles/dto/create-permission.dto';
+import { UpdatePermissionDto } from '../roles/dto/update-permission.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '../roles/entities/role.entity';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { RoleEnum } from '../roles/role.enum';
+import { SecurityUtil } from '../../common/utils/security.util';
 
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @Controller('permissions')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
   @Roles(RoleEnum.ADMIN)
+  @Permissions('PERMISSIONS_CREATE')
   create(@Body() dto: CreatePermissionDto) {
     return this.permissionsService.create(dto);
   }
 
   @Get()
-  @Roles(RoleEnum.ADMIN)
+  @Permissions('PERMISSIONS_READ')
   findAll() {
     return this.permissionsService.findAll();
   }
 
+  @Get('resources')
+  @Permissions('PERMISSIONS_READ')
+  getAllResources() {
+    return this.permissionsService.getAllResources();
+  }
+
+  @Get('actions')
+  @Permissions('PERMISSIONS_READ')
+  getAllActions() {
+    return this.permissionsService.getAllActions();
+  }
+
+  @Get('by-resource')
+  @Permissions('PERMISSIONS_READ')
+  findByResource(@Query('resource') resource: string) {
+    return this.permissionsService.findByResource(resource);
+  }
+
   @Get(':id')
-  @Roles(RoleEnum.ADMIN)
+  @Permissions('PERMISSIONS_READ')
   findOne(@Param('id') id: string) {
-    return this.permissionsService.findOne(id);
+    const validId = SecurityUtil.validateId(id);
+    return this.permissionsService.findOne(validId);
   }
 
   @Patch(':id')
   @Roles(RoleEnum.ADMIN)
+  @Permissions('PERMISSIONS_UPDATE')
   update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
-    return this.permissionsService.update(id, dto);
+    const validId = SecurityUtil.validateId(id);
+    return this.permissionsService.update(validId, dto);
   }
 
   @Delete(':id')
   @Roles(RoleEnum.ADMIN)
+  @Permissions('PERMISSIONS_DELETE')
   remove(@Param('id') id: string) {
-    return this.permissionsService.remove(id);
+    const validId = SecurityUtil.validateId(id);
+    return this.permissionsService.remove(validId);
   }
 }

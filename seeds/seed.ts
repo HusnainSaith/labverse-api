@@ -5,6 +5,7 @@ import { User } from '../src/modules/users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { RoleEnum } from '../src/modules/roles/role.enum';
 import { SecurityUtil } from '../src/common/utils/security.util';
+import { seedPermissions } from './permissions-seed';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -17,7 +18,15 @@ async function seed() {
     { name: RoleEnum.ADMIN, description: 'Administrator with full access' },
     { name: RoleEnum.USER, description: 'Default user' },
     { name: RoleEnum.CLIENT, description: 'Client user with limited access' },
-    { name: RoleEnum.EMPLOYEE, description: 'Employee user with limited access' },
+    {
+      name: RoleEnum.EMPLOYEE,
+      description: 'Employee user with limited access',
+    },
+    {
+      name: RoleEnum.PROJECT_MANAGER,
+      description: 'Project manager with project access',
+    },
+    { name: RoleEnum.SUPPORT, description: 'Support user for tickets' },
   ];
 
   for (const roleData of rolesToSeed) {
@@ -25,9 +34,13 @@ async function seed() {
     if (!role) {
       role = roleRepo.create(roleData);
       await roleRepo.save(role);
-      console.log(`Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" created.`);
+      console.log(
+        `Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" created.`,
+      );
     } else {
-      console.log(`Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" already exists.`);
+      console.log(
+        `Role "${SecurityUtil.sanitizeLogMessage(roleData.name)}" already exists.`,
+      );
     }
   }
 
@@ -39,7 +52,7 @@ async function seed() {
     const adminRole = await roleRepo.findOne({
       where: { name: RoleEnum.ADMIN },
     });
-    const password = await bcrypt.hash('Admin@12345', 10); // Use env or config for real projects!
+    const password = await bcrypt.hash('Admin@12345', 10);
     adminUser = userRepo.create({
       email: adminEmail,
       password,
@@ -55,6 +68,10 @@ async function seed() {
   }
 
   await AppDataSource.destroy();
+
+  // Seed permissions after main seeding
+  await seedPermissions();
+
   process.exit(0);
 }
 
@@ -62,5 +79,3 @@ seed().catch((e) => {
   console.error('Seeding error:', e);
   process.exit(1);
 });
-
-

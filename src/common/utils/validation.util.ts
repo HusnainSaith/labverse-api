@@ -10,16 +10,25 @@ export class ValidationUtil {
     }
   }
 
-  static validateString(value: any, fieldName: string, minLength = 1, maxLength = 255): void {
+  static validateString(
+    value: any,
+    fieldName: string,
+    minLength = 1,
+    maxLength = 255,
+  ): void {
     this.validateRequired(value, fieldName);
     if (typeof value !== 'string') {
       throw new BadRequestException(`${fieldName} must be a string`);
     }
     if (value.trim().length < minLength) {
-      throw new BadRequestException(`${fieldName} must be at least ${minLength} characters long`);
+      throw new BadRequestException(
+        `${fieldName} must be at least ${minLength} characters long`,
+      );
     }
     if (value.trim().length > maxLength) {
-      throw new BadRequestException(`${fieldName} must not exceed ${maxLength} characters`);
+      throw new BadRequestException(
+        `${fieldName} must not exceed ${maxLength} characters`,
+      );
     }
   }
 
@@ -39,13 +48,19 @@ export class ValidationUtil {
     if (typeof id !== 'string') {
       throw new BadRequestException(`${fieldName} must be a string`);
     }
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id)) {
       throw new BadRequestException(`Invalid ${fieldName} format`);
     }
   }
 
-  static validateNumber(value: any, fieldName: string, min?: number, max?: number): void {
+  static validateNumber(
+    value: any,
+    fieldName: string,
+    min?: number,
+    max?: number,
+  ): void {
     this.validateRequired(value, fieldName);
     if (typeof value !== 'number' || isNaN(value)) {
       throw new BadRequestException(`${fieldName} must be a valid number`);
@@ -76,7 +91,9 @@ export class ValidationUtil {
   static validateEnum(value: any, enumObject: any, fieldName: string): void {
     this.validateRequired(value, fieldName);
     if (!Object.values(enumObject).includes(value)) {
-      throw new BadRequestException(`${fieldName} must be one of: ${Object.values(enumObject).join(', ')}`);
+      throw new BadRequestException(
+        `${fieldName} must be one of: ${Object.values(enumObject).join(', ')}`,
+      );
     }
   }
 
@@ -86,14 +103,18 @@ export class ValidationUtil {
       throw new BadRequestException(`${fieldName} must be an array`);
     }
     if (value.length < minLength) {
-      throw new BadRequestException(`${fieldName} must contain at least ${minLength} items`);
+      throw new BadRequestException(
+        `${fieldName} must contain at least ${minLength} items`,
+      );
     }
   }
 
   static validatePassword(password: any): void {
     this.validateString(password, 'password', 8, 128);
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      throw new BadRequestException('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      throw new BadRequestException(
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+      );
     }
   }
 
@@ -105,14 +126,15 @@ export class ValidationUtil {
     this.validateRequired(value, fieldName);
     if (typeof value === 'string') {
       // Check if it's a UUID
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       if (uuidRegex.test(value)) return;
-      
+
       // Check if it's a numeric string
       if (/^\d+$/.test(value)) return;
     }
     if (typeof value === 'number' && value > 0) return;
-    
+
     throw new BadRequestException(`Invalid ${fieldName} format`);
   }
 
@@ -149,7 +171,9 @@ export class ValidationUtil {
     }
     const decimalPlaces = (value.toString().split('.')[1] || '').length;
     if (decimalPlaces > precision) {
-      throw new BadRequestException(`${fieldName} can have at most ${precision} decimal places`);
+      throw new BadRequestException(
+        `${fieldName} can have at most ${precision} decimal places`,
+      );
     }
   }
 
@@ -157,7 +181,7 @@ export class ValidationUtil {
     return {
       success: true,
       message,
-      ...(data && { data })
+      ...(data && { data }),
     };
   }
 
@@ -165,11 +189,17 @@ export class ValidationUtil {
     return {
       success: false,
       message,
-      ...(details && { details })
+      ...(details && { details }),
     };
   }
 
-  static createPaginatedResponse(message: string, data: any[], total: number, page: number, limit: number) {
+  static createPaginatedResponse(
+    message: string,
+    data: any[],
+    total: number,
+    page: number,
+    limit: number,
+  ) {
     return {
       success: true,
       message,
@@ -178,8 +208,8 @@ export class ValidationUtil {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 }

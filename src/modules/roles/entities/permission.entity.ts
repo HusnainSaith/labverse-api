@@ -2,9 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
+  OneToMany,
+  ManyToMany,
 } from 'typeorm';
+import { RolePermission } from './role-permission.entity';
+import { UserPermission } from '../../users/entities/user-permission.entity';
+import { Role } from './role.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('permissions')
 export class Permission {
@@ -23,9 +27,35 @@ export class Permission {
   @Column()
   action: string;
 
-  @CreateDateColumn()
+  @OneToMany(
+    () => RolePermission,
+    (rolePermission) => rolePermission.permission,
+  )
+  rolePermissions: RolePermission[];
+
+  @OneToMany(
+    () => UserPermission,
+    (userPermission) => userPermission.permission,
+  )
+  userPermissions: UserPermission[];
+
+  @ManyToMany(() => Role, (role) => role.permissions)
+  roles: Role[];
+
+  @ManyToMany(() => User, (user) => user.permissions)
+  users: User[];
+
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({
+    name: 'updated_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }
