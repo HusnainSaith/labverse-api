@@ -28,21 +28,21 @@ export class UsersController {
 
   @Post()
   @Roles(RoleEnum.ADMIN)
-  @Permissions('USERS_CREATE')
+  @Permissions('users.create')
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
   }
 
   @Post('with-permissions')
   @Roles(RoleEnum.ADMIN)
-  @Permissions('USERS_CREATE')
+  @Permissions('users.create')
   createWithPermissions(@Body() dto: CreateUserWithPermissionsDto) {
     return this.usersService.createWithPermissions(dto);
   }
 
   @Post(':id/permissions')
   @Roles(RoleEnum.ADMIN)
-  @Permissions('USERS_UPDATE')
+  @Permissions('users.update')
   assignPermissions(
     @Param('id') id: string,
     @Body() dto: AssignPermissionsDto,
@@ -52,20 +52,32 @@ export class UsersController {
   }
 
   @Get(':id/permissions')
-  @Permissions('USERS_READ')
+  @Permissions('users.read')
   getUserPermissions(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.usersService.getUserPermissions(validId);
   }
+  @Get('available-features')
+  @Permissions('users.read')
+  getAvailableFeatures() {
+    return this.usersService.getAvailableFeatures();
+  }
+
+  // Get available actions for a specific feature
+  @Get('available-features/:feature/actions')
+  @Permissions('users.read')
+  getAvailableActionsForFeature(@Param('feature') feature: string) {
+    return this.usersService.getAvailableActionsForFeature(feature);
+  }
 
   @Get()
-  @Permissions('USERS_READ')
+  @Permissions('users.read')
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Permissions('USERS_READ')
+  @Permissions('users.read')
   findOne(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.usersService.findOne(validId);
@@ -73,7 +85,7 @@ export class UsersController {
 
   @Patch(':id')
   @Roles(RoleEnum.ADMIN)
-  @Permissions('USERS_UPDATE')
+  @Permissions('users.update')
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     const validId = SecurityUtil.validateId(id);
     return this.usersService.update(validId, dto);
@@ -81,7 +93,7 @@ export class UsersController {
 
   @Delete(':id')
   @Roles(RoleEnum.ADMIN)
-  @Permissions('USERS_DELETE')
+  @Permissions('users.delete')
   remove(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.usersService.remove(validId);

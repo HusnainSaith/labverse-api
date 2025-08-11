@@ -6,4 +6,5 @@ export enum RoleEnum {
   PROJECT_MANAGER = 'project_manager',
   DEVELOPER = 'developer',
   SUPPORT = 'support',
+  ASSISTANT="assistant"
 }

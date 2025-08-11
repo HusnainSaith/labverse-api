@@ -11,7 +11,7 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignRolePermissionsDto } from './dto/assign-role-permissions.dto';
+import { AssignRolePermissionsDto } from '../role-permissions/dto/assign-role-permissions.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
@@ -27,7 +27,7 @@ export class RolesController {
 
   @Post()
   @Roles(RoleEnum.ADMIN)
-  @Permissions('ROLES_CREATE')
+  @Permissions('roles.create')
   create(@Body() dto: CreateRoleDto) {
     return this.rolesService.create(dto);
   }

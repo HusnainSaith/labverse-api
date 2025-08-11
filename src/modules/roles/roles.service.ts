@@ -6,11 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
-import { Permission } from './entities/permission.entity';
-import { RolePermission } from './entities/role-permission.entity';
+import { Permission } from '../permissions/entities/permission.entity';
+import { RolePermission } from '../role-permissions/entities/role-permission.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignRolePermissionsDto } from './dto/assign-role-permissions.dto';
+import { AssignRolePermissionsDto } from '../role-permissions/dto/assign-role-permissions.dto';
 import { SecurityUtil } from '../../common/utils/security.util';
 import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 

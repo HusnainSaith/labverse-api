@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { AppDataSource } from '../src/config/data-source';
 import { Role } from '../src/modules/roles/entities/role.entity';
-import { Permission } from '../src/modules/roles/entities/permission.entity';
-import { RolePermission } from '../src/modules/roles/entities/role-permission.entity';
+import { Permission } from '../src/modules/permissions/entities/permission.entity';
+import { RolePermission } from '../src/modules/role-permissions/entities/role-permission.entity';
 import { RoleEnum } from '../src/modules/roles/role.enum';
 import { PermissionActionEnum } from '../src/common/enums/permission-actions.enum';
 
@@ -17,7 +17,7 @@ const FEATURE_PERMISSIONS = {
       PermissionActionEnum.DELETE,
       PermissionActionEnum.EXPORT,
       PermissionActionEnum.IMPORT,
-      PermissionActionEnum.ASSIGN, // Assign roles/permissions
+      PermissionActionEnum.ASSIGN, 
       PermissionActionEnum.VIEW_ALL,
       PermissionActionEnum.ARCHIVE,
       PermissionActionEnum.RESTORE,
@@ -188,6 +188,74 @@ const FEATURE_PERMISSIONS = {
       PermissionActionEnum.REJECT,
       PermissionActionEnum.ARCHIVE,
       PermissionActionEnum.EXPORT,
+    ],
+  },
+
+  messaging: {
+    description: 'Messaging system',
+    actions: [
+      PermissionActionEnum.CREATE,
+      PermissionActionEnum.READ,
+      PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
+      PermissionActionEnum.VIEW_ALL,
+      PermissionActionEnum.VIEW_OWN,
+      PermissionActionEnum.MANAGE,
+      PermissionActionEnum.EXPORT,
+    ],
+  },
+
+  'blog-comments': {
+    description: 'Blog comments management',
+    actions: [
+      PermissionActionEnum.CREATE,
+      PermissionActionEnum.READ,
+      PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
+      PermissionActionEnum.APPROVE,
+      PermissionActionEnum.REJECT,
+      PermissionActionEnum.VIEW_ALL,
+      PermissionActionEnum.VIEW_OWN,
+      PermissionActionEnum.MANAGE,
+    ],
+  },
+
+  'project-technologies': {
+    description: 'Project technologies management',
+    actions: [
+      PermissionActionEnum.CREATE,
+      PermissionActionEnum.READ,
+      PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
+      PermissionActionEnum.ASSIGN,
+      PermissionActionEnum.MANAGE,
+    ],
+  },
+
+  'invoice-items': {
+    description: 'Invoice items management',
+    actions: [
+      PermissionActionEnum.CREATE,
+      PermissionActionEnum.READ,
+      PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
+      PermissionActionEnum.EXPORT,
+      PermissionActionEnum.VIEW_ALL,
+    ],
+  },
+
+  'employee-profiles': {
+    description: 'Employee profile management',
+    actions: [
+      PermissionActionEnum.CREATE,
+      PermissionActionEnum.READ,
+      PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
+      PermissionActionEnum.VIEW_ALL,
+      PermissionActionEnum.VIEW_OWN,
+      PermissionActionEnum.ASSIGN,
+      PermissionActionEnum.ARCHIVE,
+      PermissionActionEnum.RESTORE,
     ],
   },
 
@@ -562,105 +630,79 @@ const FEATURE_PERMISSIONS = {
 };
 
 export async function seedPermissions() {
-  await AppDataSource.initialize();
+  try {
+    console.log('Starting permissions seeding...');
 
-  const permissionRepo = AppDataSource.getRepository(Permission);
-  const roleRepo = AppDataSource.getRepository(Role);
-  const rolePermissionRepo = AppDataSource.getRepository(RolePermission);
+    const roleRepo = AppDataSource.getRepository(Role);
+    const permissionRepo = AppDataSource.getRepository(Permission);
+    const rolePermissionRepo = AppDataSource.getRepository(RolePermission);
 
-  console.log('🌱 Starting comprehensive permissions seeding...');
+    console.log('🧹 Clearing existing permissions and role-permissions...');
+    await rolePermissionRepo.query('TRUNCATE TABLE role_permissions CASCADE;');
+    await permissionRepo.query('TRUNCATE TABLE permissions CASCADE;');
 
-  // Clear existing permissions first
-  console.log('🧹 Clearing existing permissions...');
-  await rolePermissionRepo.delete({});
-  await permissionRepo.delete({});
-
-  const allPermissions = [];
-  let totalPermissionsCreated = 0;
-
-  // Create permissions for each feature
-  for (const [feature, config] of Object.entries(FEATURE_PERMISSIONS)) {
-    console.log(`\n📋 Processing feature: ${feature}`);
-    console.log(`   Description: ${config.description}`);
-    console.log(`   Actions: ${config.actions.length}`);
-
-    const featurePermissions = [];
-
-    for (const action of config.actions) {
-      const permissionName = `${feature.toUpperCase().replace(/-/g, '_')}_${action.toUpperCase()}`;
-
-      const permission = permissionRepo.create({
-        name: permissionName,
-        description: `${action} permission for ${feature} - ${config.description}`,
-        resource: feature,
-        action: action,
-      });
-
-      const savedPermission = await permissionRepo.save(permission);
-      allPermissions.push(savedPermission);
-      featurePermissions.push(savedPermission);
-      totalPermissionsCreated++;
-
-      console.log(`   ✅ ${permissionName}`);
+    console.log('🔍 Fetching roles...');
+    const adminRole = await roleRepo.findOneBy({ name: RoleEnum.ADMIN });
+    const clientRole = await roleRepo.findOneBy({ name: RoleEnum.CLIENT });
+    const employeeRole = await roleRepo.findOneBy({ name: RoleEnum.EMPLOYEE });
+    const supportRole = await roleRepo.findOneBy({ name: RoleEnum.SUPPORT }); // Don't forget to fetch the support role.
+    const managerRole = await roleRepo.findOneBy({ name: RoleEnum.PROJECT_MANAGER });
+    
+    // Check if roles exist
+    if (!adminRole || !clientRole || !employeeRole || !supportRole || !managerRole) {
+      throw new Error('❌ One or more roles not found. Please ensure the main seed script runs correctly first.');
     }
 
-    console.log(
-      `   🎯 Created ${featurePermissions.length} permissions for ${feature}`,
-    );
-  }
-
-  console.log(`\n🎉 Total permissions created: ${totalPermissionsCreated}`);
-
-  // Assign ALL permissions to ADMIN role
-  console.log('\n👑 Assigning permissions to ADMIN role...');
-  const adminRole = await roleRepo.findOne({
-    where: { name: RoleEnum.ADMIN },
-  });
-
-  if (adminRole) {
-    let adminPermissionsAssigned = 0;
-
-    for (const permission of allPermissions) {
-      const rolePermission = rolePermissionRepo.create({
-        roleId: adminRole.id,
-        permissionId: permission.id,
-      });
-
-      await rolePermissionRepo.save(rolePermission);
-      adminPermissionsAssigned++;
+    console.log('📜 Defining permissions...');
+    const allPermissions = [];
+    // ... (your permission creation logic) ...
+    for (const resourceName in FEATURE_PERMISSIONS) {
+      if (Object.prototype.hasOwnProperty.call(FEATURE_PERMISSIONS, resourceName)) {
+        const feature = FEATURE_PERMISSIONS[resourceName];
+        for (const action of feature.actions) {
+          const permission = new Permission();
+          permission.name = `${resourceName}.${action}`;
+          permission.description = `${feature.description} - ${action}`;
+          permission.resource = resourceName;
+          permission.action = action;
+          allPermissions.push(permission);
+        }
+      }
     }
+    
+    console.log('💾 Saving permissions...');
+    const savedPermissions = await permissionRepo.save(allPermissions);
 
-    console.log(
-      `🔥 Assigned ${adminPermissionsAssigned} permissions to ADMIN role`,
-    );
-  } else {
-    console.log(
-      '⚠️  ADMIN role not found. Please ensure roles are seeded first.',
-    );
+    console.log('🔗 Linking permissions to roles...');
+    const rolePermissions = [
+        ...savedPermissions.map((perm) => ({
+            roleId: adminRole.id,
+            permissionId: perm.id,
+        })),
+        ...savedPermissions
+        .filter((perm) => perm.resource === 'projects' && perm.action === PermissionActionEnum.READ)
+        .map((perm) => ({
+            roleId: clientRole.id,
+            permissionId: perm.id,
+        })),
+        ...savedPermissions
+        .filter(
+            (perm) =>
+            (perm.resource === 'tasks' && (perm.action === PermissionActionEnum.READ || perm.action === PermissionActionEnum.VIEW_OWN)) ||
+            (perm.resource === 'time-entries' && perm.action === PermissionActionEnum.CREATE)
+        )
+        .map((perm) => ({
+            roleId: employeeRole.id,
+            permissionId: perm.id,
+        })),
+        // Add more permissions for other roles if needed
+    ];
+
+    await rolePermissionRepo.save(rolePermissionRepo.create(rolePermissions));
+
+    console.log('✅ Permissions and role-permissions seeded successfully!');
+  } catch (err) {
+    // You can remove the process.exit here since the main script handles it.
+    throw new Error(`❌ Error seeding permissions: ${err.message}`);
   }
-
-  // Summary by feature
-  console.log('\n📊 PERMISSION SUMMARY BY FEATURE:');
-  console.log('='.repeat(50));
-
-  Object.entries(FEATURE_PERMISSIONS).forEach(([feature, config]) => {
-    console.log(
-      `${feature.padEnd(25)} | ${config.actions.length.toString().padStart(2)} actions`,
-    );
-  });
-
-  console.log('='.repeat(50));
-  console.log(`TOTAL FEATURES: ${Object.keys(FEATURE_PERMISSIONS).length}`);
-  console.log(`TOTAL PERMISSIONS: ${totalPermissionsCreated}`);
-
-  await AppDataSource.destroy();
-  console.log('\n🎉 Comprehensive permissions seeding completed successfully!');
-}
-
-// Run if called directly
-if (require.main === module) {
-  seedPermissions().catch((error) => {
-    console.error('❌ Error seeding permissions:', error);
-    process.exit(1);
-  });
 }

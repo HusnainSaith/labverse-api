@@ -57,6 +57,7 @@ import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { SharedModule } from './modules/shared/shared.module';
+import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
 
 @Module({
   imports: [
@@ -136,6 +137,7 @@ import { SharedModule } from './modules/shared/shared.module';
     TestimonialsModule,
     ContactInquiriesModule,
     PermissionsModule,
+    RolePermissionsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -25,6 +25,7 @@ export class AssignPermissionsDto {
       PermissionActionEnum.CREATE,
       PermissionActionEnum.READ,
       PermissionActionEnum.UPDATE,
+      PermissionActionEnum.DELETE,
     ],
   })
   @IsArray()

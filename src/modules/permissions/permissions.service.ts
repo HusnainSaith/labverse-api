@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission } from '../roles/entities/permission.entity';
-import { CreatePermissionDto } from '../roles/dto/create-permission.dto';
-import { UpdatePermissionDto } from '../roles/dto/update-permission.dto';
+import { Permission } from './entities/permission.entity';
+import { CreatePermissionDto } from './dto/create-permission.dto';
+import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { SecurityUtil } from '../../common/utils/security.util';
 import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 

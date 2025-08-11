@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
-import { Permission } from '../roles/entities/permission.entity';
+import { Permission } from '../permissions/entities/permission.entity';
 import { UserPermission } from './entities/user-permission.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions.dto';
@@ -106,7 +106,6 @@ export class UsersService {
     }
   }
 
-  // Add missing updatePassword method
   async updatePassword(userId: string, hashedPassword: string): Promise<void> {
     try {
       const validUserId = SecurityUtil.validateId(userId);
@@ -165,34 +164,38 @@ export class UsersService {
 
       const savedUser = await this.userRepository.save(user);
 
+      // --- FIX: This is the updated logic for saving user permissions ---
+      // Instead of looping and calling assignPermissions, we'll create the entities directly.
       if (dto.permissionIds && dto.permissionIds.length > 0) {
-        // Convert permission IDs to the new format
-        // First, get the permission details to extract feature and action
+        // Fetch all permission entities at once
         const permissions = await this.permissionRepository.findByIds(
           dto.permissionIds,
         );
 
-        // Group permissions by feature
-        const permissionsByFeature = permissions.reduce(
-          (acc, perm) => {
-            if (!acc[perm.resource]) {
-              acc[perm.resource] = [];
-            }
-            acc[perm.resource].push(perm.action);
-            return acc;
-          },
-          {} as Record<string, string[]>,
+        if (permissions.length !== dto.permissionIds.length) {
+          const foundIds = permissions.map((p) => p.id);
+          const missingIds = dto.permissionIds.filter(
+            (id) => !foundIds.includes(id),
+          );
+          throw new BadRequestException(
+            `The following permission IDs do not exist: ${missingIds.join(
+              ', ',
+            )}.`,
+          );
+        }
+
+        // Create user permission entities
+        const userPermissionsToCreate = permissions.map((permission) =>
+          this.userPermissionRepository.create({
+            user: savedUser,
+            permission,
+          }),
         );
 
-        // Assign permissions for each feature
-        for (const [feature, actions] of Object.entries(permissionsByFeature)) {
-          await this.assignPermissions(savedUser.id, {
-            feature,
-            actions: actions as PermissionActionEnum[],
-            assignmentAction: AssignmentActionEnum.ADD,
-          });
-        }
+        // Save all user permissions in a single batch
+        await this.userPermissionRepository.save(userPermissionsToCreate);
       }
+      // --- END FIX ---
 
       const userWithRelations = await this.findOneWithPermissions(savedUser.id);
       return {
@@ -203,7 +206,8 @@ export class UsersService {
     } catch (error) {
       if (
         error instanceof ConflictException ||
-        error instanceof NotFoundException
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
       ) {
         throw error;
       }
@@ -221,21 +225,21 @@ export class UsersService {
       const validUserId = SecurityUtil.validateId(userId);
       SecurityUtil.validateObject(dto);
 
-      // Check if user exists
-      const user = await this.userRepository.findOne({
-        where: { id: validUserId },
-      });
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('role.permissions', 'rolePermissions')
+        .where('user.id = :id', { id: validUserId })
+        .getOne();
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
-      // Generate permission names from feature and actions
       const permissionNames = dto.actions.map(
-        (action) =>
-          `${dto.feature.toUpperCase().replace(/-/g, '_')}_${action.toUpperCase()}`,
+        (action) => `${dto.feature.toLowerCase()}.${action}`,
       );
 
-      // Get permission IDs for the specified permissions
       const permissions = await this.userRepository.manager.query(
         `SELECT id, name FROM permissions WHERE name = ANY($1)`,
         [permissionNames],
@@ -247,14 +251,29 @@ export class UsersService {
           (name) => !foundNames.includes(name),
         );
         throw new BadRequestException(
-          `The following permissions do not exist: ${missingNames.join(', ')}. ` +
-            `Available actions for ${dto.feature} may be limited.`,
+          `The following permissions do not exist: ${missingNames.join(', ')}.`,
         );
       }
 
       const permissionIds = permissions.map((p) => p.id);
 
-      // Apply the assignment action
+      // --- NEW LOGIC: Check for permissions already granted by the role ---
+      // This addresses your request to show a message and prevent saving.
+      if (dto.assignmentAction === AssignmentActionEnum.ADD) {
+        const rolePermissionNames =
+          user.role?.permissions?.map((p) => p.name) || [];
+        const redundantPermissions = permissionNames.filter((name) =>
+          rolePermissionNames.includes(name),
+        );
+
+        if (redundantPermissions.length > 0) {
+          throw new BadRequestException(
+            `Cannot add permissions ${redundantPermissions.join(', ')} as they are already granted through the user's role: ${user.role.name}.`,
+          );
+        }
+      }
+      // --- END NEW LOGIC ---
+
       switch (dto.assignmentAction) {
         case AssignmentActionEnum.ADD:
           await this.addUserPermissions(validUserId, permissionIds);
@@ -290,16 +309,15 @@ export class UsersService {
     }
   }
 
-  // Add these new helper methods to your UsersService:
   private async addUserPermissions(
     userId: string,
     permissionIds: string[],
   ): Promise<void> {
     for (const permissionId of permissionIds) {
       await this.userRepository.manager.query(
-        `INSERT INTO user_permissions (user_id, permission_id, created_at) 
-       VALUES ($1, $2, NOW()) 
-       ON CONFLICT (user_id, permission_id) DO NOTHING`,
+        `INSERT INTO user_permissions (user_id, permission_id, created_at)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (user_id, permission_id) DO NOTHING`,
         [userId, permissionId],
       );
     }
@@ -312,8 +330,8 @@ export class UsersService {
     if (permissionIds.length === 0) return;
 
     await this.userRepository.manager.query(
-      `DELETE FROM user_permissions 
-     WHERE user_id = $1 AND permission_id = ANY($2)`,
+      `DELETE FROM user_permissions
+       WHERE user_id = $1 AND permission_id = ANY($2)`,
       [userId, permissionIds],
     );
   }
@@ -325,22 +343,20 @@ export class UsersService {
   ): Promise<void> {
     await this.userRepository.manager.transaction(
       async (transactionManager) => {
-        // Remove existing permissions for this specific feature
         await transactionManager.query(
-          `DELETE FROM user_permissions up 
-       WHERE up.user_id = $1 
-       AND up.permission_id IN (
-         SELECT p.id FROM permissions p 
-         WHERE p.resource = $2
-       )`,
+          `DELETE FROM user_permissions up
+           WHERE up.user_id = $1
+           AND up.permission_id IN (
+             SELECT p.id FROM permissions p
+             WHERE p.resource = $2
+           )`,
           [userId, feature],
         );
 
-        // Add new permissions for this feature
         for (const permissionId of newPermissionIds) {
           await transactionManager.query(
-            `INSERT INTO user_permissions (user_id, permission_id, created_at) 
-         VALUES ($1, $2, NOW())`,
+            `INSERT INTO user_permissions (user_id, permission_id, created_at)
+             VALUES ($1, $2, NOW())`,
             [userId, permissionId],
           );
         }
@@ -348,7 +364,6 @@ export class UsersService {
     );
   }
 
-  // Also add a helper method to get available actions for a feature:
   async getAvailableActionsForFeature(feature: string): Promise<string[]> {
     try {
       const actions = await this.userRepository.manager.query(
@@ -364,20 +379,19 @@ export class UsersService {
     }
   }
 
-  // Add a method to get all available features:
   async getAvailableFeatures(): Promise<
     ServiceResponse<{ feature: string; actions: string[] }[]>
   > {
     try {
       const features = await this.userRepository.manager.query(`
-      SELECT 
-        resource as feature,
-        array_agg(DISTINCT action ORDER BY action) as actions,
-        count(*) as permission_count
-      FROM permissions 
-      GROUP BY resource 
-      ORDER BY resource
-    `);
+        SELECT
+          resource as feature,
+          array_agg(DISTINCT action ORDER BY action) as actions,
+          count(*) as permission_count
+        FROM permissions
+        GROUP BY resource
+        ORDER BY resource
+      `);
 
       const result = features.map((row) => ({
         feature: row.feature,
@@ -401,33 +415,33 @@ export class UsersService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
-      .leftJoinAndSelect('role.permissions', 'rolePermissions')
-      .leftJoinAndSelect('user.permissions', 'userPermissions')
       .where('user.id = :id', { id: validId })
-      .select([
-        'user.id',
-        'user.email',
-        'user.fullName',
-        'user.createdAt',
-        'user.updatedAt',
-        'role.id',
-        'role.name',
-        'role.description',
-        'rolePermissions.id',
-        'rolePermissions.name',
-        'rolePermissions.description',
-        'rolePermissions.resource',
-        'rolePermissions.action',
-        'userPermissions.id',
-        'userPermissions.name',
-        'userPermissions.description',
-        'userPermissions.resource',
-        'userPermissions.action',
-      ])
       .getOne();
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    const allPermissions = await this.userRepository.query(
+      `
+      SELECT p.*
+      FROM permissions p
+      INNER JOIN role_permissions rp ON rp.permission_id = p.id
+      WHERE rp.role_id = $1
+      UNION
+      SELECT p.*
+      FROM permissions p
+      INNER JOIN user_permissions up ON up.permission_id = p.id
+      WHERE up.user_id = $2
+      ORDER BY resource, action
+    `,
+      [user.role.id, validId],
+    );
+
+    user.permissions = allPermissions;
+
+    if (user.role) {
+      delete user.role.permissions;
     }
 
     return user;
@@ -454,10 +468,12 @@ export class UsersService {
     try {
       const validUserId = SecurityUtil.validateId(userId);
 
-      const user = await this.userRepository.findOne({
-        where: { id: validUserId },
-        relations: ['role'],
-      });
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('role.permissions', 'rolePermissions')
+        .where('user.id = :id', { id: validUserId })
+        .getOne();
 
       if (!user) {
         throw new NotFoundException('User not found');
@@ -465,20 +481,12 @@ export class UsersService {
 
       const allPermissions = new Map<string, Permission>();
 
-      // Get role permissions
-      if (user.role) {
-        const rolePermissions = await this.permissionRepository
-          .createQueryBuilder('permission')
-          .innerJoin('permission.rolePermissions', 'rp')
-          .where('rp.roleId = :roleId', { roleId: user.role.id })
-          .getMany();
-
-        rolePermissions.forEach((permission) => {
+      if (user.role && user.role.permissions) {
+        user.role.permissions.forEach((permission) => {
           allPermissions.set(permission.id, permission);
         });
       }
 
-      // Get direct user permissions
       const userPermissions = await this.permissionRepository
         .createQueryBuilder('permission')
         .innerJoin('permission.userPermissions', 'up')

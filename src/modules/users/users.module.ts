@@ -5,8 +5,8 @@ import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { UserPermission } from './entities/user-permission.entity';
 import { Role } from '../roles/entities/role.entity';
-import { Permission } from '../roles/entities/permission.entity';
-import { RolePermission } from '../roles/entities/role-permission.entity';
+import { Permission } from '../permissions/entities/permission.entity';
+import { RolePermission } from '../role-permissions/entities/role-permission.entity';
 import { SharedModule } from '../shared/shared.module';
 
 @Module({
