@@ -8,12 +8,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { DevelopmentPlanTechnologiesService } from './development-plan-technologies.service';
 import { CreateDevelopmentPlanTechnologyDto } from './dto/create-development-plan-technology.dto';
 import { UpdateDevelopmentPlanTechnologyDto } from './dto/update-development-plan-technology.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SecurityUtil } from '../../../common/utils/security.util';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plan-technologies')
 @Controller('development-plan-technologies')
@@ -23,6 +25,8 @@ export class DevelopmentPlanTechnologiesController {
   ) {}
 
   @Post()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Associate a technology with a development plan' })
   @ApiResponse({
@@ -36,6 +40,8 @@ export class DevelopmentPlanTechnologiesController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve all development plan technology associations',
   })
@@ -49,6 +55,8 @@ export class DevelopmentPlanTechnologiesController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve a development plan technology association by ID',
   })
@@ -66,6 +74,8 @@ export class DevelopmentPlanTechnologiesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a development plan technology association' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -83,7 +93,9 @@ export class DevelopmentPlanTechnologiesController {
     return this.dptService.update(id, updateDptDto);
   }
 
-  @Delete(':id')
+  @Delete(':id')  
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan technology association' })
   @ApiResponse({

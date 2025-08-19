@@ -8,11 +8,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientPlanQuotationsService } from './client-plan-quotations.service';
 import { CreateClientPlanQuotationDto } from './dto/create-client-plan-quotation.dto';
 import { UpdateClientPlanQuotationDto } from './dto/update-client-plan-quotation.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('client-plan-quotations')
 @Controller('client-plan-quotations')
@@ -23,6 +25,8 @@ export class ClientPlanQuotationsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new client plan quotation' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -34,6 +38,8 @@ export class ClientPlanQuotationsController {
   }
 
   @Get()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all client plan quotations' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -45,6 +51,8 @@ export class ClientPlanQuotationsController {
   }
 
   @Get(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a client plan quotation by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -60,6 +68,8 @@ export class ClientPlanQuotationsController {
   }
 
   @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing client plan quotation' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -78,6 +88,8 @@ export class ClientPlanQuotationsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a client plan quotation' })
   @ApiResponse({

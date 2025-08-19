@@ -8,11 +8,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { PlanFeaturesService } from './plan-features.service';
 import { CreatePlanFeatureDto } from './dto/create-plan-feature.dto';
 import { UpdatePlanFeatureDto } from './dto/update-plan-feature.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('plan-features')
 @Controller('plan-features')
@@ -20,6 +22,8 @@ export class PlanFeaturesController {
   constructor(private readonly planFeaturesService: PlanFeaturesService) {}
 
   @Post()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new plan feature' })
   @ApiResponse({
@@ -32,6 +36,8 @@ export class PlanFeaturesController {
   }
 
   @Get()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all plan features' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -43,6 +49,8 @@ export class PlanFeaturesController {
   }
 
   @Get(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a plan feature by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -58,6 +66,8 @@ export class PlanFeaturesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing plan feature' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -76,6 +86,8 @@ export class PlanFeaturesController {
   }
 
   @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a plan feature' })
   @ApiResponse({

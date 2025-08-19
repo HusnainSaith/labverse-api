@@ -19,13 +19,18 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { RoleEnum } from './role.enum';
 import { SecurityUtil } from '../../common/utils/security.util';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+@ApiTags('Roles')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new role' })
   @Roles(RoleEnum.ADMIN)
   @Permissions('roles.create')
   create(@Body() dto: CreateRoleDto) {
@@ -33,6 +38,9 @@ export class RolesController {
   }
 
   @Post(':id/permissions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Assign permissions to a role' })
   @Roles(RoleEnum.ADMIN)
   @Permissions('ROLES_UPDATE')
   assignPermissions(
@@ -44,6 +52,9 @@ export class RolesController {
   }
 
   @Get(':id/permissions')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Retrieve permissions for a role' })
   @Permissions('ROLES_READ')
   getRolePermissions(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
@@ -51,12 +62,18 @@ export class RolesController {
   }
 
   @Get()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Retrieve all roles' })
   @Permissions('ROLES_READ')
   findAll() {
     return this.rolesService.findAll();
   }
 
   @Get(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Retrieve a role by ID' })
   @Permissions('ROLES_READ')
   findOne(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
@@ -64,6 +81,9 @@ export class RolesController {
   }
 
   @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update a role by ID' })
   @Roles(RoleEnum.ADMIN)
   @Permissions('ROLES_UPDATE')
   update(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
@@ -72,6 +92,9 @@ export class RolesController {
   }
 
   @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Remove a role by ID' })
   @Roles(RoleEnum.ADMIN)
   @Permissions('ROLES_DELETE')
   remove(@Param('id') id: string) {

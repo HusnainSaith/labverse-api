@@ -2,18 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RolesService } from '../../../src/modules/roles/roles.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Role } from '../../../src/modules/roles/entities/role.entity';
+import { Permission } from 'src/modules/permissions/entities/permission.entity';
+import { RolePermission } from 'src/modules/role-permissions/entities/role-permission.entity';
 import { RoleEnum } from '../../../src/modules/roles/role.enum';
+import { ServiceResponse } from '../../../src/common/interfaces/service-response.interface';
 import { mockRepository } from '../../utils/test-helpers';
 
 describe('RolesService', () => {
   let service: RolesService;
-  let roleRepository: any;
+  let roleRepository: any;  
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RolesService,
         { provide: getRepositoryToken(Role), useValue: mockRepository() },
+        { provide: getRepositoryToken(Permission), useValue: mockRepository() },
+        { provide: getRepositoryToken(RolePermission), useValue: mockRepository() },
       ],
     }).compile();
 
@@ -35,7 +40,11 @@ describe('RolesService', () => {
 
       const result = await service.create(createRoleDto);
 
-      expect(result).toEqual(mockRole);
+      expect(result).toEqual({
+        success: true,
+        message: 'Role created successfully',
+        data: mockRole
+      });
       expect(roleRepository.create).toHaveBeenCalledWith(createRoleDto);
     });
   });
@@ -48,7 +57,11 @@ describe('RolesService', () => {
       const validId = '550e8400-e29b-41d4-a716-446655440000';
       const result = await service.findOne(validId);
 
-      expect(result).toEqual(mockRole);
+      expect(result).toEqual({
+        success: true,
+        message: 'Role retrieved successfully',
+        data: mockRole
+      });
       expect(roleRepository.findOne).toHaveBeenCalledWith({ where: { id: validId } });
     });
   });

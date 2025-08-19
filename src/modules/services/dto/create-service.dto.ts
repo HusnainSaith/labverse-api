@@ -4,49 +4,53 @@ import {
   IsOptional,
   IsNumber,
   Min,
-  Max,
-  IsDecimal,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateServiceDto {
   @ApiProperty({
     description: 'The name of the service',
     example: 'Website Design',
+    maxLength: 255,
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'A detailed description of the service',
-    required: false,
+    example: 'Full website design including UI/UX and responsive layout',
+    maxLength: 1000,
   })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'The base price of the service', example: 500.0 })
+  @ApiProperty({
+    description: 'The base price of the service',
+    example: 500.0,
+    minimum: 0,
+    type: Number,
+  })
   @IsNumber()
   @Min(0)
-  // Use IsDecimal if you need to strictly validate decimal format in string input before transformation
   base_price: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Expected duration of the service in days',
-    required: false,
     example: 30,
+    minimum: 0,
+    type: Number,
   })
   @IsOptional()
   @IsNumber()
   @Min(0)
   duration_in_days?: number;
 
-  @ApiProperty({
-    description:
-      'Category of the service (e.g., "Web Development", "Consulting")',
-    required: false,
+  @ApiPropertyOptional({
+    description: 'Category of the service (e.g., "Web Development", "Consulting")',
     example: 'Web Development',
+    maxLength: 100,
   })
   @IsOptional()
   @IsString()

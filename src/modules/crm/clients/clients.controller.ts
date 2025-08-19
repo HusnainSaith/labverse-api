@@ -8,12 +8,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-clients.dto';
 import { UpdateClientDto } from './dto/update-clients.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SecurityUtil } from 'src/common/utils/security.util';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('clients')
 @Controller('clients')
@@ -21,6 +23,8 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({
@@ -33,6 +37,8 @@ export class ClientsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all clients' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -44,6 +50,8 @@ export class ClientsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a client by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -59,6 +67,8 @@ export class ClientsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing client' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -76,7 +86,8 @@ export class ClientsController {
     return this.clientsService.update(id, updateClientDto);
   }
 
-  @Delete(':id')
+  @Delete(':id')  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a client' })
   @ApiResponse({

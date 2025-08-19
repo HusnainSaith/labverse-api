@@ -53,6 +53,7 @@ describe('SupportTicketsService', () => {
       const createReplyDto = {
         content: 'We are looking into this issue',
         senderId: 'author-id',
+        message: 'We are looking into this issue',
       };
       const mockReply = { id: 'reply-id', ...createReplyDto, ticketId };
 

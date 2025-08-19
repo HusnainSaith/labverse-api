@@ -17,7 +17,9 @@ import { RoleEnum } from '../../roles/role.enum';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { UuidValidationPipe } from '../../../common/pipes/uuid-validation.pipe';
 import { SecurityUtil } from '../../../common/utils/security.util';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Employee Profiles')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('employee-profiles')
 export class EmployeeProfilesController {
@@ -26,18 +28,27 @@ export class EmployeeProfilesController {
   ) {}
 
   @Post()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new employee profile' })
   @Roles(RoleEnum.ADMIN)
   create(@Body() createEmployeeProfileDto: CreateEmployeeProfileDto) {
     return this.employeeProfilesService.create(createEmployeeProfileDto); 
   }
 
   @Get()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Retrieve all employee profiles' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER)
   findAll() {
     return this.employeeProfilesService.findAll();
   }
 
   @Get(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Retrieve a specific employee profile' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.EMPLOYEE)
   findOne(@Param('id', UuidValidationPipe) id: string) {
     const validId = SecurityUtil.validateId(id);
@@ -45,6 +56,9 @@ export class EmployeeProfilesController {
   }
 
   @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update a specific employee profile' })
   @Roles(RoleEnum.ADMIN)
   update(
     @Param('id', UuidValidationPipe) id: string,
@@ -58,6 +72,9 @@ export class EmployeeProfilesController {
   }
 
   @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Delete a specific employee profile' })
   @Roles(RoleEnum.ADMIN)
   remove(@Param('id', UuidValidationPipe) id: string) {
     const validId = SecurityUtil.validateId(id);

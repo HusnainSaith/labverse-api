@@ -8,11 +8,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { DevelopmentPlansService } from './development-plans.service';
 import { CreateDevelopmentPlanDto } from './dto/create-development-plan.dto';
 import { UpdateDevelopmentPlanDto } from './dto/update-development-plan.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plans')
 @Controller('development-plans')
@@ -22,6 +24,8 @@ export class DevelopmentPlansController {
   ) {}
 
   @Post()
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new development plan' })
   @ApiResponse({
@@ -34,6 +38,8 @@ export class DevelopmentPlansController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all development plans' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -45,6 +51,8 @@ export class DevelopmentPlansController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a development plan by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -60,6 +68,8 @@ export class DevelopmentPlansController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing development plan' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -78,6 +88,8 @@ export class DevelopmentPlansController {
   }
 
   @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan' })
   @ApiResponse({

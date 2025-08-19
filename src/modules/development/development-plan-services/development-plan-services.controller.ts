@@ -8,11 +8,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { DevelopmentPlanServicesService } from './development-plan-services.service';
 import { CreateDevelopmentPlanServiceDto } from './dto/create-development-plan-service.dto';
 import { UpdateDevelopmentPlanServiceDto } from './dto/update-development-plan-service.dto';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plan-services')
 @Controller('development-plan-services')
@@ -20,6 +22,8 @@ export class DevelopmentPlanServicesController {
   constructor(private readonly dpsService: DevelopmentPlanServicesService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Associate a service with a development plan' })
   @ApiResponse({
@@ -32,6 +36,8 @@ export class DevelopmentPlanServicesController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve all development plan service associations',
   })
@@ -45,6 +51,8 @@ export class DevelopmentPlanServicesController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve a development plan service association by ID',
   })
@@ -62,6 +70,8 @@ export class DevelopmentPlanServicesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a development plan service association' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -80,6 +90,8 @@ export class DevelopmentPlanServicesController {
   }
 
   @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan service association' })
   @ApiResponse({

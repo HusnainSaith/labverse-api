@@ -28,7 +28,7 @@ import { ProjectTechnologiesModule } from './modules/project-management/project-
 import { SkillsModule } from './modules/hr/skills/skills.module';
 import { EmployeeSkillsModule } from './modules/hr/employee-skills/employee-skills.module';
 import { ProjectMilestoneModule } from './modules/project-management/project-milestones/project-milestones.module';
-import { ProjectUpdateModule } from './modules/project-management/project-updates/project-updates.module';
+import { ProjectUpdatesModule } from './modules/project-management/project-updates/project-updates.module';
 import { TaskCommentModule } from './modules/project-management/tasks/task-comments.module';
 import { TaskModule } from './modules/project-management/tasks/tasks.module';
 import { TimeEntryModule } from './modules/project-management/time-entries/time-entries.module';
@@ -105,7 +105,7 @@ import { RolePermissionsModule } from './modules/role-permissions/role-permissio
     EmployeeSkillsModule,
     TechnologiesModule,
     ProjectMilestoneModule,
-    ProjectUpdateModule,
+    ProjectUpdatesModule,
     TaskCommentModule,
     TaskModule,
     TimeEntryModule,

@@ -20,19 +20,42 @@ async function bootstrap() {
 
   // Global validation pipe with strict validation
   app.useGlobalPipes(new GlobalValidationPipe());
-
   // Global exception filter
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Swagger documentation
+  // Swagger documentation with proper bearer auth configuration
   const config = new DocumentBuilder()
     .setTitle('LabVerse API')
     .setDescription('Complete project management and CRM system API')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth' // This name here is important for matching and can be any string
+    )
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  
+  // Setup Swagger with additional options to ensure bearer token works
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Keeps auth data on page refresh
+      securityDefinitions: {
+        bearerAuth: {
+          type: 'apiKey',
+          name: 'Authorization',
+          in: 'header',
+        },
+      },
+    },
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
