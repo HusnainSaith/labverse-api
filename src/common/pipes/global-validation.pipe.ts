@@ -17,11 +17,11 @@ export class GlobalValidationPipe extends ValidationPipe {
         enableImplicitConversion: false,
       },
       validateCustomDecorators: true,
-      
+
       // Override the exceptionFactory to return a cleaner response
       exceptionFactory: (errors: ValidationError[]) => {
         const messages = this.formatErrors(errors);
-        
+
         // This is the key change. We are now returning an array of specific error messages.
         return new BadRequestException(messages);
       },
@@ -32,9 +32,9 @@ export class GlobalValidationPipe extends ValidationPipe {
   // that just extracts the top-level messages for the main response.
   private formatErrors(errors: ValidationError[]): string[] {
     const errorMessages: string[] = [];
-    errors.forEach(error => {
+    errors.forEach((error) => {
       if (error.constraints) {
-        Object.values(error.constraints).forEach(message => {
+        Object.values(error.constraints).forEach((message) => {
           errorMessages.push(message);
         });
       }
