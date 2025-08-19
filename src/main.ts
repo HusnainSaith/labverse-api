@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -37,12 +36,12 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT-auth' // This name here is important for matching and can be any string
+      'JWT-auth', // This name here is important for matching and can be any string
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  
+
   // Setup Swagger with additional options to ensure bearer token works
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
