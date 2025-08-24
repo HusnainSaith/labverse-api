@@ -20,7 +20,6 @@ import {
 import { SecurityUtil } from '../../common/utils/security.util';
 import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 import * as bcrypt from 'bcryptjs';
-import { PermissionActionEnum } from 'src/common/enums/permission-actions.enum';
 
 @Injectable()
 export class UsersService {
@@ -410,41 +409,96 @@ export class UsersService {
   }
 
   async findOneWithPermissions(id: string): Promise<User> {
-    const validId = SecurityUtil.validateId(id);
+    try {
+      const validId = SecurityUtil.validateId(id);
 
-    const user = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .where('user.id = :id', { id: validId })
-      .getOne();
+      // First, get the user with role
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('user.id = :id', { id: validId })
+        .getOne();
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Get all permissions using a more defensive approach
+      let allPermissions = [];
+
+      if (user.role?.id) {
+        // User has a role - get both role and direct permissions
+        allPermissions = await this.userRepository.query(
+          `
+        SELECT DISTINCT 
+          p.id, 
+          p.name, 
+          p.description, 
+          p.resource, 
+          p.action, 
+          p.created_at, 
+          p.updated_at,
+          CASE 
+            WHEN rp.permission_id IS NOT NULL THEN 'role'
+            ELSE 'direct'
+          END as source
+        FROM permissions p
+        WHERE p.id IN (
+          -- Role permissions
+          SELECT rp.permission_id 
+          FROM role_permissions rp 
+          WHERE rp.role_id = $1
+          
+          UNION
+          
+          -- Direct user permissions
+          SELECT up.permission_id 
+          FROM user_permissions up 
+          WHERE up.user_id = $2
+        )
+        LEFT JOIN role_permissions rp ON p.id = rp.permission_id AND rp.role_id = $1
+        ORDER BY p.resource, p.action
+        `,
+          [user.role.id, validId],
+        );
+      } else {
+        // User has no role - get only direct permissions
+        allPermissions = await this.userRepository.query(
+          `
+        SELECT DISTINCT 
+          p.id, 
+          p.name, 
+          p.description, 
+          p.resource, 
+          p.action, 
+          p.created_at, 
+          p.updated_at,
+          'direct' as source
+        FROM permissions p
+        INNER JOIN user_permissions up ON p.id = up.permission_id
+        WHERE up.user_id = $1
+        ORDER BY p.resource, p.action
+        `,
+          [validId],
+        );
+      }
+
+      // Assign permissions to user
+      user.permissions = allPermissions || [];
+
+      // Clean up role permissions property if it exists
+      if (user.role && user.role.permissions) {
+        delete user.role.permissions;
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error in findOneWithPermissions:', error);
+      throw new Error(`Failed to find user with permissions: ${error.message}`);
     }
-
-    const allPermissions = await this.userRepository.query(
-      `
-      SELECT p.*
-      FROM permissions p
-      INNER JOIN role_permissions rp ON rp.permission_id = p.id
-      WHERE rp.role_id = $1
-      UNION
-      SELECT p.*
-      FROM permissions p
-      INNER JOIN user_permissions up ON up.permission_id = p.id
-      WHERE up.user_id = $2
-      ORDER BY resource, action
-    `,
-      [user.role.id, validId],
-    );
-
-    user.permissions = allPermissions;
-
-    if (user.role) {
-      delete user.role.permissions;
-    }
-
-    return user;
   }
 
   async findById(id: string): Promise<User | null> {
@@ -471,7 +525,6 @@ export class UsersService {
       const user = await this.userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.role', 'role')
-        .leftJoinAndSelect('role.permissions', 'rolePermissions')
         .where('user.id = :id', { id: validUserId })
         .getOne();
 
@@ -481,12 +534,21 @@ export class UsersService {
 
       const allPermissions = new Map<string, Permission>();
 
-      if (user.role && user.role.permissions) {
-        user.role.permissions.forEach((permission) => {
+      // Fix: Check if user.role exists before accessing its permissions
+      if (user.role?.id) {
+        // Get role permissions
+        const rolePermissions = await this.permissionRepository
+          .createQueryBuilder('permission')
+          .innerJoin('permission.rolePermissions', 'rp')
+          .where('rp.roleId = :roleId', { roleId: user.role.id })
+          .getMany();
+
+        rolePermissions.forEach((permission) => {
           allPermissions.set(permission.id, permission);
         });
       }
 
+      // Get direct user permissions
       const userPermissions = await this.permissionRepository
         .createQueryBuilder('permission')
         .innerJoin('permission.userPermissions', 'up')
