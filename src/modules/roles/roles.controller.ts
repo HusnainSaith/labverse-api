@@ -42,7 +42,7 @@ export class RolesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Assign permissions to a role' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('ROLES_UPDATE')
+  @Permissions('roles.update')
   assignPermissions(
     @Param('id') id: string,
     @Body() dto: AssignRolePermissionsDto,
@@ -55,7 +55,7 @@ export class RolesController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve permissions for a role' })
-  @Permissions('ROLES_READ')
+  @Permissions('roles.read')
   getRolePermissions(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.rolesService.getRolePermissions(validId);
@@ -65,7 +65,8 @@ export class RolesController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all roles' })
-  @Permissions('ROLES_READ')
+  @Roles(RoleEnum.ADMIN)
+  @Permissions('roles.read')
   findAll() {
     return this.rolesService.findAll();
   }
@@ -74,7 +75,8 @@ export class RolesController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a role by ID' })
-  @Permissions('ROLES_READ')
+  @Permissions('roles.read')
+  @Roles(RoleEnum.ADMIN)
   findOne(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.rolesService.findOne(validId);
@@ -85,7 +87,7 @@ export class RolesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a role by ID' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('ROLES_UPDATE')
+  @Permissions('roles.update')
   update(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
     const validId = SecurityUtil.validateId(id);
     return this.rolesService.update(validId, dto);
@@ -96,7 +98,7 @@ export class RolesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Remove a role by ID' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('ROLES_DELETE')
+  @Permissions('roles.delete')
   remove(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.rolesService.remove(validId);

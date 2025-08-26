@@ -2,11 +2,9 @@ import {
   Controller,
   Post,
   Body,
-  UseGuards,
-  Request,
   HttpCode,
   HttpStatus,
-  BadRequestException,
+ 
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -16,7 +14,7 @@ import {
   PasswordResetDto,
   ResetPasswordDto,
 } from './dto/refresh-token.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')

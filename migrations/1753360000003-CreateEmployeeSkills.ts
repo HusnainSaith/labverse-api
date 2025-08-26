@@ -13,7 +13,7 @@ export class CreateEmployeeSkills1753360000003 implements MigrationInterface {
         years_of_experience INTEGER,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (employee_profile_id, skill_id),
+        PRIMARY KEY (e89mployee_profile_id, skill_id),
         CONSTRAINT fk_employee_skills_profile FOREIGN KEY (employee_profile_id) REFERENCES employee_profiles(id) ON DELETE CASCADE,
         CONSTRAINT fk_employee_skills_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
       );

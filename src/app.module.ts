@@ -62,12 +62,13 @@ import { RolePermissionsModule } from './modules/role-permissions/role-permissio
 @Module({
   imports: [
     // ConfigModule.forRoot({
-    //   isGlobal: true,
+      
+    // Core ConfigurationisGlobal: true,
     // }),
     // TypeOrmModule.forRootAsync({
     //   useFactory: databaseConfig,
     // }),
-    // Core Configuration
+    
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
