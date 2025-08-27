@@ -6,6 +6,7 @@ import {
   InternalServerErrorException,
   HttpException,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -33,53 +34,61 @@ export class EmployeeProfilesService {
   ) {}
 
  
-  async create(
-    createEmployeeProfileDto: CreateEmployeeProfileDto,
-  ): Promise<ServiceResponse<EmployeeProfile>> {
-    try {
-   
-      const { userId, employeeCode } = createEmployeeProfileDto;
+  
+async create(
+  createEmployeeProfileDto: CreateEmployeeProfileDto,
+): Promise<ServiceResponse<EmployeeProfile>> {
+  try {
+    const { userId, employeeCode } = createEmployeeProfileDto;
 
+    // 1. Check if user exists
+    const user = await this.userRepository.findOne({ 
+      where: { id: userId },
+      relations: ['role'] // Include role relation to check user's role
+    });
     
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-      if (!user) {
-        throw new NotFoundException('User not found for the provided userId');
-      }
-
-      // 3. Business Logic Validation (Uniqueness constraints):
-      const existingProfileByUser = await this.employeeProfileRepository.findOne({
-        where: { userId },
-      });
-      if (existingProfileByUser) {
-        throw new ConflictException('Employee profile already exists for this user');
-      }
-
-      const existingProfileByCode = await this.employeeProfileRepository.findOne({
-        where: { employeeCode }, 
-      });
-      if (existingProfileByCode) {
-        throw new ConflictException('Employee profile with this code already exists');
-      }
-
-      // 4. Operation:
-      const employeeProfile = this.employeeProfileRepository.create({
-        ...createEmployeeProfileDto,
-      });
-
-      const savedProfile = await this.employeeProfileRepository.save(employeeProfile);
-      SafeLogger.log(`Employee profile created: ${employeeCode} for user ${userId}`, 'EmployeeProfilesService');
-
-      return {
-        success: true,
-        message: 'Employee profile created successfully',
-        data: savedProfile,
-        statusCode: HttpStatus.CREATED,
-      };
-    } catch (error) {
-
-      this.handleServiceError(error, 'Failed to create employee profile');
+    if (!user) {
+      throw new NotFoundException('User not found for the provided userId');
     }
+
+    // 2. Check if user has employee role
+    if (!user.role || user.role.name.toLowerCase() !== 'employee') {
+      throw new ForbiddenException('User is not an employee. Only users with employee role can have employee profiles.');
+    }
+
+    // 3. Business Logic Validation (Uniqueness constraints):
+    const existingProfileByUser = await this.employeeProfileRepository.findOne({
+      where: { userId },
+    });
+    if (existingProfileByUser) {
+      throw new ConflictException('Employee profile already exists for this user');
+    }
+
+    const existingProfileByCode = await this.employeeProfileRepository.findOne({
+      where: { employeeCode }, 
+    });
+    if (existingProfileByCode) {
+      throw new ConflictException('Employee profile with this code already exists');
+    }
+
+    // 4. Operation:
+    const employeeProfile = this.employeeProfileRepository.create({
+      ...createEmployeeProfileDto,
+    });
+
+    const savedProfile = await this.employeeProfileRepository.save(employeeProfile);
+    SafeLogger.log(`Employee profile created: ${employeeCode} for user ${userId}`, 'EmployeeProfilesService');
+
+    return {
+      success: true,
+      message: 'Employee profile created successfully',
+      data: savedProfile,
+      statusCode: HttpStatus.CREATED,
+    };
+  } catch (error) {
+    this.handleServiceError(error, 'Failed to create employee profile');
   }
+}
 
   async findAll(): Promise<ServiceResponse<EmployeeProfile[]>> {
     try {

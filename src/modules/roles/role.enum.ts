@@ -1,6 +1,6 @@
 export enum RoleEnum {
   ADMIN = 'admin',
-  USER = 'user',
+  GUEST = 'guest',
   CLIENT = 'client',
   EMPLOYEE = 'employee',
   PROJECT_MANAGER = 'project_manager',

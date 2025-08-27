@@ -28,78 +28,78 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new permission' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('PERMISSIONS_CREATE')
+  @Permissions('permissions.create')
   create(@Body() dto: CreatePermissionDto) {
     return this.permissionsService.create(dto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
+  @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve all permissions' })
-  @Permissions('PERMISSIONS_READ')
   findAll() {
     return this.permissionsService.findAll();
   }
 
   @Get('resources')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all resources' })
-  @Permissions('PERMISSIONS_READ')
+  @Permissions('permissions.read')
   getAllResources() {
     return this.permissionsService.getAllResources();
   }
 
   @Get('actions')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all actions' })
-  @Permissions('PERMISSIONS_READ')
+  @Permissions('permissions.read')
   getAllActions() {
     return this.permissionsService.getAllActions();
   }
 
   @Get('by-resource')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
+   @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve all permissions by resource' })
-  @Permissions('PERMISSIONS_READ')
   findByResource(@Query('resource') resource: string) {
     return this.permissionsService.findByResource(resource);
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
+   @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve a specific permission' })
-  @Permissions('PERMISSIONS_READ')
   findOne(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.permissionsService.findOne(validId);
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
+   @Permissions('permission.update')
   @ApiOperation({ summary: 'Update a specific permission' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('PERMISSIONS_UPDATE')
   update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
     const validId = SecurityUtil.validateId(id);
     return this.permissionsService.update(validId, dto);
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
+   @Permissions('permissions.delete')
   @ApiOperation({ summary: 'Delete a specific permission' })
   @Roles(RoleEnum.ADMIN)
-  @Permissions('PERMISSIONS_DELETE')
   remove(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
     return this.permissionsService.remove(validId);

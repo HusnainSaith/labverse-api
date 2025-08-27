@@ -104,7 +104,7 @@ async function seed() {
     // ... (Your roles seeding logic) ...
     const rolesToSeed = [
         { name: RoleEnum.ADMIN, description: 'Administrator with full access' },
-        { name: RoleEnum.USER, description: 'Default user' },
+        { name: RoleEnum.GUEST, description: 'Guest user with limited access' },
         { name: RoleEnum.CLIENT, description: 'Client user with limited access' },
         { name: RoleEnum.EMPLOYEE, description: 'Employee user with limited access' },
         { name: RoleEnum.PROJECT_MANAGER, description: 'Project manager with project access' },

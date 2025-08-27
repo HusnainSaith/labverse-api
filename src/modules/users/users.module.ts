@@ -1,5 +1,35 @@
+// import { Module } from '@nestjs/common';
+// import { TypeOrmModule } from '@nestjs/typeorm';
+// import { UsersService } from './users.service';
+// import { UsersController } from './users.controller';
+// import { User } from './entities/user.entity';
+// import { UserPermission } from './entities/user-permission.entity';
+// import { Role } from '../roles/entities/role.entity';
+// import { Permission } from '../permissions/entities/permission.entity';
+// import { RolePermission } from '../role-permissions/entities/role-permission.entity';
+// import { SharedModule } from '../shared/shared.module';
+
+// @Module({
+//   imports: [
+//     TypeOrmModule.forFeature([
+//       User,
+//       UserPermission,
+//       Role,
+//       Permission,
+//       RolePermission,
+//     ]),
+//     SharedModule,
+//   ],
+//   controllers: [UsersController],
+//   providers: [UsersService],
+//   exports: [UsersService, TypeOrmModule],
+// })
+// export class UsersModule {}
+
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
@@ -8,6 +38,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../permissions/entities/permission.entity';
 import { RolePermission } from '../role-permissions/entities/role-permission.entity';
 import { SharedModule } from '../shared/shared.module';
+import { TokenUtil } from 'src/common/utils/jwt.util';
 
 @Module({
   imports: [
@@ -19,9 +50,13 @@ import { SharedModule } from '../shared/shared.module';
       RolePermission,
     ]),
     SharedModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
+    }),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService, TypeOrmModule],
+  providers: [UsersService, TokenUtil],
+  exports: [UsersService, TokenUtil, TypeOrmModule],
 })
 export class UsersModule {}
