@@ -28,7 +28,7 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new permission' })
   @Roles(RoleEnum.ADMIN)
@@ -38,7 +38,7 @@ export class PermissionsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve all permissions' })
@@ -47,7 +47,7 @@ export class PermissionsController {
   }
 
   @Get('resources')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all resources' })
   @Permissions('permissions.read')
@@ -56,7 +56,7 @@ export class PermissionsController {
   }
 
   @Get('actions')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all actions' })
   @Permissions('permissions.read')
@@ -65,7 +65,7 @@ export class PermissionsController {
   }
 
   @Get('by-resource')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
    @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve all permissions by resource' })
@@ -74,7 +74,7 @@ export class PermissionsController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
    @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve a specific permission' })
@@ -84,7 +84,7 @@ export class PermissionsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
    @Permissions('permission.update')
   @ApiOperation({ summary: 'Update a specific permission' })
@@ -95,7 +95,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
    @Permissions('permissions.delete')
   @ApiOperation({ summary: 'Delete a specific permission' })
