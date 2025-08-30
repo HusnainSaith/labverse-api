@@ -15,6 +15,7 @@ export class CreateProjects1753360000004 implements MigrationInterface {
         status VARCHAR(50) DEFAULT 'Planning' NOT NULL,
         budget NUMERIC(15, 2),
         creator_id UUID,
+        images TEXT[],
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_projects_creator FOREIGN KEY (creator_id) REFERENCES clients(id) ON DELETE SET NULL

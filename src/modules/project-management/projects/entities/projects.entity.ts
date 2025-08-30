@@ -1,85 +1,134 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
-import { ProjectStatus } from '../dto/project-status.enum';
-import { Task } from '../../tasks/entities/task.entity';
-import { TimeEntry } from '../../time-entries/entities/time-entry.entity';
-import { ProjectUpdate } from '../../project-updates/entities/project-update.entity';
-import { ProjectMilestone } from '../../project-milestones/entities/project-milestone.entity';
-import { ProjectMember } from '../../project-members/entities/project-member.entity';
-import { ProjectTechnology } from '../../project-technologies/entities/project-technology.entity';
-import { Invoice } from '../../../billing/invoices/entities/invoice.entity';
-import { Client } from '../../../../modules/crm/clients/entities/clients.entity';
+import { 
+  Entity, 
+  Column, 
+  PrimaryGeneratedColumn, 
+  CreateDateColumn, 
+  UpdateDateColumn, 
+  ManyToOne, 
+  ManyToMany, 
+  JoinTable, 
+  JoinColumn, 
+  OneToMany, 
+} from 'typeorm'; 
+import { Client } from '../../../crm/clients/entities/clients.entity'; 
+import { User } from 'src/modules/users/entities/user.entity'; 
+import { ProjectStatus } from '../dto/project-status.enum'; 
+import { ProjectMilestone } from '../../project-milestones/entities/project-milestone.entity'; 
+import { ProjectMember } from '../../project-members/entities/project-member.entity'; 
+import { ProjectTechnology } from '../../project-technologies/entities/project-technology.entity'; 
+import { Invoice } from 'src/modules/billing/invoices/entities/invoice.entity'; 
+import { ProjectUpdate } from '../../project-updates/entities/project-update.entity'; 
+import { TimeEntry } from '../../time-entries/entities/time-entry.entity'; 
+import { Task } from '../../tasks/entities/task.entity'; 
 
-@Entity({ name: 'projects' })
-export class Project {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+@Entity('projects') 
+export class Project { 
+  @PrimaryGeneratedColumn('uuid') 
+  id: string; 
 
-  @Column({ unique: true, length: 255 })
-  name: string;
+  @Column({  
+    type: 'varchar',  
+    length: 255,  
+    nullable: false, 
+    unique: true  
+  }) 
+  name: string; 
 
-  @Column({ type: 'text', nullable: true })
-  description: string;
+  @Column({  
+    type: 'text',  
+    nullable: true  
+  }) 
+  description: string; 
 
-  @Column({
-    name: 'start_date',
-    type: 'timestamp with time zone',
-    nullable: true,
-  })
-  startDate: Date;
+  @Column({  
+    type: 'date',  
+    nullable: true  
+  }) 
+  startDate: Date; 
 
-  @Column({
-    name: 'end_date',
-    type: 'timestamp with time zone',
-    nullable: true,
-  })
-  endDate: Date;
+  @Column({  
+    type: 'date',  
+    nullable: true  
+  }) 
+  endDate: Date; 
 
-  @Column({ type: 'varchar', length: 50, default: ProjectStatus.PLANNING })
-  status: ProjectStatus;
+  @Column({ 
+    type: 'enum', 
+    enum: ProjectStatus, 
+    default: ProjectStatus.IN_PROGRESS, 
+  }) 
+  status: ProjectStatus; 
 
-  @Column({ type: 'numeric', precision: 15, scale: 2, nullable: true })
-  budget: number;
+  @Column({  
+    type: 'decimal',  
+    precision: 12,  
+    scale: 2,  
+    nullable: true  
+  }) 
+  budget: number; 
 
-  @Column({ name: 'creator_id', type: 'uuid', nullable: true })
-  creatorId: string;
+  @Column({ 
+    type: 'text', 
+    array: true,
+    nullable: true, 
+  }) 
+  images: string[]; 
 
-  @ManyToOne(() => Client)
+  // Relations 
+  @ManyToOne(() => Client, (client) => client.projects, {  
+    onDelete: 'SET NULL', 
+    nullable: true  
+  }) 
   @JoinColumn({ name: 'creator_id' })
-  creator: Client;
+  client: Client; 
 
-  @OneToMany(() => Task, (task) => task.project)
-  tasks: Task[];
+  @Column({  
+    type: 'uuid',  
+    nullable: true , 
+    name: 'creator_id',
+  }) 
+  creatorId: string; 
 
-  @OneToMany(() => TimeEntry, (timeEntry) => timeEntry.project)
-  timeEntries: TimeEntry[];
 
-  @OneToMany(() => ProjectUpdate, (update) => update.project)
-  updates: ProjectUpdate[];
+  @ManyToMany(() => User, (user) => user.assignedProjects) 
+  @JoinTable({ 
+    name: 'project_users', 
+    joinColumn: { 
+      name: 'projectId', 
+      referencedColumnName: 'id', 
+    }, 
+    inverseJoinColumn: { 
+      name: 'userId', 
+      referencedColumnName: 'id', 
+    }, 
+  }) 
+  assignedUsers: User[]; 
 
-  @OneToMany(() => ProjectMilestone, (milestone) => milestone.project)
-  milestones: ProjectMilestone[];
+  @OneToMany(() => Task, (task) => task.project) 
+  tasks: Task[]; 
 
-  @OneToMany(() => ProjectMember, (member) => member.project)
-  members: ProjectMember[];
+  @OneToMany(() => TimeEntry, (timeEntry) => timeEntry.project) 
+  timeEntries: TimeEntry[]; 
 
-  @OneToMany(() => ProjectTechnology, (pt) => pt.project)
-  projectTechnologies: ProjectTechnology[];
+  @OneToMany(() => ProjectUpdate, (update) => update.project) 
+  updates: ProjectUpdate[]; 
 
-  @OneToMany(() => Invoice, (invoice) => invoice.project)
-  invoices: Invoice[]; // This property name 'invoices' matches the error message
+  @OneToMany(() => ProjectMilestone, (milestone) => milestone.project) 
+  milestones: ProjectMilestone[]; 
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @OneToMany(() => ProjectMember, (member) => member.project) 
+  members: ProjectMember[]; 
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @OneToMany(() => ProjectTechnology, (pt) => pt.project) 
+  projectTechnologies: ProjectTechnology[]; 
+
+  @OneToMany(() => Invoice, (invoice) => invoice.project) 
+  invoices: Invoice[]; 
+
+  @CreateDateColumn() 
+  createdAt: Date; 
+
+  @UpdateDateColumn() 
+  updatedAt: Date; 
 }
+

@@ -14,6 +14,7 @@ export class CreateEmployeeProfiles1753360000001 implements MigrationInterface {
         job_title VARCHAR(255),
         department VARCHAR(255),
         status VARCHAR(50) DEFAULT 'active' NOT NULL,
+        "profile_image" varchar(2048) NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_employee_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsUUID,
   IsNotEmpty,
+  IsArray,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -89,4 +90,16 @@ export class CreateProjectDto {
   @IsOptional()
   @IsUUID(4, { message: 'Creator ID must be a valid UUID' })
   creatorId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Array of image URLs for the project',
+    example: [
+      'https://fvatmbbtvtixwnnmfbuh.supabase.co/storage/v1/object/public/Labverse/projects/image1.png',
+    ],
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 }

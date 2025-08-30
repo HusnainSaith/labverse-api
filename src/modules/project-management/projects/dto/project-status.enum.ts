@@ -1,7 +1,8 @@
 export enum ProjectStatus {
-  PLANNING = 'Planning',
-  IN_PROGRESS = 'In Progress',
-  COMPLETED = 'Completed',
-  ON_HOLD = 'On Hold',
-  CANCELLED = 'Cancelled',
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  ON_HOLD = 'on_hold',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  ARCHIVED = 'archived',
 }

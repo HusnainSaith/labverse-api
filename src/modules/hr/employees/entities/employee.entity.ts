@@ -39,7 +39,8 @@ export class EmployeeProfile {
   @Column({ length: 255, nullable: true })
   department: string;
 
-
+  @Column({ name: 'profile_image', length: 2048, nullable: true })
+  profileImage: string;
 
  
 

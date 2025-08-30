@@ -1,270 +1,246 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
   BadRequestException,
   InternalServerErrorException,
+  ConflictException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Project } from './entities/projects.entity';
+import { Repository, QueryRunner, DataSource } from 'typeorm';
 import { CreateProjectDto } from './dto/create-projects.dto';
 import { UpdateProjectDto } from './dto/update-projects.dto';
+import { Project } from './entities/projects.entity';
 import { Client } from '../../crm/clients/entities/clients.entity';
-import { SecurityUtil } from '../../../common/utils/security.util';
-import { ValidationUtil } from '../../../common/utils/validation.util';
-import { SafeLogger } from '../../../common/utils/logger.util';
+import { User } from 'src/modules/users/entities/user.entity';
+import { SafeLogger } from 'src/common/utils/logger.util';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
+
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto): Promise<{ success: boolean; message: string; data: Project }> {
-    ValidationUtil.validateString(createProjectDto.name, 'name', 2, 100);
-    if (createProjectDto.description) {
-      ValidationUtil.validateString(createProjectDto.description, 'description', 0, 1000);
-    }
-    if (createProjectDto.creatorId) {
-      ValidationUtil.validateUUID(createProjectDto.creatorId, 'creatorId');
-    }
-    if (createProjectDto.startDate) {
-      ValidationUtil.validateDate(createProjectDto.startDate, 'startDate');
-    }
-    if (createProjectDto.endDate) {
-      ValidationUtil.validateDate(createProjectDto.endDate, 'endDate');
-    }
-    if (createProjectDto.status) {
-      ValidationUtil.validateString(createProjectDto.status, 'status', 1, 50);
-    }
+  /**
+   * Create a new project with proper validation and error handling.
+   */
+  async create(createProjectDto: CreateProjectDto): Promise<Project> {
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const { name, creatorId, startDate, endDate } = createProjectDto;
+    try {
+      // Validate date logic
+      if (createProjectDto.startDate && createProjectDto.endDate) {
+        const startDate = new Date(createProjectDto.startDate);
+        const endDate = new Date(createProjectDto.endDate);
 
-    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
-      throw new BadRequestException('Start date must be before end date');
-    }
-
-    const existingProject = await this.projectRepository.findOne({
-      where: { name: ValidationUtil.sanitizeString(name) },
-    });
-    if (existingProject) {
-      throw new ConflictException(`Project with name "${name}" already exists`);
-    }
-
-    if (creatorId) {
-      const creator = await this.clientRepository.findOne({
-        where: { id: creatorId },
-      });
-      if (!creator) {
-        throw new NotFoundException(`Client with ID "${creatorId}" not found`);
+        if (startDate >= endDate) {
+          throw new BadRequestException('Start date must be before end date');
+        }
       }
-    }
 
-    const project = this.projectRepository.create({
-      ...createProjectDto,
-      name: ValidationUtil.sanitizeString(name),
-      description: createProjectDto.description ? ValidationUtil.sanitizeString(createProjectDto.description) : undefined,
-    });
-    const savedProject = await this.projectRepository.save(project);
-    
-    SafeLogger.log(`Project created successfully: ${name}`, 'ProjectsService');
-    return {
-      success: true,
-      message: 'Project created successfully',
-      data: savedProject
-    };
-  }
-
-  async findAll(): Promise<{ success: boolean; message: string; data: Project[] }> {
-    const projects = await this.projectRepository.find({ relations: ['creator'] });
-    return {
-      success: true,
-      message: 'Projects retrieved successfully',
-      data: projects
-    };
-  }
-
-  async findOne(id: string): Promise<{ success: boolean; message: string; data: Project }> {
-    ValidationUtil.validateUUID(id, 'projectId');
-    
-    const project = await this.projectRepository.findOne({
-      where: { id },
-      relations: ['creator'],
-    });
-    if (!project) {
-      throw new NotFoundException(`Project with ID "${id}" not found`);
-    }
-    
-    return {
-      success: true,
-      message: 'Project retrieved successfully',
-      data: project
-    };
-  }
-
-  async update(
-    id: string,
-    updateProjectDto: UpdateProjectDto,
-  ): Promise<{ success: boolean; message: string; data: Project }> {
-    ValidationUtil.validateUUID(id, 'projectId');
-    
-    if (updateProjectDto.name) {
-      ValidationUtil.validateString(updateProjectDto.name, 'name', 2, 100);
-    }
-    if (updateProjectDto.description !== undefined) {
-      if (updateProjectDto.description) {
-        ValidationUtil.validateString(updateProjectDto.description, 'description', 0, 1000);
-      }
-    }
-    if (updateProjectDto.creatorId) {
-      ValidationUtil.validateUUID(updateProjectDto.creatorId, 'creatorId');
-    }
-    if (updateProjectDto.startDate) {
-      ValidationUtil.validateDate(updateProjectDto.startDate, 'startDate');
-    }
-    if (updateProjectDto.endDate) {
-      ValidationUtil.validateDate(updateProjectDto.endDate, 'endDate');
-    }
-    if (updateProjectDto.status) {
-      ValidationUtil.validateString(updateProjectDto.status, 'status', 1, 50);
-    }
-
-    const projectResult = await this.findOne(id);
-    const project = projectResult.data;
-    const { startDate, endDate } = updateProjectDto;
-
-    const newStartDate = startDate || project.startDate;
-    const newEndDate = endDate || project.endDate;
-    if (
-      newStartDate &&
-      newEndDate &&
-      new Date(newStartDate) >= new Date(newEndDate)
-    ) {
-      throw new BadRequestException('Start date must be before end date');
-    }
-
-    if (updateProjectDto.name && updateProjectDto.name !== project.name) {
+      // Check if project with same name already exists
       const existingProject = await this.projectRepository.findOne({
-        where: { name: ValidationUtil.sanitizeString(updateProjectDto.name) },
+        where: { name: createProjectDto.name },
       });
-      if (existingProject && existingProject.id !== id) {
-        throw new ConflictException(
-          `Project with name "${updateProjectDto.name}" already exists`,
-        );
-      }
-    }
 
-    if (updateProjectDto.creatorId) {
-      const creator = await this.clientRepository.findOne({
-        where: { id: updateProjectDto.creatorId },
+      if (existingProject) {
+        throw new ConflictException('A project with this name already exists');
+      }
+
+      // Create project entity
+      const project = this.projectRepository.create({
+        ...createProjectDto,
+        startDate: createProjectDto.startDate ? new Date(createProjectDto.startDate) : null,
+        endDate: createProjectDto.endDate ? new Date(createProjectDto.endDate) : null,
+        images: createProjectDto.images || [],
       });
-      if (!creator) {
-        throw new NotFoundException(
-          `Client with ID "${updateProjectDto.creatorId}" not found`,
-        );
+
+      // Save project
+      const savedProject = await queryRunner.manager.save(Project, project);
+
+      await queryRunner.commitTransaction();
+
+      SafeLogger.log(`Project created successfully: ${savedProject.id}`, 'ProjectsService');
+      return savedProject;
+
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      SafeLogger.error(`Failed to create project: ${error.message}`, 'ProjectsService');
+
+      if (error instanceof BadRequestException || error instanceof ConflictException) {
+        throw error;
       }
+
+      throw new InternalServerErrorException('Failed to create project');
+    } finally {
+      await queryRunner.release();
     }
-
-    const updateData = {
-      ...updateProjectDto,
-      ...(updateProjectDto.name && { name: ValidationUtil.sanitizeString(updateProjectDto.name) }),
-      ...(updateProjectDto.description !== undefined && { 
-        description: updateProjectDto.description ? ValidationUtil.sanitizeString(updateProjectDto.description) : null 
-      }),
-    };
-
-    Object.assign(project, updateData);
-    const updatedProject = await this.projectRepository.save(project);
-    
-    SafeLogger.log(`Project updated successfully: ${id}`, 'ProjectsService');
-    return {
-      success: true,
-      message: 'Project updated successfully',
-      data: updatedProject
-    };
   }
 
+  /**
+   * Retrieve all projects
+   */
+  async findAll(): Promise<Project[]> {
+    try {
+      SafeLogger.log('Fetching all projects...', 'ProjectsService');
+
+      const projects = await this.projectRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+
+      SafeLogger.log(`Retrieved ${projects.length} projects`, 'ProjectsService');
+
+      return projects;
+    } catch (error) {
+      SafeLogger.error(`Failed to retrieve projects: ${error.message}`, 'ProjectsService', error.stack);
+      throw new InternalServerErrorException('Failed to retrieve projects');
+    }
+  }
+
+  /**
+   * Find a project by ID
+   */
+  async findOne(id: string): Promise<Project> {
+    try {
+      if (!id || typeof id !== 'string') {
+        throw new BadRequestException('Invalid project ID provided');
+      }
+
+      const project = await this.projectRepository.findOne({
+        where: { id },
+      });
+
+      if (!project) {
+        throw new NotFoundException(`Project with ID ${id} not found`);
+      }
+
+      SafeLogger.log(`Project retrieved: ${project.id}`, 'ProjectsService');
+      return project;
+
+    } catch (error) {
+      SafeLogger.error(`Failed to find project ${id}: ${error.message}`, 'ProjectsService');
+
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to retrieve project');
+    }
+  }
+
+  /**
+   * Update a project with validation
+   */
+  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // First, find the existing project
+      const existingProject = await this.findOne(id);
+
+      // Validate date logic if dates are being updated
+      const startDate = updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : existingProject.startDate;
+      const endDate = updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : existingProject.endDate;
+
+      if (startDate && endDate && startDate >= endDate) {
+        throw new BadRequestException('Start date must be before end date');
+      }
+
+      // Check for name conflicts (if name is being updated)
+      if (updateProjectDto.name && updateProjectDto.name !== existingProject.name) {
+        const nameConflict = await this.projectRepository.findOne({
+          where: { name: updateProjectDto.name },
+        });
+
+        if (nameConflict) {
+          throw new ConflictException('A project with this name already exists');
+        }
+      }
+
+      // Prepare update data
+      const updateData = {
+        ...updateProjectDto,
+        startDate: updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : undefined,
+        endDate: updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : undefined,
+      };
+
+      // Update the project
+      await queryRunner.manager.update(Project, id, updateData);
+
+      // Fetch updated project
+      const updatedProject = await queryRunner.manager.findOne(Project, {
+        where: { id },
+      });
+
+      await queryRunner.commitTransaction();
+
+      SafeLogger.log(`Project updated successfully: ${id}`, 'ProjectsService');
+      return updatedProject;
+
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      SafeLogger.error(`Failed to update project ${id}: ${error.message}`, 'ProjectsService');
+
+      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ConflictException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to update project');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * Delete a project with proper cleanup
+   */
   async remove(id: string): Promise<{ success: boolean; message: string }> {
-    ValidationUtil.validateUUID(id, 'projectId');
-    
-    const result = await this.projectRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Project with ID "${id}" not found`);
+    const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // First, check if project exists
+      const project = await this.findOne(id);
+
+      // Delete the project
+      const deleteResult = await queryRunner.manager.delete(Project, id);
+
+      if (deleteResult.affected === 0) {
+        throw new NotFoundException(`Project with ID ${id} not found`);
+      }
+
+      await queryRunner.commitTransaction();
+
+      SafeLogger.log(`Project deleted successfully: ${id}`, 'ProjectsService');
+      return {
+        success: true,
+        message: 'Project deleted successfully',
+      };
+
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      SafeLogger.error(`Failed to delete project ${id}: ${error.message}`, 'ProjectsService');
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to delete project');
+    } finally {
+      await queryRunner.release();
     }
-    
-    SafeLogger.log(`Project deleted successfully: ${id}`, 'ProjectsService');
-    return {
-      success: true,
-      message: 'Project deleted successfully'
-    };
-  }
-
-  async getProjectDetails(id: string): Promise<{ success: boolean; message: string; data: any }> {
-    ValidationUtil.validateUUID(id, 'projectId');
-    
-    const project = await this.projectRepository.findOne({
-      where: { id },
-      relations: [
-        'projectTechnologies',
-        'projectTechnologies.technology',
-        'members',
-        'members.employee',
-        'members.employee.user',
-      ],
-    });
-
-    if (!project) {
-      throw new NotFoundException(`Project with ID "${id}" not found`);
-    }
-
-    const projectDetails = {
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      status: project.status,
-      startDate: project.startDate,
-      endDate: project.endDate,
-      technologies:
-        project.projectTechnologies?.map((pt) => ({
-          id: pt.technology.id,
-          name: pt.technology.name,
-        })) || [],
-      members: project.members?.map((member) => ({
-        id: member.employee?.id,
-        name: member.employee?.user?.fullName ?? '',
-      })) || [],
-    };
-
-    return {
-      success: true,
-      message: 'Project details retrieved successfully',
-      data: projectDetails
-    };
-  }
-
-  async findByClient(clientId: string): Promise<{ success: boolean; message: string; data: Project[] }> {
-    ValidationUtil.validateUUID(clientId, 'clientId');
-    
-    const client = await this.clientRepository.findOne({
-      where: { id: clientId },
-    });
-    if (!client) {
-      throw new NotFoundException(`Client with ID "${clientId}" not found`);
-    }
-
-    const projects = await this.projectRepository.find({
-      where: { creatorId: clientId },
-      relations: ['creator'],
-    });
-
-    return {
-      success: true,
-      message: 'Client projects retrieved successfully',
-      data: projects
-    };
   }
 }

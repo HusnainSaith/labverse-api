@@ -33,7 +33,6 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'create users' })
-  @Roles(RoleEnum.ADMIN)
   @Permissions('users.create')
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
@@ -43,7 +42,6 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'create user with permissions' })
-  @Roles(RoleEnum.ADMIN)
   @Permissions('users.create')
   createWithPermissions(@Body() dto: CreateUserWithPermissionsDto) {
     return this.usersService.createWithPermissions(dto);
@@ -53,7 +51,6 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'assign permissions to user by id' })
-  @Roles(RoleEnum.ADMIN)
   @Permissions('users.update')
   assignPermissions(
     @Param('id') id: string,
@@ -111,7 +108,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(RoleEnum.ADMIN)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'update user by id' })
@@ -125,7 +121,6 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'delete user by id' })
-  @Roles(RoleEnum.ADMIN)
   @Permissions('users.delete')
   remove(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);

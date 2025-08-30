@@ -16,6 +16,10 @@ public async up(queryRunner: QueryRunner): Promise<void> {
             generationStrategy: 'uuid',
             default: 'uuid_generate_v4()',
           },
+          { name: 'profile_photo',
+            type: 'varchar',
+            length: '255',
+            isNullable: true,},
           {
             name: 'name',
             type: 'varchar',
