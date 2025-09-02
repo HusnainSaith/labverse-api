@@ -17,15 +17,6 @@ export class CreateEmployeeProfileDto {
   @IsUUID()
   userId: string;
 
-  @ApiProperty({
-    description: 'Unique employee code',
-    example: 'EMP-001',
-    maxLength: 100,
-  })
-  @IsString()
-  @MaxLength(100)
-  employeeCode: string;
-
   @ApiPropertyOptional({
     description: 'Hire date of the employee',
     example: '2025-08-18',

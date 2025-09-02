@@ -7,6 +7,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
 import { EmployeeStatus } from '../dto/employee-status.enum';
@@ -14,7 +15,7 @@ import { Task } from '../../../project-management/tasks/entities/task.entity';
 import { TaskComment } from '../../../project-management/tasks/entities/task-comment.entity';
 import { TimeEntry } from '../../../project-management/time-entries/entities/time-entry.entity';
 import { ProjectUpdate } from '../../../project-management/project-updates/entities/project-update.entity';
-
+import { v4 as uuidv4 } from 'uuid'; 
 @Entity({ name: 'employee_profiles' })
 export class EmployeeProfile {
   @PrimaryGeneratedColumn('uuid')
@@ -52,4 +53,9 @@ export class EmployeeProfile {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+   @BeforeInsert()
+  generateEmployeeCode() {
+    this.employeeCode = `EMP-${uuidv4()}`;
+  }
 }

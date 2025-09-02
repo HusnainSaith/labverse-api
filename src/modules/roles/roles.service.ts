@@ -53,62 +53,7 @@ export class RolesService {
     }
   }
 
-  async assignPermissions(
-    roleId: string,
-    dto: AssignRolePermissionsDto,
-  ): Promise<ServiceResponse<Role>> {
-    try {
-      const validRoleId = SecurityUtil.validateId(roleId);
-      SecurityUtil.validateObject(dto);
-
-      const role = await this.roleRepository.findOne({
-        where: { id: validRoleId },
-      });
-      if (!role) {
-        throw new NotFoundException('Role not found');
-      }
-
-      // Validate all permission IDs
-      const validPermissionIds = dto.permissionIds.map((id) =>
-        SecurityUtil.validateId(id),
-      );
-
-      // Remove existing role permissions
-      await this.rolePermissionRepository.delete({ roleId: validRoleId });
-
-      // Verify all permissions exist
-      const permissions = await this.permissionRepository
-        .createQueryBuilder('permission')
-        .where('permission.id IN (:...ids)', { ids: validPermissionIds })
-        .getMany();
-
-      if (permissions.length !== validPermissionIds.length) {
-        throw new NotFoundException('Some permissions not found');
-      }
-
-      // Create new role permissions
-      const rolePermissions = validPermissionIds.map((permissionId) =>
-        this.rolePermissionRepository.create({
-          roleId: validRoleId,
-          permissionId,
-        }),
-      );
-
-      await this.rolePermissionRepository.save(rolePermissions);
-
-      const updatedRole = await this.findOneWithPermissions(validRoleId);
-      return {
-        success: true,
-        message: 'Permissions assigned to role successfully',
-        data: updatedRole,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new Error(`Failed to assign permissions to role: ${error.message}`);
-    }
-  }
+ 
 
   async findOneWithPermissions(id: string): Promise<Role> {
     const validId = SecurityUtil.validateId(id);
@@ -126,39 +71,7 @@ export class RolesService {
     return role;
   }
 
-  async getRolePermissions(
-    roleId: string,
-  ): Promise<ServiceResponse<Permission[]>> {
-    try {
-      const validRoleId = SecurityUtil.validateId(roleId);
-
-      const role = await this.roleRepository.findOne({
-        where: { id: validRoleId },
-      });
-      if (!role) {
-        throw new NotFoundException('Role not found');
-      }
-
-      const permissions = await this.permissionRepository
-        .createQueryBuilder('permission')
-        .innerJoin('permission.rolePermissions', 'rp')
-        .where('rp.roleId = :roleId', { roleId: validRoleId })
-        .orderBy('permission.resource', 'ASC')
-        .addOrderBy('permission.action', 'ASC')
-        .getMany();
-
-      return {
-        success: true,
-        message: 'Role permissions retrieved successfully',
-        data: permissions,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new Error(`Failed to retrieve role permissions: ${error.message}`);
-    }
-  }
+ 
 
   async findAll(): Promise<ServiceResponse<Role[]>> {
     try {

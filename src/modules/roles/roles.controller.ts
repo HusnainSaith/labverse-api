@@ -37,29 +37,6 @@ export class RolesController {
     return this.rolesService.create(dto);
   }
 
-  @Post(':id/permissions')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Assign permissions to a role' })
-  @Roles(RoleEnum.ADMIN)
-  @Permissions('roles.update')
-  assignPermissions(
-    @Param('id') id: string,
-    @Body() dto: AssignRolePermissionsDto,
-  ) {
-    const validId = SecurityUtil.validateId(id);
-    return this.rolesService.assignPermissions(validId, dto);
-  }
-
-  @Get(':id/permissions')
-    @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Retrieve permissions for a role' })
-  @Permissions('roles.read')
-  getRolePermissions(@Param('id') id: string) {
-    const validId = SecurityUtil.validateId(id);
-    return this.rolesService.getRolePermissions(validId);
-  }
 
   @Get()
     @UseGuards(JwtAuthGuard)
