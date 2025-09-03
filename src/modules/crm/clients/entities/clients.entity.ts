@@ -52,7 +52,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ClientPlanQuotation } from '../../../client-plan-quotations/entities/client-plan-quotation.entity';
 import { Invoice } from '../../../billing/invoices/entities/invoice.entity';
-import { Project } from 'src/modules/project-management/projects/entities/projects.entity';
+import { Project } from './../../../project-management/projects/entities/projects.entity';
 
 @Entity('clients')
 export class Client {
