@@ -6,12 +6,17 @@ import {
   Param,
   Delete,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { ProjectTechnologiesService } from './project-technology.service';
-import { CreateProjectTechnologyDto } from './dto/create-project-technology.dto';
+import { CreateProjectTechnologiesDto } from './dto/create-project-technology.dto';
+import { UpdateProjectTechnologyDto } from './dto/update-project-technology.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard'; // Adjust path
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RoleEnum } from 'src/modules/roles/role.enum';
+
 @ApiTags('Project Technologies')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('project-technologies')
@@ -21,11 +26,25 @@ export class ProjectTechnologiesController {
   ) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new project technology association' })
-  create(@Body() createProjectTechnologyDto: CreateProjectTechnologyDto) {
-    return this.projectTechnologiesService.create(createProjectTechnologyDto);
+  @ApiOperation({ summary: 'Create a new project technology association (bulk)' })
+  @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.DEVELOPER)
+  create(@Body() createProjectTechnologiesDto: CreateProjectTechnologiesDto) {
+    return this.projectTechnologiesService.create(createProjectTechnologiesDto);
+  }
+
+  @Patch(':projectId/:oldTechnologyId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update a project technology association' })
+  @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.DEVELOPER)
+  update(
+    @Param('projectId') projectId: string,
+    @Param('oldTechnologyId') oldTechnologyId: string,
+    @Body() dto: UpdateProjectTechnologyDto,
+  ) {
+    return this.projectTechnologiesService.update(projectId, oldTechnologyId, dto);
   }
 
   @Get()
@@ -37,7 +56,7 @@ export class ProjectTechnologiesController {
   }
 
   @Get(':projectId/:technologyId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a project technology association by IDs' })
   findOne(
@@ -47,13 +66,8 @@ export class ProjectTechnologiesController {
     return this.projectTechnologiesService.findOne(projectId, technologyId);
   }
 
-  // Note: Update operation for junction tables like this is often handled by
-  // deleting and re-creating the association if the primary keys change.
-  // If there were other fields on the junction table, a Patch method would be more common.
-  // For now, we'll omit a direct Patch method as it's less common for simple associations.
-
   @Delete(':projectId/:technologyId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a project technology association by IDs' })
   remove(

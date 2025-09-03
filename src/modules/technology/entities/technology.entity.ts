@@ -22,6 +22,9 @@ export class Technology {
   @Column({ nullable: true, length: 100 })
   category: string;
 
+  @Column({ nullable: true, length: 500 })
+  logo: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

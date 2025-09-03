@@ -9,15 +9,17 @@ import { Technology } from './entities/technology.entity';
 import { CreateTechnologyDto } from './dto/create-technology.dto';
 import { UpdateTechnologyDto } from './dto/update-technology.dto';
 import { SecurityUtil } from '../../common/utils/security.util';
+import { SupabaseService } from 'src/common/services/supabase.service';
 
 @Injectable()
 export class TechnologiesService {
   constructor(
     @InjectRepository(Technology)
     private readonly technologyRepository: Repository<Technology>,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
-  async create(createTechnologyDto: CreateTechnologyDto): Promise<Technology> {
+  async create(createTechnologyDto: CreateTechnologyDto, logoFile?: Express.Multer.File): Promise<Technology> {
     SecurityUtil.validateObject(createTechnologyDto);
     const { name } = createTechnologyDto;
     const sanitizedName = SecurityUtil.sanitizeString(name);
@@ -30,6 +32,12 @@ export class TechnologiesService {
       throw new ConflictException(
         `Technology with name "${name}" already exists.`,
       );
+    }
+
+    // Upload logo if provided
+    if (logoFile) {
+      const logoUrl = await this.supabaseService.uploadImage(logoFile, 'technologies');
+      createTechnologyDto.logo = logoUrl;
     }
 
     const technology = this.technologyRepository.create(createTechnologyDto);
@@ -54,6 +62,7 @@ export class TechnologiesService {
   async update(
     id: string,
     updateTechnologyDto: UpdateTechnologyDto,
+    logoFile?: Express.Multer.File,
   ): Promise<Technology> {
     SecurityUtil.validateObject(updateTechnologyDto);
     const technology = await this.findOne(id); // Reuses findOne to check existence
@@ -72,6 +81,12 @@ export class TechnologiesService {
           `Technology with name "${updateTechnologyDto.name}" already exists.`,
         );
       }
+    }
+
+    // Upload new logo if provided
+    if (logoFile) {
+      const logoUrl = await this.supabaseService.uploadImage(logoFile, 'technologies');
+      updateTechnologyDto.logo = logoUrl;
     }
 
     Object.assign(technology, updateTechnologyDto);

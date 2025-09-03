@@ -32,4 +32,14 @@ export class CreateTechnologyDto {
   @IsString()
   @MaxLength(100)
   category?: string;
+
+  @ApiPropertyOptional({
+    description: 'Logo URL for the technology',
+    example: 'https://example.com/nestjs-logo.png',
+    maxLength: 500,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  logo?: string;
 }

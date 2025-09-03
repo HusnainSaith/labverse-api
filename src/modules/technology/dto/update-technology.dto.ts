@@ -24,4 +24,11 @@ export class UpdateTechnologyDto extends PartialType(CreateTechnologyDto) {
     maxLength: 100,
   })
   category?: string;
+
+  @ApiPropertyOptional({
+    description: 'Updated logo URL for the technology',
+    example: 'https://example.com/express-logo.png',
+    maxLength: 500,
+  })
+  logo?: string;
 }

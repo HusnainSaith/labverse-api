@@ -71,7 +71,15 @@ export class ProjectsService {
       await queryRunner.commitTransaction();
 
       SafeLogger.log(`Project created successfully: ${savedProject.id}`, 'ProjectsService');
-      return savedProject;
+      // Re-fetch the newly created project with its relations to return a complete object.
+      // Note: Technologies are associated in a separate service, so this will only show
+      // technologies linked *after* this call.
+      const projectWithRelations = await this.projectRepository.findOne({
+        where: { id: savedProject.id },
+        relations: ['projectTechnologies', 'projectTechnologies.technology'],
+      });
+
+      return projectWithRelations;
 
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -95,6 +103,7 @@ export class ProjectsService {
       SafeLogger.log('Fetching all projects...', 'ProjectsService');
 
       const projects = await this.projectRepository.find({
+        relations: ['projectTechnologies', 'projectTechnologies.technology'],
         order: { createdAt: 'DESC' },
       });
 
@@ -118,6 +127,7 @@ export class ProjectsService {
 
       const project = await this.projectRepository.findOne({
         where: { id },
+        relations: ['projectTechnologies', 'projectTechnologies.technology'],
       });
 
       if (!project) {
@@ -179,9 +189,10 @@ export class ProjectsService {
       // Update the project
       await queryRunner.manager.update(Project, id, updateData);
 
-      // Fetch updated project
+      // Fetch updated project with relations
       const updatedProject = await queryRunner.manager.findOne(Project, {
         where: { id },
+        relations: ['projectTechnologies', 'projectTechnologies.technology'],
       });
 
       await queryRunner.commitTransaction();
