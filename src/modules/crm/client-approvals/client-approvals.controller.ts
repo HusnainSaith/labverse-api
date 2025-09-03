@@ -11,7 +11,7 @@ import {
 import { ClientApprovalsService } from './client-approvals.service';
 import { CreateClientApprovalDto } from './dto/create-client-approval.dto';
 import { UpdateClientApprovalDto } from './dto/update-client-approval.dto';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Client Approvals')

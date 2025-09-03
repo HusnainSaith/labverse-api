@@ -1,8 +1,8 @@
-// src/modules/auth/decorators/current-user.decorator.ts
+
 
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 // Adjust these paths if your User or EmployeeProfile entities are located differently
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity'
 import { EmployeeProfile } from '../../hr/employees/entities/employee.entity';
 
 export const CurrentUser = createParamDecorator(

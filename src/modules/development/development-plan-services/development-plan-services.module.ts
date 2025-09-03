@@ -4,7 +4,7 @@ import { DevelopmentPlanServicesService } from './development-plan-services.serv
 import { DevelopmentPlanServicesController } from './development-plan-services.controller';
 import { DevelopmentPlanService } from './entities/development-plan-service.entity';
 import { DevelopmentPlansModule } from '../development-plans/development-plans.module';
-import { ServicesModule } from 'src/modules/services/services.module';
+import { ServicesModule } from '../../services/services.module';
 
 @Module({
   imports: [

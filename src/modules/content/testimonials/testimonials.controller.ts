@@ -12,7 +12,7 @@ import { TestimonialsService } from './testimonials.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('Testimonials')
 @Controller('testimonials')

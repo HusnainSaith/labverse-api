@@ -1,4 +1,4 @@
-// src/modules/messaging/entities/message.entity.ts
+
 import {
   Entity,
   PrimaryGeneratedColumn,

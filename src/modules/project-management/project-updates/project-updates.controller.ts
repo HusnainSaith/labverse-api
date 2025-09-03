@@ -11,7 +11,7 @@ import {
 import { ProjectUpdatesService } from './project-updates.service';
 import { CreateProjectUpdateDto } from './dto/create-project-update.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 @ApiTags('Project Updates')
 @Controller('project-updates')
 export class ProjectUpdatesController {

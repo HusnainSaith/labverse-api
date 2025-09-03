@@ -11,8 +11,8 @@ import { CreateProjectDto } from './dto/create-projects.dto';
 import { UpdateProjectDto } from './dto/update-projects.dto';
 import { Project } from './entities/projects.entity';
 import { Client } from '../../crm/clients/entities/clients.entity';
-import { User } from 'src/modules/users/entities/user.entity';
-import { SafeLogger } from 'src/common/utils/logger.util';
+import { User } from '../../users/entities/user.entity';
+import { SafeLogger } from "../../../common/utils/logger.util"
 
 @Injectable()
 export class ProjectsService {

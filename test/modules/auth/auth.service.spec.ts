@@ -3,7 +3,7 @@ import { AuthService } from '../../../src/modules/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { RefreshToken } from '../../../src/modules/auth/entities/refresh-token.entity';
-import { UsersService } from '../../../src/modules/users/users.service';
+import { UsersService } from '../../modules/users/
 import { UnauthorizedException } from '@nestjs/common';
 import { mockRepository, mockJwtService, createMockUser } from '../../utils/test-helpers';
 import * as bcrypt from 'bcryptjs';

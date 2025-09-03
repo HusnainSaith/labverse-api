@@ -9,7 +9,7 @@ import { Repository, In } from 'typeorm';
 import { ProjectTechnology } from './entities/project-technology.entity';
 import { CreateProjectTechnologiesDto } from './dto/create-project-technology.dto';
 import { Project } from '../projects/entities/projects.entity';
-import { Technology } from 'src/modules/technology/entities/technology.entity';
+import { Technology } from '../../technology/entities/technology.entity';
 import { SecurityUtil } from '../../../common/utils/security.util';
 import { DataSource } from 'typeorm';
 import { UpdateProjectTechnologyDto } from './dto/update-project-technology.dto';

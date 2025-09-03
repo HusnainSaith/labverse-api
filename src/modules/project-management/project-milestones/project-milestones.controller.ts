@@ -11,7 +11,7 @@ import {
 import { ProjectMilestoneService } from './project-milestones.service';
 import { CreateProjectMilestoneDto } from './dto/create-project-milestone.dto';
 import { UpdateProjectMilestoneDto } from './dto/update-project-milestone.dto';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('Project Milestones')

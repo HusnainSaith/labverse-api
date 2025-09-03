@@ -12,7 +12,8 @@ import { ClientNotesService } from './client-notes.service';
 import { CreateClientNoteDto } from './dto/create-client-note.dto';
 import { UpdateClientNoteDto } from './dto/update-client-note.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('Client Notes')
 @Controller('client-notes')

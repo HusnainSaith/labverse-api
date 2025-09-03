@@ -12,7 +12,7 @@ import { BlogCommentsService } from './blog-comments.service';
 import { CreateBlogCommentDto } from './dto/create-blog-comment.dto';
 import { UpdateBlogCommentDto } from './dto/update-blog-comment.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Blog Comments')
 @Controller('blog-comments')
 export class BlogCommentsController {

@@ -11,7 +11,7 @@ import {
 import { ContactInquiriesService } from './contact-inquiries.service';
 import { CreateContactInquiryDto } from './dto/create-contact-inquiry.dto';
 import { UpdateContactInquiryDto } from './dto/update-contact-inquiry.dto';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Contact Inquiries')

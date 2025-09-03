@@ -12,7 +12,7 @@ import { ClientInteractionsService } from './client-interactions.service';
 import { CreateClientInteractionDto } from './dto/create-client-interaction.dto';
 import { UpdateClientInteractionDto } from './dto/update-client-interaction.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('Client Interactions')
 @Controller('client-interactions')

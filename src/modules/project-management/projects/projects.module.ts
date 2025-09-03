@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
 import { Project } from './entities/projects.entity';
-import { Client } from 'src/modules/crm/clients/entities/clients.entity';
+import { Client } from '../../crm/clients/entities/clients.entity'
 import { SupabaseService } from 'src/common/services/supabase.service';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity'
 
 @Module({
   imports: [TypeOrmModule.forFeature([Project,User, Client])],

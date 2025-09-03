@@ -14,7 +14,7 @@ import { DevelopmentPlanServicesService } from './development-plan-services.serv
 import { CreateDevelopmentPlanServiceDto } from './dto/create-development-plan-service.dto';
 import { UpdateDevelopmentPlanServiceDto } from './dto/update-development-plan-service.dto';
 import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('development-plan-services')
 @Controller('development-plan-services')

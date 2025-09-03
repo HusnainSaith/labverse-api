@@ -12,7 +12,7 @@ import { CaseStudiesService } from './case-studies.service';
 import { CreateCaseStudyDto } from './dto/create-case-study.dto';
 import { UpdateCaseStudyDto } from './dto/update-case-study.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Case Studies')
 @Controller('case-studies')
 export class CaseStudiesController {

@@ -1,110 +1,4 @@
-// import {
-//   Controller,
-//   Get,
-//   Post,
-//   Body,
-//   Patch,
-//   Param,
-//   Delete,
-//   HttpCode,
-//   HttpStatus,
-//   UseGuards,
-// } from '@nestjs/common';
-// import { ClientsService } from './clients.service';
-// import { CreateClientDto } from './dto/create-clients.dto';
-// import { UpdateClientDto } from './dto/update-clients.dto';
-// import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-// import { SecurityUtil } from 'src/common/utils/security.util';
-// import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
-// @ApiTags('clients')
-// @Controller('clients')
-// export class ClientsController {
-//   constructor(private readonly clientsService: ClientsService) {}
-
-//   @Post()
-//     @UseGuards(JwtAuthGuard)
-//   @ApiBearerAuth('JWT-auth')
-//   @HttpCode(HttpStatus.CREATED)
-//   @ApiOperation({ summary: 'Create a new client' })
-//   @ApiResponse({
-//     status: HttpStatus.CREATED,
-//     description: 'The client has been successfully created.',
-//     type: CreateClientDto,
-//   })
-//   async create(@Body() createClientDto: CreateClientDto) {
-//     return this.clientsService.create(createClientDto);
-//   }
-
-//   @Get()
-//   @UseGuards(JwtAuthGuard)
-//   @ApiBearerAuth('JWT-auth')
-//   @ApiOperation({ summary: 'Retrieve all clients' })
-//   @ApiResponse({
-//     status: HttpStatus.OK,
-//     description: 'Successfully retrieved all clients.',
-//     type: [CreateClientDto],
-//   })
-//   async findAll() {
-//     return this.clientsService.findAll();
-//   }
-
-//   @Get(':id')
-//   @UseGuards(JwtAuthGuard)
-//   @ApiBearerAuth('JWT-auth')
-//   @ApiOperation({ summary: 'Retrieve a client by ID' })
-//   @ApiResponse({
-//     status: HttpStatus.OK,
-//     description: 'Client found.',
-//     type: CreateClientDto,
-//   })
-//   @ApiResponse({
-//     status: HttpStatus.NOT_FOUND,
-//     description: 'Client not found.',
-//   })
-//   async findOne(@Param('id') id: string) {
-//     return this.clientsService.findOne(id);
-//   }
-
-//   @Patch(':id')
-//   @UseGuards(JwtAuthGuard)
-//   @ApiBearerAuth('JWT-auth')
-//   @ApiOperation({ summary: 'Update an existing client' })
-//   @ApiResponse({
-//     status: HttpStatus.OK,
-//     description: 'The client has been successfully updated.',
-//     type: CreateClientDto,
-//   })
-//   @ApiResponse({
-//     status: HttpStatus.NOT_FOUND,
-//     description: 'Client not found.',
-//   })
-//   async update(
-//     @Param('id') id: string,
-//     @Body() updateClientDto: UpdateClientDto,
-//   ) {
-//     return this.clientsService.update(id, updateClientDto);
-//   }
-
-//   @Delete(':id')  @UseGuards(JwtAuthGuard)
-//   @ApiBearerAuth('JWT-auth')
-//   @HttpCode(HttpStatus.NO_CONTENT)
-//   @ApiOperation({ summary: 'Delete a client' })
-//   @ApiResponse({
-//     status: HttpStatus.NO_CONTENT,
-//     description: 'The client has been successfully deleted.',
-//   })
-//   @ApiResponse({
-//     status: HttpStatus.NOT_FOUND,
-//     description: 'Client not found.',
-//   })
-//   async remove(@Param('id') id: string) {
-//     await this.clientsService.remove(id);
-//   }
-// }
-
-
-// src/clients/clients.controller.ts
 import {
   Controller,
   Get,
@@ -124,8 +18,7 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-clients.dto';
 import { UpdateClientDto } from './dto/update-clients.dto';
 import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { SecurityUtil } from 'src/common/utils/security.util';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('clients')
 @Controller('clients')

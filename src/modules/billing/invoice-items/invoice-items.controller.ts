@@ -12,7 +12,7 @@ import {
 import { InvoiceItemsService } from './invoice-items.service';
 import { CreateInvoiceItemDto } from './dto/create-invoice-item.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Invoice Items')
 @Controller('invoice-items')
 export class InvoiceItemsController {

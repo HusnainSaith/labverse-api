@@ -459,7 +459,7 @@ npm run migration:run
 ### 2. Import Errors
 ```typescript
 // Use absolute imports from src
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../modules/users/entities/user.entity'
 
 // Not relative imports for cross-module dependencies
 // import { User } from '../../../users/entities/user.entity'; // ❌

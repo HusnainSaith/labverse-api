@@ -14,7 +14,7 @@ import { DevelopmentPlanFeaturesService } from './development-plan-features.serv
 import { CreateDevelopmentPlanFeatureDto } from './dto/create-development-plan-feature.dto';
 import { UpdateDevelopmentPlanFeatureDto } from './dto/update-development-plan-feature.dto';
 import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('development-plan-features')
 @Controller('development-plan-features')

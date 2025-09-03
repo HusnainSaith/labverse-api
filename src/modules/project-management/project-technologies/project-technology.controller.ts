@@ -15,7 +15,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard'; // Adjust path
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { RoleEnum } from 'src/modules/roles/role.enum';
+import { RoleEnum } from '../../roles/role.enum'
 
 @ApiTags('Project Technologies')
 @UseGuards(JwtAuthGuard, RolesGuard)

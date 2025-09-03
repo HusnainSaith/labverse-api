@@ -12,7 +12,7 @@ import { TaskCommentService } from './task-comments.service';
 import { CreateTaskCommentDto } from './dto/create-task-comment.dto';
 import { UpdateTaskCommentDto } from './dto/update-task-comment.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @ApiTags('task-comments')
 @Controller('task-comments')

@@ -12,7 +12,7 @@ import { BlogPostsService } from './blog-posts.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Blog Posts')
 @Controller('blog-posts')
 export class BlogPostsController {
