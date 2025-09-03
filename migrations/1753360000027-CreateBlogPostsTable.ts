@@ -12,8 +12,7 @@ export class CreateBlogPostsTable1753360000027 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'title',

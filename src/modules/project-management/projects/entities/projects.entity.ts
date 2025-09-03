@@ -15,7 +15,7 @@ import { ProjectStatus } from '../dto/project-status.enum';
 import { ProjectMilestone } from '../../project-milestones/entities/project-milestone.entity'; 
 import { ProjectMember } from '../../project-members/entities/project-member.entity'; 
 import { ProjectTechnology } from '../../project-technologies/entities/project-technology.entity'; 
-import { Invoice } from 'src/modules/billing/invoices/entities/invoice.entity'; 
+import { Invoice } from '../../../billing/invoices/entities/invoice.entity'
 import { ProjectUpdate } from '../../project-updates/entities/project-update.entity'; 
 import { TimeEntry } from '../../time-entries/entities/time-entry.entity'; 
 import { Task } from '../../tasks/entities/task.entity'; 

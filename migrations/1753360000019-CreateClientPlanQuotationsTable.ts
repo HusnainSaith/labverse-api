@@ -10,8 +10,7 @@ export class CreateClientPlanQuotationsTable1753360000019 implements MigrationIn
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                         default: 'gen_random_uuid()'
                     },
                     {
                         name: 'client_id',

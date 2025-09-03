@@ -10,8 +10,7 @@ export class CreateServicesTable1753360000013 implements MigrationInterface {
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                         default: 'gen_random_uuid()'
                     },
                     {
                         name: 'name',

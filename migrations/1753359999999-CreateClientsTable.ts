@@ -8,15 +8,16 @@ public async up(queryRunner: QueryRunner): Promise<void> {
       new Table({
         name: 'clients',
         columns: [
+          // In your CreateClientsTable migration, change the id column to:
           {
-            name: 'id',
+             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            default: 'gen_random_uuid()'
           },
-          { name: 'profile_photo',
+
+          {
+            name: 'profile_photo',
             type: 'varchar',
             length: '255',
             isNullable: true,},

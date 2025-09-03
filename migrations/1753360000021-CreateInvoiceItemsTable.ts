@@ -10,8 +10,7 @@ export class CreateInvoiceItemsTable1753360000021 implements MigrationInterface 
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                         default: 'gen_random_uuid()'
                     },
                     {
                         name: 'invoice_id',

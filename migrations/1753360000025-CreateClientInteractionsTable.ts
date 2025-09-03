@@ -12,8 +12,7 @@ export class CreateClientInteractionsTable1753360000025 implements MigrationInte
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'client_id',

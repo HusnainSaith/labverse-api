@@ -10,8 +10,7 @@ export class CreateDevelopmentPlanServicesTable1753360000017 implements Migratio
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                         default: 'gen_random_uuid()'
                     },
                     {
                         name: 'plan_id',

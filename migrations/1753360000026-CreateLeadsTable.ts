@@ -12,8 +12,7 @@ export class CreateLeadsTable1753360000026 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'company_name',

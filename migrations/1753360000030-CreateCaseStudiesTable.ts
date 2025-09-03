@@ -12,8 +12,7 @@ export class CreateCaseStudiesTable1753360000030 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+         default: 'gen_random_uuid()'
           },
           {
             name: 'title',

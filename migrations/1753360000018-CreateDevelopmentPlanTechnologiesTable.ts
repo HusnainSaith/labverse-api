@@ -10,8 +10,7 @@ export class CreateDevelopmentPlanTechnologiesTable1753360000018 implements Migr
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                        default: 'gen_random_uuid()'
                     },
                     {
                         name: 'plan_id',

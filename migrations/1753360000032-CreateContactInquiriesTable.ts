@@ -12,8 +12,7 @@ export class CreateContactInquiriesTable1753360000032 implements MigrationInterf
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'full_name',

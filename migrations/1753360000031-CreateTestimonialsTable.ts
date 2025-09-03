@@ -12,8 +12,7 @@ export class CreateTestimonialsTable1753360000031 implements MigrationInterface 
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'quote_content',

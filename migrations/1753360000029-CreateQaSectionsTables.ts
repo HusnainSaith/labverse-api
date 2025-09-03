@@ -12,8 +12,7 @@ export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+             default: 'gen_random_uuid()'
           },
           {
             name: 'question_text',
@@ -57,8 +56,7 @@ export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'uuid',
+            default: 'gen_random_uuid()'
           },
           {
             name: 'question_id',

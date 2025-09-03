@@ -10,8 +10,7 @@ export class CreateDevelopmentPlansTable1753360000014 implements MigrationInterf
                         name: 'id',
                         type: 'uuid',
                         isPrimary: true,
-                        isGenerated: true,
-                        generationStrategy: 'uuid',
+                      default: 'gen_random_uuid()'
                     },
                     {
                         name: 'name',
