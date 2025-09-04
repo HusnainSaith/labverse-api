@@ -425,10 +425,10 @@ export class UsersService {
 
       let allPermissions = [];
 
-      // Completely rewritten SQL query to avoid the syntax error
+      // Use a simpler approach with separate queries to avoid SQL syntax issues
       if (user.role?.id) {
-        // Get both role and direct permissions with proper SQL syntax
-        allPermissions = await this.userRepository.manager.query(
+        // Get role permissions
+        const rolePermissions = await this.userRepository.manager.query(
           `
           SELECT DISTINCT
             p.id,
@@ -438,22 +438,54 @@ export class UsersService {
             p.action,
             p.created_at,
             p.updated_at,
-            CASE 
-              WHEN role_perms.permission_id IS NOT NULL THEN 'role'
-              ELSE 'direct'
-            END as source
+            'role' as source
           FROM permissions p
-          WHERE p.id IN (
-            SELECT permission_id FROM role_permissions WHERE role_id = $1
-            UNION
-            SELECT permission_id FROM user_permissions WHERE user_id = $2
-          )
-          LEFT JOIN (
-            SELECT permission_id FROM role_permissions WHERE role_id = $1
-          ) role_perms ON p.id = role_perms.permission_id
+          INNER JOIN role_permissions rp ON p.id = rp.permission_id
+          WHERE rp.role_id = $1
           ORDER BY p.resource, p.action
           `,
-          [user.role.id, validId],
+          [user.role.id],
+        );
+
+        // Get direct user permissions
+        const userPermissions = await this.userRepository.manager.query(
+          `
+          SELECT DISTINCT
+            p.id,
+            p.name,
+            p.description,
+            p.resource,
+            p.action,
+            p.created_at,
+            p.updated_at,
+            'direct' as source
+          FROM permissions p
+          INNER JOIN user_permissions up ON p.id = up.permission_id
+          WHERE up.user_id = $1
+          ORDER BY p.resource, p.action
+          `,
+          [validId],
+        );
+
+        // Combine and deduplicate permissions (role permissions take precedence for source)
+        const permissionMap = new Map();
+
+        // Add role permissions first
+        rolePermissions.forEach((perm) => {
+          permissionMap.set(perm.id, perm);
+        });
+
+        // Add direct permissions (won't overwrite existing role permissions)
+        userPermissions.forEach((perm) => {
+          if (!permissionMap.has(perm.id)) {
+            permissionMap.set(perm.id, perm);
+          }
+        });
+
+        allPermissions = Array.from(permissionMap.values()).sort((a, b) =>
+          `${a.resource}_${a.action}`.localeCompare(
+            `${b.resource}_${b.action}`,
+          ),
         );
       } else {
         // User has no role - get only direct permissions
