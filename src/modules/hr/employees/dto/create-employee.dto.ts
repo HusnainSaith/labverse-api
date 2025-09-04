@@ -1,3 +1,5 @@
+
+
 import {
   IsString,
   IsUUID,
@@ -55,4 +57,13 @@ export class CreateEmployeeProfileDto {
   @IsOptional()
   @IsEnum(EmployeeStatus)
   status?: EmployeeStatus;
+
+  // 👇 Add file only for Swagger validation
+  @ApiPropertyOptional({
+    description: 'Profile image file',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  file?: any;
 }
