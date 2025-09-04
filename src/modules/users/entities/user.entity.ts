@@ -57,9 +57,7 @@ export class User {
     },
   )
 
-  // In User entity (optional)
-@ManyToMany(() => Project, (project) => project.assignedUsers)
-assignedProjects: Project[];
+
   createdClientPlanQuotations: ClientPlanQuotation[];
 
   @Column({

@@ -90,19 +90,7 @@ export class Project {
   creatorId: string; 
 
 
-  @ManyToMany(() => User, (user) => user.assignedProjects) 
-  @JoinTable({ 
-    name: 'project_users', 
-    joinColumn: { 
-      name: 'projectId', 
-      referencedColumnName: 'id', 
-    }, 
-    inverseJoinColumn: { 
-      name: 'userId', 
-      referencedColumnName: 'id', 
-    }, 
-  }) 
-  assignedUsers: User[]; 
+
 
   @OneToMany(() => Task, (task) => task.project) 
   tasks: Task[]; 
