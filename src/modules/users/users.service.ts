@@ -408,99 +408,6 @@ export class UsersService {
     }
   }
 
-  // async findOneWithPermissions(id: string): Promise<User> {
-  //   try {
-  //     const validId = SecurityUtil.validateId(id);
-
-  //     // First, get the user with role
-  //     const user = await this.userRepository
-  //       .createQueryBuilder('user')
-  //       .leftJoinAndSelect('user.role', 'role')
-  //       .where('user.id = :id', { id: validId })
-  //       .getOne();
-
-  //     if (!user) {
-  //       throw new NotFoundException('User not found');
-  //     }
-
-  //     // Get all permissions using a more defensive approach
-  //     let allPermissions = [];
-
-  //     if (user.role?.id) {
-  //       // User has a role - get both role and direct permissions
-  //       allPermissions = await this.userRepository.query(
-  //         `
-  //       SELECT DISTINCT
-  //         p.id,
-  //         p.name,
-  //         p.description,
-  //         p.resource,
-  //         p.action,
-  //         p.created_at,
-  //         p.updated_at,
-  //         CASE
-  //           WHEN rp.permission_id IS NOT NULL THEN 'role'
-  //           ELSE 'direct'
-  //         END as source
-  //       FROM permissions p
-  //       WHERE p.id IN (
-  //         -- Role permissions
-  //         SELECT rp.permission_id
-  //         FROM role_permissions rp
-  //         WHERE rp.role_id = $1
-
-  //         UNION
-
-  //         -- Direct user permissions
-  //         SELECT up.permission_id
-  //         FROM user_permissions up
-  //         WHERE up.user_id = $2
-  //       )
-  //       LEFT JOIN role_permissions rp ON p.id = rp.permission_id AND rp.role_id = $1
-  //       ORDER BY p.resource, p.action
-  //       `,
-  //         [user.role.id, validId],
-  //       );
-  //     } else {
-  //       // User has no role - get only direct permissions
-  //       allPermissions = await this.userRepository.query(
-  //         `
-  //       SELECT DISTINCT
-  //         p.id,
-  //         p.name,
-  //         p.description,
-  //         p.resource,
-  //         p.action,
-  //         p.created_at,
-  //         p.updated_at,
-  //         'direct' as source
-  //       FROM permissions p
-  //       INNER JOIN user_permissions up ON p.id = up.permission_id
-  //       WHERE up.user_id = $1
-  //       ORDER BY p.resource, p.action
-  //       `,
-  //         [validId],
-  //       );
-  //     }
-
-  //     // Assign permissions to user
-  //     user.permissions = allPermissions || [];
-
-  //     // Clean up role permissions property if it exists
-  //     if (user.role && user.role.permissions) {
-  //       delete user.role.permissions;
-  //     }
-
-  //     return user;
-  //   } catch (error) {
-  //     if (error instanceof NotFoundException) {
-  //       throw error;
-  //     }
-  //     console.error('Error in findOneWithPermissions:', error);
-  //     throw new Error(`Failed to find user with permissions: ${error.message}`);
-  //   }
-  // }
-
   async findOneWithPermissions(id: string): Promise<User> {
     try {
       const validId = SecurityUtil.validateId(id);
@@ -518,8 +425,9 @@ export class UsersService {
 
       let allPermissions = [];
 
-      // Fixed SQL query - moved the LEFT JOIN inside the subquery
+      // Completely rewritten SQL query to avoid the syntax error
       if (user.role?.id) {
+        // Get both role and direct permissions with proper SQL syntax
         allPermissions = await this.userRepository.manager.query(
           `
           SELECT DISTINCT
@@ -530,19 +438,19 @@ export class UsersService {
             p.action,
             p.created_at,
             p.updated_at,
-            COALESCE(perm_source.source, 'direct') as source
+            CASE 
+              WHEN role_perms.permission_id IS NOT NULL THEN 'role'
+              ELSE 'direct'
+            END as source
           FROM permissions p
-          INNER JOIN (
-            -- Role permissions with source
-            SELECT rp.permission_id, 'role' AS source
-            FROM role_permissions rp
-            WHERE rp.role_id = $1
+          WHERE p.id IN (
+            SELECT permission_id FROM role_permissions WHERE role_id = $1
             UNION
-            -- Direct user permissions with source
-            SELECT up.permission_id, 'direct' AS source
-            FROM user_permissions up
-            WHERE up.user_id = $2
-          ) AS perm_source ON p.id = perm_source.permission_id
+            SELECT permission_id FROM user_permissions WHERE user_id = $2
+          )
+          LEFT JOIN (
+            SELECT permission_id FROM role_permissions WHERE role_id = $1
+          ) role_perms ON p.id = role_perms.permission_id
           ORDER BY p.resource, p.action
           `,
           [user.role.id, validId],
