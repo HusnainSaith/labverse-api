@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -10,15 +9,12 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-clients.dto';
 import { UpdateClientDto } from './dto/update-clients.dto';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('clients')
 @Controller('clients')
@@ -29,36 +25,15 @@ export class ClientsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new client with an optional profile photo' })
-  @ApiConsumes('multipart/form-data')
- @ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      userId: { type: 'string', format: 'uuid' },
-      employeeCode: { type: 'string' },
-      hireDate: { type: 'string', format: 'date' },
-      jobTitle: { type: 'string' },
-      department: { type: 'string' },
-      status: { type: 'string' },
-      file: {
-        type: 'string',
-        format: 'binary',
-      },
-    },
-    required: ['userId', 'employeeCode'], // ✅ Correct: This is an array of strings.
-  },
-})
+  @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The client has been successfully created.',
   })
-  @UseInterceptors(FileInterceptor('file'))
   async create(
     @Body() createClientDto: CreateClientDto,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.clientsService.create(createClientDto, file);
+    return this.clientsService.create(createClientDto);
   }
 
   @Get()
@@ -123,38 +98,5 @@ export class ClientsController {
   })
   async remove(@Param('id') id: string) {
     await this.clientsService.remove(id);
-  }
-
-  @Patch(':id/profile-photo')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Upload or update a client\'s profile photo' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'Profile photo to upload',
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Profile photo uploaded successfully.',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Client not found.',
-  })
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadProfilePhoto(
-    @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.clientsService.uploadProfilePhoto(id, file);
   }
 }
