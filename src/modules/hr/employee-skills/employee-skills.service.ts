@@ -32,11 +32,11 @@ export class EmployeeSkillsService {
     const validEmployeeId = SecurityUtil.validateId(employeeId);
     const validSkillId = SecurityUtil.validateId(skillId);
     const employee = await this.employeeRepository.findOne({
-      where: { id: validEmployeeId },
+      where: { userId: validEmployeeId },
     });
     if (!employee) {
       throw new NotFoundException(
-        `Employee with ID "${employeeId}" not found.`,
+        `Employee profile for user ID "${employeeId}" not found.`,
       );
     }
 
@@ -48,21 +48,21 @@ export class EmployeeSkillsService {
     }
 
     const existingEmployeeSkill = await this.employeeSkillRepository.findOne({
-      where: { employeeId: validEmployeeId, skillId: validSkillId },
+      where: { employeeId: employee.id, skillId: validSkillId },
     });
     if (existingEmployeeSkill) {
       throw new ConflictException(`Employee already has this skill assigned.`);
     }
 
     console.log('Creating employee skill with:', {
-      employeeId,
+      employeeId: employee.id,
       skillId,
       proficiencyLevel: createEmployeeSkillDto.proficiencyLevel,
       yearsOfExperience: createEmployeeSkillDto.yearsOfExperience,
     });
 
     const employeeSkill = this.employeeSkillRepository.create({
-      employeeId: validEmployeeId,
+      employeeId: employee.id,
       skillId: validSkillId,
       proficiencyLevel: createEmployeeSkillDto.proficiencyLevel,
       yearsOfExperience: createEmployeeSkillDto.yearsOfExperience,

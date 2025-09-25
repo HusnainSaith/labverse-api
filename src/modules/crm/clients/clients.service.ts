@@ -22,52 +22,92 @@ export class ClientsService {
 
   async create(
     dto: CreateClientDto,
+    profile_photo?: Express.Multer.File,
   ): Promise<{ success: boolean; message: string; data: Client }> {
+    // ✅ Validate incoming fields
     ValidationUtil.validateString(dto.name, 'name', 2, 100);
-    ValidationUtil.validateEmail(dto.email);
+    if (dto.email) ValidationUtil.validateEmail(dto.email);
     if (dto.phone) ValidationUtil.validatePhone(dto.phone);
     if (dto.company) ValidationUtil.validateString(dto.company, 'company', 2, 100);
     if (dto.address) ValidationUtil.validateString(dto.address, 'address', 5, 255);
     if (dto.website) ValidationUtil.validateUrl(dto.website, 'website');
 
-    const existingClient = await this.clientsRepository.findOne({ where: { email: dto.email.toLowerCase().trim() } });
-    if (existingClient) {
-      throw new ConflictException('Client with this email already exists');
+    // ✅ Check for duplicate email
+    if (dto.email) {
+      const existingClient = await this.clientsRepository.findOne({
+        where: { email: dto.email.toLowerCase().trim() },
+      });
+      if (existingClient) {
+        throw new ConflictException('Client with this email already exists');
+      }
     }
 
+    // ✅ Handle profile photo upload
+    let profilePhotoUrl: string | undefined;
+    if (profile_photo) {
+      // your SupabaseService.uploadImage returns a string (the uploaded path/URL)
+      profilePhotoUrl = await this.supabaseService.uploadImage(
+        profile_photo,
+        'clients',
+      );
+    }
+
+    // ✅ Create client entity
     const client = this.clientsRepository.create({
       ...dto,
       name: ValidationUtil.sanitizeString(dto.name),
-      email: ValidationUtil.sanitizeString(dto.email.toLowerCase()),
+      email: dto.email ? ValidationUtil.sanitizeString(dto.email.toLowerCase()) : null,
       company: dto.company ? ValidationUtil.sanitizeString(dto.company) : undefined,
       address: dto.address ? ValidationUtil.sanitizeString(dto.address) : undefined,
+      profilePhoto: profilePhotoUrl,
     });
-    
+
+    // ✅ Save to DB
     const savedClient = await this.clientsRepository.save(client);
-    SafeLogger.log(`Client created: ${dto.name} (${dto.email})`, 'ClientsService');
-    
-    return ValidationUtil.createSuccessResponse('Client created successfully', savedClient);
+    SafeLogger.log(
+      `Client created: ${dto.name} (${dto.email})`,
+      'ClientsService',
+    );
+
+    return ValidationUtil.createSuccessResponse(
+      'Client created successfully',
+      savedClient,
+    );
   }
 
   async findAll(): Promise<{ success: boolean; message: string; data: Client[] }> {
-    const clients = await this.clientsRepository.find({ order: { created_at: 'DESC' } });
-    return ValidationUtil.createSuccessResponse('Clients retrieved successfully', clients);
+    const clients = await this.clientsRepository.find({
+      order: { created_at: 'DESC' },
+    });
+    return ValidationUtil.createSuccessResponse(
+      'Clients retrieved successfully',
+      clients,
+    );
   }
 
-  async findOne(id: string): Promise<{ success: boolean; message: string; data: Client }> {
+  async findOne(
+    id: string,
+  ): Promise<{ success: boolean; message: string; data: Client }> {
     ValidationUtil.validateObjectId(id, 'clientId');
-    
+
     const client = await this.clientsRepository.findOneBy({ id });
     if (!client) {
       throw new NotFoundException('Client not found');
     }
-    
-    return ValidationUtil.createSuccessResponse('Client retrieved successfully', client);
+
+    return ValidationUtil.createSuccessResponse(
+      'Client retrieved successfully',
+      client,
+    );
   }
 
-  async update(id: string, dto: UpdateClientDto): Promise<{ success: boolean; message: string; data: Client }> {
+ async update(
+    id: string,
+    dto: UpdateClientDto,
+    profile_photo?: Express.Multer.File,
+  ): Promise<{ success: boolean; message: string; data: Client }> {
     ValidationUtil.validateObjectId(id, 'clientId');
-    
+
     if (dto.name) ValidationUtil.validateString(dto.name, 'name', 2, 100);
     if (dto.email) ValidationUtil.validateEmail(dto.email);
     if (dto.phone) ValidationUtil.validatePhone(dto.phone);
@@ -80,43 +120,77 @@ export class ClientsService {
       throw new NotFoundException('Client not found');
     }
 
+    // ✅ Check email uniqueness
     if (dto.email && dto.email.toLowerCase().trim() !== client.email) {
-      const existingClient = await this.clientsRepository.findOne({ where: { email: dto.email.toLowerCase().trim() } });
+      const existingClient = await this.clientsRepository.findOne({
+        where: { email: dto.email.toLowerCase().trim() },
+      });
       if (existingClient) {
         throw new ConflictException('Client with this email already exists');
       }
     }
 
-    const updateData = {
-      ...dto,
-      name: dto.name ? ValidationUtil.sanitizeString(dto.name) : undefined,
-      email: dto.email ? ValidationUtil.sanitizeString(dto.email.toLowerCase()) : undefined,
-      company: dto.company ? ValidationUtil.sanitizeString(dto.company) : undefined,
-      address: dto.address ? ValidationUtil.sanitizeString(dto.address) : undefined,
-    };
+    // ✅ Handle profile photo update (if file uploaded)
+    let profilePhotoUrl: string | undefined;
+    if (profile_photo) {
+      // delete old photo if exists
+      if (client.profilePhoto) {
+        await this.supabaseService.deleteImage(client.profilePhoto);
+      }
 
-    Object.assign(client, updateData);
+      profilePhotoUrl = await this.supabaseService.uploadImage(
+        profile_photo,
+        'clients',
+      );
+    }
+
+    // ✅ Merge updated fields
+    Object.assign(client, {
+      ...dto,
+      name: dto.name ? ValidationUtil.sanitizeString(dto.name) : client.name,
+      email: dto.email
+        ? ValidationUtil.sanitizeString(dto.email.toLowerCase())
+        : client.email,
+      company: dto.company
+        ? ValidationUtil.sanitizeString(dto.company)
+        : client.company,
+      address: dto.address
+        ? ValidationUtil.sanitizeString(dto.address)
+        : client.address,
+      profilePhoto: profilePhotoUrl ?? client.profilePhoto,
+    });
+
     const updatedClient = await this.clientsRepository.save(client);
-    
-    SafeLogger.log(`Client updated: ${client.name} (ID: ${id})`, 'ClientsService');
-    return ValidationUtil.createSuccessResponse('Client updated successfully', updatedClient);
+
+    SafeLogger.log(
+      `Client updated: ${client.name} (ID: ${id})`,
+      'ClientsService',
+    );
+    return ValidationUtil.createSuccessResponse(
+      'Client updated successfully',
+      updatedClient,
+    );
   }
 
   async remove(id: string): Promise<{ success: boolean; message: string }> {
     ValidationUtil.validateObjectId(id, 'clientId');
-    
+
     const client = await this.clientsRepository.findOneBy({ id });
     if (!client) {
       throw new NotFoundException('Client not found');
     }
 
+    // ✅ Delete from Supabase if profile photo exists
     if (client.profilePhoto) {
       await this.supabaseService.deleteImage(client.profilePhoto);
     }
-    
+
     await this.clientsRepository.delete(id);
-    SafeLogger.log(`Client deleted: ${client.name} (ID: ${id})`, 'ClientsService');
-    
+    SafeLogger.log(
+      `Client deleted: ${client.name} (ID: ${id})`,
+      'ClientsService',
+    );
+
     return ValidationUtil.createSuccessResponse('Client deleted successfully');
   }
 }

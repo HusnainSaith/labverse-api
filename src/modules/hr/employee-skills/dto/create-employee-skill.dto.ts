@@ -1,4 +1,4 @@
-import { IsUUID, IsInt, Min, IsOptional, IsString } from 'class-validator';
+import { IsUUID, IsInt, Min, IsOptional, IsString, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateEmployeeSkillDto {
@@ -17,12 +17,17 @@ export class CreateEmployeeSkillDto {
   skillId: string;
 
   @ApiPropertyOptional({
-    description: 'Proficiency level of the skill (e.g., Beginner, Intermediate, Expert)',
-    example: 'Intermediate',
-  })
-  @IsString()
-  @IsOptional()
-  proficiencyLevel?: string;
+  description: 'Proficiency level of the skill (1-5 scale)',
+  example: 3,
+  minimum: 1,
+  maximum: 5,
+})
+@IsInt()
+@Min(1)
+@Max(5)
+@IsOptional()
+proficiencyLevel?: number;
+
 
   @ApiPropertyOptional({
     description: 'Years of experience with this skill',

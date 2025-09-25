@@ -13,7 +13,7 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   BadRequestException,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TechnologiesService } from './technology.service';
@@ -21,7 +21,13 @@ import { CreateTechnologyDto } from './dto/create-technology.dto';
 import { UpdateTechnologyDto } from './dto/update-technology.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiConsumes, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { RoleEnum } from '../roles/role.enum';
@@ -34,54 +40,60 @@ export class TechnologiesController {
   private readonly logger = new Logger(TechnologiesController.name);
 
   constructor(private readonly technologiesService: TechnologiesService) {}
+@Post()
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
+@ApiOperation({ summary: 'Create a new technology with optional logo upload' })
+@ApiConsumes('multipart/form-data') // ✅ needed for file upload
+@Roles(RoleEnum.ADMIN, RoleEnum.DEVELOPER, RoleEnum.PROJECT_MANAGER)
+@UseInterceptors(FileInterceptor('logo')) // ✅ needed for handling logo file
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', example: 'NestJS' },
+      description: { type: 'string', example: 'A progressive Node.js framework' },
+      category: { type: 'string', example: 'Backend Framework' },
+      logo: { type: 'string', format: 'binary' }, // ✅ file input
+    },
+    required: ['name'], // ✅ only name is required
+  },
+})
+async create(
+  @Body() body: any,
+  @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }), // 2MB
+        new FileTypeValidator({
+          fileType: /^image\/(jpeg|png|webp|gif|svg\+xml)$/,
+        }),
+      ],
+      fileIsRequired: false,
+    }),
+  )
+  logo?: Express.Multer.File,
+) {
+  try {
+    const createTechnologyDto = plainToClass(CreateTechnologyDto, body);
 
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new technology with optional logo upload' })
-  @ApiConsumes('multipart/form-data')
-  @ApiResponse({ status: 201, description: 'Technology created successfully' })
-  @Roles(RoleEnum.ADMIN, RoleEnum.DEVELOPER, RoleEnum.PROJECT_MANAGER)
-  @UseInterceptors(FileInterceptor('logo'))
-  async create(
-    @Body() body: any,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }), // 2MB
-          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp|gif|svg\+xml)$/ }),
-        ],
-        fileIsRequired: false,
-      }),
-    )
-    logo?: Express.Multer.File,
-  ) {
-    try {
-      let createTechnologyDto: CreateTechnologyDto;
-
-      // Parse the 'data' field as JSON to get the DTO
-      if (body.data) {
-        createTechnologyDto = plainToClass(CreateTechnologyDto, JSON.parse(body.data));
-      } else {
-        // Fallback for requests without a 'data' field, parsing directly from body
-        createTechnologyDto = plainToClass(CreateTechnologyDto, body);
-      }
-
-      const errors = await validate(createTechnologyDto);
-      if (errors.length > 0) {
-        const messages = errors.flatMap(error => Object.values(error.constraints));
-        throw new BadRequestException(messages);
-      }
-
-      return await this.technologiesService.create(createTechnologyDto, logo);
-    } catch (error) {
-      this.logger.error(`Failed to create technology: ${error.message}`);
-      throw error;
+    const errors = await validate(createTechnologyDto);
+    if (errors.length > 0) {
+      const messages = errors.flatMap((error) =>
+        Object.values(error.constraints),
+      );
+      throw new BadRequestException(messages);
     }
+
+    return await this.technologiesService.create(createTechnologyDto, logo);
+  } catch (error) {
+    this.logger.error(`Failed to create technology: ${error.message}`);
+    throw error;
   }
+}
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all technologies' })
   findAll() {
@@ -89,58 +101,73 @@ export class TechnologiesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a technology by ID' })
   findOne(@Param('id') id: string) {
     return this.technologiesService.findOne(id);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update a technology with optional logo upload' })
-  @ApiConsumes('multipart/form-data')
-  @Roles(RoleEnum.ADMIN, RoleEnum.DEVELOPER, RoleEnum.PROJECT_MANAGER)
-  @UseInterceptors(FileInterceptor('logo'))
-  async update(
-    @Param('id') id: string,
-    @Body() body: any,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }), // 2MB
-          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp|gif|svg\+xml)$/ }),
-        ],
-        fileIsRequired: false,
-      }),
-    )
-    logo?: Express.Multer.File,
-  ) {
-    try {
-      let updateTechnologyDto: UpdateTechnologyDto;
+ @Patch(':id')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
+@ApiOperation({ summary: 'Update a technology with optional logo upload' })
+@ApiConsumes('multipart/form-data')
+@Roles(RoleEnum.ADMIN, RoleEnum.DEVELOPER, RoleEnum.PROJECT_MANAGER)
+@UseInterceptors(FileInterceptor('logo'))
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', example: 'NestJS Updated' },
+      description: { type: 'string', example: 'Updated description' },
+      category: { type: 'string', example: 'Backend Framework Updated' },
+      logo: { type: 'string', format: 'binary' },
+    },
+    required: [], // ✅ everything optional here
+  },
+})
+async update(
+  @Param('id') id: string,
+  @Body() body: any,
+  @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+        new FileTypeValidator({
+          fileType: /^image\/(jpeg|png|webp|gif|svg\+xml)$/,
+        }),
+      ],
+      fileIsRequired: false,
+    }),
+  )
+  logo?: Express.Multer.File,
+) {
+  try {
+    const updateTechnologyDto = plainToClass(UpdateTechnologyDto, body);
 
-      if (body.data) {
-        updateTechnologyDto = plainToClass(UpdateTechnologyDto, JSON.parse(body.data));
-      } else {
-        updateTechnologyDto = plainToClass(UpdateTechnologyDto, body);
-      }
-
-      const errors = await validate(updateTechnologyDto);
-      if (errors.length > 0) {
-        const messages = errors.flatMap(error => Object.values(error.constraints));
-        throw new BadRequestException(messages);
-      }
-
-      return await this.technologiesService.update(id, updateTechnologyDto, logo);
-    } catch (error) {
-      this.logger.error(`Failed to update technology ${id}: ${error.message}`);
-      throw error;
+    const errors = await validate(updateTechnologyDto);
+    if (errors.length > 0) {
+      const messages = errors.flatMap((error) =>
+        Object.values(error.constraints),
+      );
+      throw new BadRequestException(messages);
     }
+
+    return await this.technologiesService.update(
+      id,
+      updateTechnologyDto,
+      logo,
+    );
+  } catch (error) {
+    this.logger.error(`Failed to update technology ${id}: ${error.message}`);
+    throw error;
   }
+}
+
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a technology' })
   @Roles(RoleEnum.ADMIN)
