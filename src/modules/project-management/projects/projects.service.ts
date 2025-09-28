@@ -13,6 +13,7 @@ import { Project } from './entities/projects.entity';
 import { Client } from '../../crm/clients/entities/clients.entity';
 import { User } from '../../users/entities/user.entity';
 import { SafeLogger } from "../../../common/utils/logger.util"
+import { SupabaseService } from '../../../common/services/supabase.service';
 
 @Injectable()
 export class ProjectsService {
@@ -27,12 +28,10 @@ export class ProjectsService {
     private readonly userRepository: Repository<User>,
 
     private readonly dataSource: DataSource,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
-  /**
-   * Create a new project with proper validation and error handling.
-   */
-  async create(createProjectDto: CreateProjectDto): Promise<Project> {
+  async create(createProjectDto: CreateProjectDto, images?: Express.Multer.File[]): Promise<Project> {
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -57,18 +56,24 @@ export class ProjectsService {
         throw new ConflictException('A project with this name already exists');
       }
 
-      // Create project entity
+      let imageUrls: string[] = [];
+      if (images && images.length > 0) {
+        for (const image of images) {
+          const imageUrl = await this.supabaseService.uploadImage(image, 'projects');
+          imageUrls.push(imageUrl);
+        }
+      }
+
       const project = this.projectRepository.create({
         ...createProjectDto,
         startDate: createProjectDto.startDate ? new Date(createProjectDto.startDate) : null,
         endDate: createProjectDto.endDate ? new Date(createProjectDto.endDate) : null,
-        images: createProjectDto.images || [],
+        images: imageUrls,
       });
 
-      // Save project
-      const savedProject = await queryRunner.manager.save(Project, project);
-
-      await queryRunner.commitTransaction();
+      try {
+        const savedProject = await queryRunner.manager.save(Project, project);
+        await queryRunner.commitTransaction();
 
       SafeLogger.log(`Project created successfully: ${savedProject.id}`, 'ProjectsService');
       // Re-fetch the newly created project with its relations to return a complete object.
@@ -81,6 +86,12 @@ export class ProjectsService {
 
       return projectWithRelations;
 
+      } catch (dbError) {
+        for (const imageUrl of imageUrls) {
+          await this.supabaseService.deleteImage(imageUrl);
+        }
+        throw dbError;
+      }
     } catch (error) {
       await queryRunner.rollbackTransaction();
       SafeLogger.error(`Failed to create project: ${error.message}`, 'ProjectsService');

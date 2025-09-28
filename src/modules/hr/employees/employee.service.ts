@@ -64,21 +64,28 @@ export class EmployeeProfilesService {
 
       const employeeProfile = this.employeeProfileRepository.create(createEmployeeProfileDto);
 
+      let imageUrl: string | undefined;
       if (file) {
-        const folderName = 'employee-profiles';
-        const imageUrl = await this.supabaseService.uploadImage(file, folderName);
-        employeeProfile.profileImage = imageUrl;
+        imageUrl = await this.supabaseService.uploadImage(file, 'employee-profiles');
       }
 
-      const savedProfile = await this.employeeProfileRepository.save(employeeProfile);
+      try {
+        employeeProfile.profileImage = imageUrl;
+        const savedProfile = await this.employeeProfileRepository.save(employeeProfile);
       SafeLogger.log(`Employee profile created for user ${userId}`, 'EmployeeProfilesService');
 
-      return {
-        success: true,
-        message: 'Employee profile created successfully',
-        data: savedProfile,
-        statusCode: HttpStatus.CREATED,
-      };
+        return {
+          success: true,
+          message: 'Employee profile created successfully',
+          data: savedProfile,
+          statusCode: HttpStatus.CREATED,
+        };
+      } catch (error) {
+        if (imageUrl) {
+          await this.supabaseService.deleteImage(imageUrl);
+        }
+        throw error;
+      }
     } catch (error) {
       this.handleServiceError(error, 'Failed to create employee profile');
     }
