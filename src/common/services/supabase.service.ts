@@ -52,10 +52,11 @@ export class SupabaseService {
           contentType: file.mimetype,       
         });      
 
-      if (error) {       
-        SafeLogger.error(`Supabase upload error: ${error.message}`, 'SupabaseService');       
-        throw new InternalServerErrorException('Failed to upload image to Supabase.');     
-      }      
+      if (error) {
+        SafeLogger.error(`Supabase upload error details: ${JSON.stringify(error)}`, 'SupabaseService');
+        SafeLogger.error(`Bucket: ${this.bucketName}, FileName: ${fileName}`, 'SupabaseService');
+        throw new InternalServerErrorException(`Failed to upload image to Supabase: ${error.message}`);
+      }   
 
       const { data: publicUrlData } = this.supabase.storage       
         .from(this.bucketName)       
@@ -107,6 +108,19 @@ export class SupabaseService {
       }
       
       throw new InternalServerErrorException('Failed to delete image');
+    }
+  }
+
+  async testConnection(): Promise<void> {
+    try {
+      const { data, error } = await this.supabase.storage.listBuckets();
+      if (error) {
+        SafeLogger.error(`Supabase connection test failed: ${error.message}`, 'SupabaseService');
+      } else {
+        SafeLogger.log(`Available buckets: ${data.map(b => b.name).join(', ')}`, 'SupabaseService');
+      }
+    } catch (error) {
+      SafeLogger.error(`Connection test error: ${error.message}`, 'SupabaseService');
     }
   }
 } 
