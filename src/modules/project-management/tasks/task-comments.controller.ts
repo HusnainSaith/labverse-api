@@ -12,7 +12,7 @@ import { TaskCommentService } from './task-comments.service';
 import { CreateTaskCommentDto } from './dto/create-task-comment.dto';
 import { UpdateTaskCommentDto } from './dto/update-task-comment.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('task-comments')
 @Controller('task-comments')
@@ -20,9 +20,9 @@ export class TaskCommentController {
   constructor(private readonly taskCommentService: TaskCommentService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new task comment' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new task comment' })
   create(@Body() dto: CreateTaskCommentDto) {
     return this.taskCommentService.create(dto);
   }

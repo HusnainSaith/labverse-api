@@ -23,7 +23,7 @@ export class MessagingController {
   constructor(private readonly messagingService: MessagingService) {}
 
   @Post('conversations')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new conversation' })
   async createConversation(
@@ -33,7 +33,7 @@ export class MessagingController {
   }
 
   @Get('conversations/user/:userId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all conversations for a user' })
   async getUserConversations(@Param('userId') userId: string) {
@@ -41,7 +41,7 @@ export class MessagingController {
   }
 
   @Get('conversations/:id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a specific conversation' })
   async getConversationById(@Param('id') id: string) {
@@ -49,7 +49,7 @@ export class MessagingController {
   }
 
   @Post('conversations/:conversationId/participants')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Add a participant to a conversation' })
   async addParticipant(
@@ -77,7 +77,7 @@ export class MessagingController {
   }
 
   @Delete('conversations/:conversationId/participants/:userId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Remove a participant from a conversation' })
   async removeParticipant(
@@ -92,7 +92,7 @@ export class MessagingController {
   }
 
   @Post('messages')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new message' })
   async createMessage(@Body() createMessageDto: CreateMessageDto) {
@@ -100,7 +100,7 @@ export class MessagingController {
   }
 
   @Get('conversations/:conversationId/messages')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all messages in a conversation' })
   async getMessagesByConversationId(
@@ -116,7 +116,7 @@ export class MessagingController {
   }
 
   @Patch('messages/:id/read')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Mark a message as read' })
   async markMessageAsRead(
@@ -133,7 +133,7 @@ export class MessagingController {
   }
 
   @Delete('conversations/:id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a specific conversation' })
   async deleteConversation(@Param('id') id: string) {

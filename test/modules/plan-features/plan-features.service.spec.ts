@@ -12,7 +12,10 @@ describe('PlanFeaturesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlanFeaturesService,
-        { provide: getRepositoryToken(PlanFeature), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(PlanFeature),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
@@ -39,7 +42,9 @@ describe('PlanFeaturesService', () => {
       const result = await service.create(createFeatureDto);
 
       expect(result).toEqual(mockFeature);
-      expect(planFeatureRepository.create).toHaveBeenCalledWith(createFeatureDto);
+      expect(planFeatureRepository.create).toHaveBeenCalledWith(
+        createFeatureDto,
+      );
     });
   });
 });

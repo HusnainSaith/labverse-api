@@ -24,15 +24,15 @@ export class TimeEntriesController {
   constructor(private readonly timeEntriesService: TimeEntriesService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new time entry' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new time entry' })
   create(@Body() createTimeEntryDto: CreateTimeEntryDto) {
     return this.timeEntriesService.create(createTimeEntryDto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all time entries' })
   findAll() {
@@ -40,15 +40,17 @@ export class TimeEntriesController {
   }
 
   @Get('employee/:employeeId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Retrieve all time entries for a specific employee' })
+  @ApiOperation({
+    summary: 'Retrieve all time entries for a specific employee',
+  })
   findByEmployee(@Param('employeeId') employeeId: string) {
     return this.timeEntriesService.findByEmployee(employeeId);
   }
 
   @Get('project/:projectId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all time entries for a specific project' })
   findByProject(@Param('projectId') projectId: string) {
@@ -56,15 +58,17 @@ export class TimeEntriesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Retrieve all time entries for a specific employee' })
+  @ApiOperation({
+    summary: 'Retrieve all time entries for a specific employee',
+  })
   findOne(@Param('id') id: string) {
     return this.timeEntriesService.findOne(id);
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a time entry' })
   update(
@@ -75,7 +79,7 @@ export class TimeEntriesController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a time entry' })
   @Roles(RoleEnum.ADMIN)

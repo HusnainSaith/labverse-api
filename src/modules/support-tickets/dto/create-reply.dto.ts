@@ -35,7 +35,8 @@ export class CreateTicketReplyDto {
   message: string;
 
   @ApiPropertyOptional({
-    description: 'Indicates if the reply is internal and not visible to the client',
+    description:
+      'Indicates if the reply is internal and not visible to the client',
     example: true,
   })
   @IsOptional()

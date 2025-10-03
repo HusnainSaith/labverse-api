@@ -26,7 +26,9 @@ export class CreateTaskComments1753360000011 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_task_comments_commented_by_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_task_comments_commented_by_id;`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS idx_task_comments_task_id;`);
     await queryRunner.query(`DROP TABLE IF EXISTS task_comments;`);
   }

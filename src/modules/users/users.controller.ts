@@ -7,7 +7,6 @@ import {
   Patch,
   Delete,
   UseGuards,
-  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,9 +16,7 @@ import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
 import { Permissions } from '../../common/decorators/permissions.decorator';
-import { RoleEnum } from '../roles/role.enum';
 import { SecurityUtil } from '../../common/utils/security.util';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -30,7 +27,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'create users' })
   @Permissions('users.create')
@@ -39,7 +36,7 @@ export class UsersController {
   }
 
   @Post('with-permissions')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'create user with permissions' })
   @Permissions('users.create')
@@ -48,7 +45,7 @@ export class UsersController {
   }
 
   @Post(':id/permissions')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'assign permissions to user by id' })
   @Permissions('users.update')
@@ -80,7 +77,7 @@ export class UsersController {
 
   // Get available actions for a specific feature
   @Get('available-features/:feature/actions')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get permidssion of any feature' })
   @Permissions('users.read')
@@ -118,7 +115,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'delete user by id' })
   @Permissions('users.delete')
@@ -142,5 +139,3 @@ export class UsersController {
   //   };
   // }
 }
-
-

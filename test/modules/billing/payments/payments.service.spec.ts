@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentsService } from '../../../../src/modules/billing/payments/payments.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Payment, PaymentMethod } from '../../../../src/modules/billing/payments/entities/payment.entity';
+import {
+  Payment,
+  PaymentMethod,
+} from '../../../../src/modules/billing/payments/entities/payment.entity';
 import { Invoice } from '../../../../src/modules/billing/invoices/entities/invoice.entity';
 import { mockRepository } from '../../../utils/test-helpers';
 
@@ -37,7 +40,7 @@ describe('PaymentsService', () => {
         transactionReference: 'txn-123',
       };
       const mockInvoice = { id: '550e8400-e29b-41d4-a716-446655440000' };
-      
+
       const invoiceRepository = module.get(getRepositoryToken(Invoice));
       invoiceRepository.findOne.mockResolvedValue(mockInvoice);
       const mockPayment = { id: 'payment-id', ...createPaymentDto };

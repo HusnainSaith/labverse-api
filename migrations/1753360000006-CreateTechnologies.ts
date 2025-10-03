@@ -4,7 +4,6 @@ export class CreateTechnologies1753360000006 implements MigrationInterface {
   name = 'CreateTechnologies1753360000006';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create technologies table
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS technologies (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -16,7 +15,6 @@ export class CreateTechnologies1753360000006 implements MigrationInterface {
       );
     `);
 
-    // Add index for technologies name
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_technologies_name ON technologies(name);
     `);
@@ -26,7 +24,6 @@ export class CreateTechnologies1753360000006 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes
     await queryRunner.query(`DROP INDEX IF EXISTS idx_technologies_category;`);
     await queryRunner.query(`DROP INDEX IF EXISTS idx_technologies_name;`);
     await queryRunner.query(`DROP TABLE IF EXISTS technologies;`);

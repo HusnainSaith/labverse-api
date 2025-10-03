@@ -9,7 +9,7 @@ import { SupabaseService } from 'src/common/services/supabase.service';
 @Module({
   imports: [TypeOrmModule.forFeature([EmployeeProfile, User])],
   controllers: [EmployeeProfilesController],
-  providers: [EmployeeProfilesService,SupabaseService],
-  exports: [EmployeeProfilesService,SupabaseService],
+  providers: [EmployeeProfilesService, SupabaseService],
+  exports: [EmployeeProfilesService, SupabaseService],
 })
 export class EmployeeProfilesModule {}

@@ -19,7 +19,7 @@ import {
 } from './dto/refresh-token.dto';
 import { User } from '../users/entities/user.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { SecurityUtil } from '../../common/utils/security.util';
+
 import { SafeLogger } from '../../common/utils/logger.util';
 import { ValidationUtil } from '../../common/utils/validation.util';
 
@@ -35,7 +35,9 @@ export class AuthService {
     private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
 
-  async register(dto: RegisterDto): Promise<{ success: boolean; message: string; user: UserWithoutPassword }> {
+  async register(
+    dto: RegisterDto,
+  ): Promise<{ success: boolean; message: string; user: UserWithoutPassword }> {
     ValidationUtil.validateEmail(dto.email);
     // ValidationUtil.validateString(dto.firstName, 'firstName', 2, 50);
     // ValidationUtil.validateString(dto.lastName, 'lastName', 2, 50);
@@ -46,26 +48,20 @@ export class AuthService {
       throw new ConflictException('Email is already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const nameParts = dto.fullName.trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-    
     const userResponse = await this.usersService.create({
       email: ValidationUtil.sanitizeString(dto.email.toLowerCase()),
       password: dto.password,
       fullName: ValidationUtil.sanitizeString(dto.fullName),
-     
- 
+
       roleId: dto.roleId,
     });
-    
+
     SafeLogger.log(`User registered successfully: ${dto.email}`, 'AuthService');
-    
+
     // Extract the actual user data from the service response
-    const userData = userResponse.data || userResponse as any;
-    const { password, ...userWithoutPassword } = userData;
-    
+    const userData = userResponse.data || (userResponse as any);
+    const { ...userWithoutPassword } = userData;
+
     return {
       success: true,
       message: 'User registered successfully',
@@ -83,13 +79,18 @@ export class AuthService {
     return null;
   }
 
-  async login(dto: AuthCredentialsDto): Promise<{ success: boolean; message: string; data: LoginResponseDto }> {
+  async login(
+    dto: AuthCredentialsDto,
+  ): Promise<{ success: boolean; message: string; data: LoginResponseDto }> {
     ValidationUtil.validateEmail(dto.email);
     ValidationUtil.validateString(dto.password, 'password', 1);
 
-    const user = await this.usersService.findByEmail(dto.email.toLowerCase().trim(), {
-      includePassword: true,
-    });
+    const user = await this.usersService.findByEmail(
+      dto.email.toLowerCase().trim(),
+      {
+        includePassword: true,
+      },
+    );
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -99,9 +100,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const { password: _, ...userSafe } = user;
+    const { ...userSafe } = user;
     const payload = { sub: user.id, email: user.email };
-    
+
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: '15m',
     });
@@ -111,11 +112,15 @@ export class AuthService {
     return {
       success: true,
       message: 'Login successful',
-      data: { accessToken, refreshToken: refreshToken.token, user: userSafe }
+      data: { accessToken, refreshToken: refreshToken.token, user: userSafe },
     };
   }
 
-  async refreshToken(dto: RefreshTokenDto): Promise<{ success: boolean; message: string; data: { accessToken: string } }> {
+  async refreshToken(dto: RefreshTokenDto): Promise<{
+    success: boolean;
+    message: string;
+    data: { accessToken: string };
+  }> {
     ValidationUtil.validateString(dto.refreshToken, 'refreshToken');
 
     const refreshToken = await this.refreshTokenRepository.findOne({
@@ -135,37 +140,46 @@ export class AuthService {
       expiresIn: '15m',
     });
 
-    SafeLogger.log(`Token refreshed for user: ${refreshToken.user.email}`, 'AuthService');
+    SafeLogger.log(
+      `Token refreshed for user: ${refreshToken.user.email}`,
+      'AuthService',
+    );
     return {
       success: true,
       message: 'Token refreshed successfully',
-      data: { accessToken }
+      data: { accessToken },
     };
   }
 
-  async logout(refreshToken: string): Promise<{ success: boolean; message: string }> {
+  async logout(
+    refreshToken: string,
+  ): Promise<{ success: boolean; message: string }> {
     ValidationUtil.validateString(refreshToken, 'refreshToken');
 
     const result = await this.refreshTokenRepository.update(
       { token: refreshToken },
       { isRevoked: true },
     );
-    
+
     if (result.affected === 0) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    
+
     SafeLogger.log('User logged out successfully', 'AuthService');
     return {
       success: true,
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     };
   }
 
-  async requestPasswordReset(dto: PasswordResetDto): Promise<{ success: boolean; message: string; token?: string }> {
+  async requestPasswordReset(
+    dto: PasswordResetDto,
+  ): Promise<{ success: boolean; message: string; token?: string }> {
     ValidationUtil.validateEmail(dto.email);
 
-    const user = await this.usersService.findByEmail(dto.email.toLowerCase().trim());
+    const user = await this.usersService.findByEmail(
+      dto.email.toLowerCase().trim(),
+    );
     if (!user) {
       throw new NotFoundException('No user found with this email address');
     }
@@ -174,19 +188,24 @@ export class AuthService {
       { sub: user.id, type: 'password-reset' },
       { expiresIn: '1h' },
     );
-    
-    SafeLogger.log(`Password reset token generated for: ${dto.email}`, 'AuthService');
+
+    SafeLogger.log(
+      `Password reset token generated for: ${dto.email}`,
+      'AuthService',
+    );
     SafeLogger.log(`Reset token: ${resetToken}`, 'AuthService');
-    
+
     return {
       success: true,
-      message: 'Password reset token generated successfully. Check server logs for token.',
-      token: resetToken // Remove in production
+      message:
+        'Password reset token generated successfully. Check server logs for token.',
+      token: resetToken, // Remove in production
     };
   }
 
-
-  async resetPassword(dto: ResetPasswordDto): Promise<{ success: boolean; message: string }> {
+  async resetPassword(
+    dto: ResetPasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
     ValidationUtil.validateString(dto.token, 'token');
     ValidationUtil.validatePassword(dto.password);
 
@@ -198,17 +217,21 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(dto.password, 10);
       await this.usersService.updatePassword(payload.sub, hashedPassword);
-      
+
       // Revoke all refresh tokens for this user for security
       await this.refreshTokenRepository.update(
         { userId: payload.sub },
-        { isRevoked: true }
+        { isRevoked: true },
       );
-      
-      SafeLogger.log(`Password reset successful for user ID: ${payload.sub}`, 'AuthService');
+
+      SafeLogger.log(
+        `Password reset successful for user ID: ${payload.sub}`,
+        'AuthService',
+      );
       return {
         success: true,
-        message: 'Password has been changed successfully. Please login with your new password.'
+        message:
+          'Password has been changed successfully. Please login with your new password.',
       };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
@@ -218,13 +241,15 @@ export class AuthService {
     }
   }
 
-  async getCurrentUser(userId: string): Promise<{ success: boolean; message: string; data: any }> {
+  async getCurrentUser(
+    userId: string,
+  ): Promise<{ success: boolean; message: string; data: any }> {
     const user = await this.usersService.findOne(userId);
-    const { password, ...userWithoutPassword } = user as any;
+    const { ...userWithoutPassword } = user as any;
     return {
       success: true,
       message: 'User details retrieved successfully',
-      data: userWithoutPassword
+      data: userWithoutPassword,
     };
   }
 
@@ -233,7 +258,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const { password, ...userWithoutPassword } = user as any;
+    const { ...userWithoutPassword } = user as any;
     return userWithoutPassword;
   }
 
@@ -253,6 +278,6 @@ export class AuthService {
   }
 
   async getUserWithDetails(userId: string) {
-  return this.usersService.findOneWithPermissions(userId);
-}
+    return this.usersService.findOneWithPermissions(userId);
   }
+}

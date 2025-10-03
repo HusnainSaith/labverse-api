@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateClientNotesTable1753360000024 implements MigrationInterface {
   name = 'CreateClientNotesTable1753360000024';
@@ -12,17 +17,17 @@ export class CreateClientNotesTable1753360000024 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'client_id',
-            type: 'uuid', // Assuming 'clients' table uses UUIDs
+            type: 'uuid',
             isNullable: false,
           },
           {
             name: 'author_id',
-            type: 'uuid', // Assuming 'employee_profiles' table uses UUIDs
-            isNullable: true, // SET NULL on delete
+            type: 'uuid',
+            isNullable: true,
           },
           {
             name: 'note_content',
@@ -68,12 +73,18 @@ export class CreateClientNotesTable1753360000024 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('client_notes');
-    const foreignKeyClient = table.foreignKeys.find(fk => fk.columnNames.indexOf('client_id') !== -1);
-    const foreignKeyAuthor = table.foreignKeys.find(fk => fk.columnNames.indexOf('author_id') !== -1);
+    const foreignKeyClient = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('client_id') !== -1,
+    );
+    const foreignKeyAuthor = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('author_id') !== -1,
+    );
 
-    if (foreignKeyClient) await queryRunner.dropForeignKey('client_notes', foreignKeyClient);
-    if (foreignKeyAuthor) await queryRunner.dropForeignKey('client_notes', foreignKeyAuthor);
-    
+    if (foreignKeyClient)
+      await queryRunner.dropForeignKey('client_notes', foreignKeyClient);
+    if (foreignKeyAuthor)
+      await queryRunner.dropForeignKey('client_notes', foreignKeyAuthor);
+
     await queryRunner.dropTable('client_notes');
   }
 }

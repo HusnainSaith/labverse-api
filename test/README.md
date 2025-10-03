@@ -26,6 +26,7 @@ test/
 ## Running Tests
 
 ### Unit Tests
+
 ```bash
 # Run all module tests
 npm run test:modules
@@ -41,6 +42,7 @@ npm run test:modules -- --watch
 ```
 
 ### Integration Tests
+
 ```bash
 # Run integration tests
 npm run test:modules -- --testPathPattern=integration
@@ -63,18 +65,21 @@ The test suite covers:
 ## Test Patterns
 
 ### Service Tests
+
 - Mock repository dependencies
 - Test business logic
 - Validate error handling
 - Check return values
 
 ### Controller Tests
+
 - Mock service dependencies
 - Test HTTP endpoints
 - Validate request/response handling
 - Check authentication/authorization
 
 ### Integration Tests
+
 - Test complete request/response cycles
 - Validate database interactions
 - Test authentication flows

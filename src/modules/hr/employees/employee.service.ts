@@ -1,5 +1,3 @@
-
-
 import {
   Injectable,
   NotFoundException,
@@ -52,27 +50,41 @@ export class EmployeeProfilesService {
       }
 
       if (!user.role || user.role.name.toLowerCase() !== 'employee') {
-        throw new ForbiddenException('User is not an employee. Only users with employee role can have employee profiles.');
+        throw new ForbiddenException(
+          'User is not an employee. Only users with employee role can have employee profiles.',
+        );
       }
 
-      const existingProfileByUser = await this.employeeProfileRepository.findOne({
-        where: { userId },
-      });
+      const existingProfileByUser =
+        await this.employeeProfileRepository.findOne({
+          where: { userId },
+        });
       if (existingProfileByUser) {
-        throw new ConflictException('Employee profile already exists for this user');
+        throw new ConflictException(
+          'Employee profile already exists for this user',
+        );
       }
 
-      const employeeProfile = this.employeeProfileRepository.create(createEmployeeProfileDto);
+      const employeeProfile = this.employeeProfileRepository.create(
+        createEmployeeProfileDto,
+      );
 
       let imageUrl: string | undefined;
       if (file) {
-        imageUrl = await this.supabaseService.uploadImage(file, 'employee-profiles');
+        imageUrl = await this.supabaseService.uploadImage(
+          file,
+          'employee-profiles',
+        );
       }
 
       try {
         employeeProfile.profileImage = imageUrl;
-        const savedProfile = await this.employeeProfileRepository.save(employeeProfile);
-      SafeLogger.log(`Employee profile created for user ${userId}`, 'EmployeeProfilesService');
+        const savedProfile =
+          await this.employeeProfileRepository.save(employeeProfile);
+        SafeLogger.log(
+          `Employee profile created for user ${userId}`,
+          'EmployeeProfilesService',
+        );
 
         return {
           success: true,
@@ -93,8 +105,13 @@ export class EmployeeProfilesService {
 
   async findAll(): Promise<ServiceResponse<EmployeeProfile[]>> {
     try {
-      const profiles = await this.employeeProfileRepository.find({ relations: ['user'] });
-      SafeLogger.log(`Retrieved ${profiles.length} employee profiles`, 'EmployeeProfilesService');
+      const profiles = await this.employeeProfileRepository.find({
+        relations: ['user'],
+      });
+      SafeLogger.log(
+        `Retrieved ${profiles.length} employee profiles`,
+        'EmployeeProfilesService',
+      );
       return {
         success: true,
         message: 'Employee profiles retrieved successfully',
@@ -113,8 +130,13 @@ export class EmployeeProfilesService {
         relations: ['user'],
       });
       if (!employeeProfile) {
-        SafeLogger.warn(`Attempted to find non-existent employee profile: ${id}`, 'EmployeeProfilesService');
-        throw new NotFoundException(`Employee profile with ID "${id}" not found`);
+        SafeLogger.warn(
+          `Attempted to find non-existent employee profile: ${id}`,
+          'EmployeeProfilesService',
+        );
+        throw new NotFoundException(
+          `Employee profile with ID "${id}" not found`,
+        );
       }
 
       return {
@@ -124,7 +146,10 @@ export class EmployeeProfilesService {
         statusCode: HttpStatus.OK,
       };
     } catch (error) {
-      this.handleServiceError(error, `Failed to retrieve employee profile ${id}`);
+      this.handleServiceError(
+        error,
+        `Failed to retrieve employee profile ${id}`,
+      );
     }
   }
 
@@ -138,7 +163,9 @@ export class EmployeeProfilesService {
         relations: ['user'],
       });
       if (!employeeProfile) {
-        throw new NotFoundException(`Employee profile with ID "${id}" not found`);
+        throw new NotFoundException(
+          `Employee profile with ID "${id}" not found`,
+        );
       }
 
       if (
@@ -149,20 +176,29 @@ export class EmployeeProfilesService {
           where: { id: updateEmployeeProfileDto.userId },
         });
         if (!newUser) {
-          throw new NotFoundException('New user not found for the provided userId');
+          throw new NotFoundException(
+            'New user not found for the provided userId',
+          );
         }
-        const existingProfileForNewUser = await this.employeeProfileRepository.findOne({
-          where: { userId: updateEmployeeProfileDto.userId },
-        });
+        const existingProfileForNewUser =
+          await this.employeeProfileRepository.findOne({
+            where: { userId: updateEmployeeProfileDto.userId },
+          });
         if (existingProfileForNewUser && existingProfileForNewUser.id !== id) {
-          throw new ConflictException('Employee profile already exists for the new user');
+          throw new ConflictException(
+            'Employee profile already exists for the new user',
+          );
         }
       }
 
       Object.assign(employeeProfile, updateEmployeeProfileDto);
-      const updatedProfile = await this.employeeProfileRepository.save(employeeProfile);
+      const updatedProfile =
+        await this.employeeProfileRepository.save(employeeProfile);
 
-      SafeLogger.log(`Employee profile updated: ${id}`, 'EmployeeProfilesService');
+      SafeLogger.log(
+        `Employee profile updated: ${id}`,
+        'EmployeeProfilesService',
+      );
       return {
         success: true,
         message: 'Employee profile updated successfully',
@@ -176,9 +212,13 @@ export class EmployeeProfilesService {
 
   async remove(id: string): Promise<ServiceResponse> {
     try {
-      const profile = await this.employeeProfileRepository.findOne({ where: { id } });
+      const profile = await this.employeeProfileRepository.findOne({
+        where: { id },
+      });
       if (!profile) {
-        throw new NotFoundException(`Employee profile with ID "${id}" not found`);
+        throw new NotFoundException(
+          `Employee profile with ID "${id}" not found`,
+        );
       }
 
       if (profile.profileImage) {
@@ -187,10 +227,15 @@ export class EmployeeProfilesService {
 
       const result = await this.employeeProfileRepository.delete(id);
       if (result.affected === 0) {
-        throw new NotFoundException(`Employee profile with ID "${id}" not found`);
+        throw new NotFoundException(
+          `Employee profile with ID "${id}" not found`,
+        );
       }
 
-      SafeLogger.log(`Employee profile deleted: ${id}`, 'EmployeeProfilesService');
+      SafeLogger.log(
+        `Employee profile deleted: ${id}`,
+        'EmployeeProfilesService',
+      );
       return {
         success: true,
         message: 'Employee profile deleted successfully',
@@ -210,9 +255,13 @@ export class EmployeeProfilesService {
         throw new NotFoundException('Image file is required');
       }
 
-      const employeeProfile = await this.employeeProfileRepository.findOne({ where: { id } });
+      const employeeProfile = await this.employeeProfileRepository.findOne({
+        where: { id },
+      });
       if (!employeeProfile) {
-        throw new NotFoundException(`Employee profile with ID "${id}" not found`);
+        throw new NotFoundException(
+          `Employee profile with ID "${id}" not found`,
+        );
       }
 
       if (employeeProfile.profileImage) {
@@ -223,7 +272,8 @@ export class EmployeeProfilesService {
       const imageUrl = await this.supabaseService.uploadImage(file, folderName);
 
       employeeProfile.profileImage = imageUrl;
-      const updatedProfile = await this.employeeProfileRepository.save(employeeProfile);
+      const updatedProfile =
+        await this.employeeProfileRepository.save(employeeProfile);
 
       return {
         success: true,
@@ -237,10 +287,16 @@ export class EmployeeProfilesService {
   }
 
   private handleServiceError(error: any, context: string): never {
-    SafeLogger.error(`${context}: ${error.message}`, 'EmployeeProfilesService', error.stack);
+    SafeLogger.error(
+      `${context}: ${error.message}`,
+      'EmployeeProfilesService',
+      error.stack,
+    );
     if (error instanceof HttpException) {
       throw error;
     }
-    throw new InternalServerErrorException(`${context}. Please try again later.`);
+    throw new InternalServerErrorException(
+      `${context}. Please try again later.`,
+    );
   }
 }

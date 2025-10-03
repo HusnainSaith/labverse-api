@@ -1,4 +1,10 @@
-import { IsString, IsUUID, IsOptional, IsEnum, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsOptional,
+  IsEnum,
+  MaxLength,
+} from 'class-validator';
 import { TicketStatus, TicketPriority } from '../entities/ticket.entity';
 
 export class UpdateTicketDto {

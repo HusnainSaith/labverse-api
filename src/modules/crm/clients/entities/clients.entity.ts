@@ -1,8 +1,7 @@
-
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ClientPlanQuotation } from '../../../client-plan-quotations/entities/client-plan-quotation.entity';
 import { Invoice } from '../../../billing/invoices/entities/invoice.entity';
-import { Project } from "../../../project-management/projects/entities/projects.entity"
+import { Project } from '../../../project-management/projects/entities/projects.entity';
 
 @Entity('clients')
 export class Client {
@@ -27,7 +26,12 @@ export class Client {
   @Column({ type: 'varchar', length: 255, nullable: true })
   website: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true, name: 'profile_photo' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'profile_photo',
+  })
   profilePhoto: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateLeadsTable1753360000026 implements MigrationInterface {
   name = 'CreateLeadsTable1753360000026';
@@ -12,7 +17,7 @@ export class CreateLeadsTable1753360000026 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'company_name',
@@ -79,9 +84,12 @@ export class CreateLeadsTable1753360000026 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('leads');
-    const foreignKeyAssignedTo = table.foreignKeys.find(fk => fk.columnNames.indexOf('assigned_to') !== -1);
+    const foreignKeyAssignedTo = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('assigned_to') !== -1,
+    );
 
-    if (foreignKeyAssignedTo) await queryRunner.dropForeignKey('leads', foreignKeyAssignedTo);
+    if (foreignKeyAssignedTo)
+      await queryRunner.dropForeignKey('leads', foreignKeyAssignedTo);
 
     await queryRunner.dropTable('leads');
   }

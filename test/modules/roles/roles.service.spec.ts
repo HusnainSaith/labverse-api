@@ -10,7 +10,7 @@ import { mockRepository } from '../../utils/test-helpers';
 
 describe('RolesService', () => {
   let service: RolesService;
-  let roleRepository: any;  
+  let roleRepository: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -18,7 +18,10 @@ describe('RolesService', () => {
         RolesService,
         { provide: getRepositoryToken(Role), useValue: mockRepository() },
         { provide: getRepositoryToken(Permission), useValue: mockRepository() },
-        { provide: getRepositoryToken(RolePermission), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(RolePermission),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
@@ -32,7 +35,10 @@ describe('RolesService', () => {
 
   describe('create', () => {
     it('should create a new role', async () => {
-      const createRoleDto = { name: RoleEnum.ADMIN, description: 'Administrator' };
+      const createRoleDto = {
+        name: RoleEnum.ADMIN,
+        description: 'Administrator',
+      };
       const mockRole = { id: 'role-id', ...createRoleDto };
 
       roleRepository.create.mockReturnValue(mockRole);
@@ -43,7 +49,7 @@ describe('RolesService', () => {
       expect(result).toEqual({
         success: true,
         message: 'Role created successfully',
-        data: mockRole
+        data: mockRole,
       });
       expect(roleRepository.create).toHaveBeenCalledWith(createRoleDto);
     });
@@ -60,9 +66,11 @@ describe('RolesService', () => {
       expect(result).toEqual({
         success: true,
         message: 'Role retrieved successfully',
-        data: mockRole
+        data: mockRole,
       });
-      expect(roleRepository.findOne).toHaveBeenCalledWith({ where: { id: validId } });
+      expect(roleRepository.findOne).toHaveBeenCalledWith({
+        where: { id: validId },
+      });
     });
   });
 });

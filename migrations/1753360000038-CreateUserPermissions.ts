@@ -114,7 +114,6 @@ export class CreateUserPermissions1753360000038 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TABLE IF EXISTS role_permissions`);
 
-    // Drop permissions table indexes and table
     await queryRunner.query(
       `DROP INDEX IF EXISTS idx_permissions_resource_action`,
     );

@@ -23,7 +23,8 @@ export class CreateMessageDto {
   senderId: string;
 
   @ApiProperty({
-    description: 'Content of the message (text content, file path, or image URL)',
+    description:
+      'Content of the message (text content, file path, or image URL)',
     example: 'Hey team, please review the attached document.',
   })
   @IsString()

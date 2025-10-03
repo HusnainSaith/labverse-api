@@ -20,7 +20,7 @@ export class CreateUserWithPermissionsDto {
   @Transform(({ value }) => value?.toLowerCase().trim())
   email: string;
 
-@ApiProperty({
+  @ApiProperty({
     description: 'Password of the user',
     example: 'StrongPass123!',
     minLength: 8,
@@ -29,7 +29,7 @@ export class CreateUserWithPermissionsDto {
   @IsNotEmpty()
   password: string;
 
- @ApiProperty({
+  @ApiProperty({
     description: 'Full name of the user',
     example: 'Jane Doe',
     minLength: 2,
@@ -40,7 +40,6 @@ export class CreateUserWithPermissionsDto {
   @Transform(({ value }) => value?.trim())
   fullName: string;
 
-
   @ApiPropertyOptional({
     description: 'Role ID associated with the user (UUID v4)',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -49,7 +48,7 @@ export class CreateUserWithPermissionsDto {
   @IsUUID()
   roleId?: string;
 
-@ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'List of permission IDs (array of UUID v4)',
     example: [
       '11111111-1111-1111-1111-111111111111',
@@ -63,5 +62,3 @@ export class CreateUserWithPermissionsDto {
   @IsUUID('4', { each: true })
   permissionIds?: string[];
 }
-
-

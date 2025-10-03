@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
   name = 'CreateQaSectionsTables1753360000029';
@@ -12,7 +17,7 @@ export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'question_text',
@@ -56,7 +61,7 @@ export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'question_id',
@@ -132,19 +137,31 @@ export class CreateQaSectionsTables1753360000029 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const answersTable = await queryRunner.getTable('answers');
-    const answersFkQuestion = answersTable.foreignKeys.find(fk => fk.columnNames.indexOf('question_id') !== -1);
-    const answersFkAnsweredBy = answersTable.foreignKeys.find(fk => fk.columnNames.indexOf('answered_by') !== -1);
-    
-    if (answersFkQuestion) await queryRunner.dropForeignKey('answers', answersFkQuestion);
-    if (answersFkAnsweredBy) await queryRunner.dropForeignKey('answers', answersFkAnsweredBy);
+    const answersFkQuestion = answersTable.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('question_id') !== -1,
+    );
+    const answersFkAnsweredBy = answersTable.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('answered_by') !== -1,
+    );
+
+    if (answersFkQuestion)
+      await queryRunner.dropForeignKey('answers', answersFkQuestion);
+    if (answersFkAnsweredBy)
+      await queryRunner.dropForeignKey('answers', answersFkAnsweredBy);
     await queryRunner.dropTable('answers');
 
     const questionsTable = await queryRunner.getTable('questions');
-    const questionsFkAskedBy = questionsTable.foreignKeys.find(fk => fk.columnNames.indexOf('asked_by') !== -1);
-    const questionsFkCategory = questionsTable.foreignKeys.find(fk => fk.columnNames.indexOf('category_id') !== -1);
+    const questionsFkAskedBy = questionsTable.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('asked_by') !== -1,
+    );
+    const questionsFkCategory = questionsTable.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('category_id') !== -1,
+    );
 
-    if (questionsFkAskedBy) await queryRunner.dropForeignKey('questions', questionsFkAskedBy);
-    if (questionsFkCategory) await queryRunner.dropForeignKey('questions', questionsFkCategory);
+    if (questionsFkAskedBy)
+      await queryRunner.dropForeignKey('questions', questionsFkAskedBy);
+    if (questionsFkCategory)
+      await queryRunner.dropForeignKey('questions', questionsFkCategory);
     await queryRunner.dropTable('questions');
   }
 }

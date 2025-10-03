@@ -26,7 +26,8 @@ export class CreateProjectUpdateDto {
 
   @ApiProperty({
     description: 'Detailed description of the update',
-    example: 'The development of core modules for Phase 1 has been completed successfully.',
+    example:
+      'The development of core modules for Phase 1 has been completed successfully.',
     maxLength: 255,
   })
   @IsString()

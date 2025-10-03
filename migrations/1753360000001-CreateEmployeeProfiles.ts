@@ -38,10 +38,18 @@ export class CreateEmployeeProfiles1753360000001 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop tables and indexes in reverse order of creation
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_profiles_job_title;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_profiles_department;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_profiles_employee_code;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_profiles_user_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_profiles_job_title;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_profiles_department;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_profiles_employee_code;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_profiles_user_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS employee_profiles;`);
   }
 }

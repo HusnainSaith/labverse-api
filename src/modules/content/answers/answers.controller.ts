@@ -12,22 +12,22 @@ import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Answers')
 @Controller('answers')
 export class AnswersController {
   constructor(private readonly answersService: AnswersService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new answer' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new answer' })
   create(@Body() createAnswerDto: CreateAnswerDto) {
     return this.answersService.create(createAnswerDto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all answers' })
   findAll() {
@@ -35,7 +35,7 @@ export class AnswersController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a specific answer by ID' })
   findOne(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class AnswersController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing answer' })
   update(@Param('id') id: string, @Body() updateAnswerDto: UpdateAnswerDto) {
@@ -51,7 +51,7 @@ export class AnswersController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete an existing answer' })
   remove(@Param('id') id: string) {

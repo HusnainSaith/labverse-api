@@ -11,7 +11,6 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignRolePermissionsDto } from '../role-permissions/dto/assign-role-permissions.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
@@ -37,9 +36,8 @@ export class RolesController {
     return this.rolesService.create(dto);
   }
 
-
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all roles' })
   @Roles(RoleEnum.ADMIN)
@@ -49,7 +47,7 @@ export class RolesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a role by ID' })
   @Permissions('roles.read')
@@ -60,7 +58,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a role by ID' })
   @Roles(RoleEnum.ADMIN)
@@ -71,7 +69,7 @@ export class RolesController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Remove a role by ID' })
   @Roles(RoleEnum.ADMIN)

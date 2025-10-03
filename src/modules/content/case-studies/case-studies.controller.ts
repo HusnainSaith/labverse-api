@@ -11,7 +11,12 @@ import {
 import { CaseStudiesService } from './case-studies.service';
 import { CreateCaseStudyDto } from './dto/create-case-study.dto';
 import { UpdateCaseStudyDto } from './dto/update-case-study.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Case Studies')
 @Controller('case-studies')
@@ -19,7 +24,7 @@ export class CaseStudiesController {
   constructor(private readonly caseStudiesService: CaseStudiesService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new case study' })
   @ApiResponse({
@@ -35,7 +40,7 @@ export class CaseStudiesController {
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'get all case studies' })
   findAll() {
@@ -43,7 +48,7 @@ export class CaseStudiesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get a specific case study by ID' })
   findOne(@Param('id') id: string) {
@@ -51,7 +56,7 @@ export class CaseStudiesController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a specific case study by ID' })
   update(
@@ -62,7 +67,7 @@ export class CaseStudiesController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a specific case study by ID' })
   remove(@Param('id') id: string) {

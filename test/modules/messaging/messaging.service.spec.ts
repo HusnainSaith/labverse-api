@@ -16,15 +16,23 @@ describe('MessagingService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MessagingService,
-        { provide: getRepositoryToken(Conversation), useValue: mockRepository() },
-        { provide: getRepositoryToken(ConversationParticipant), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(Conversation),
+          useValue: mockRepository(),
+        },
+        {
+          provide: getRepositoryToken(ConversationParticipant),
+          useValue: mockRepository(),
+        },
         { provide: getRepositoryToken(Message), useValue: mockRepository() },
       ],
     }).compile();
 
     service = module.get<MessagingService>(MessagingService);
     conversationRepository = module.get(getRepositoryToken(Conversation));
-    participantRepository = module.get(getRepositoryToken(ConversationParticipant));
+    participantRepository = module.get(
+      getRepositoryToken(ConversationParticipant),
+    );
     messageRepository = module.get(getRepositoryToken(Message));
   });
 
@@ -39,7 +47,11 @@ describe('MessagingService', () => {
         isGroupChat: true,
         participantUserIds: ['user1', 'user2'],
       };
-      const mockConversation = { id: 'conversation-id', name: 'Project Discussion', isGroupChat: true };
+      const mockConversation = {
+        id: 'conversation-id',
+        name: 'Project Discussion',
+        isGroupChat: true,
+      };
 
       conversationRepository.create.mockReturnValue(mockConversation);
       conversationRepository.save.mockResolvedValue(mockConversation);
@@ -47,7 +59,10 @@ describe('MessagingService', () => {
       const result = await service.createConversation(createConversationDto);
 
       expect(result).toEqual(mockConversation);
-      expect(conversationRepository.create).toHaveBeenCalledWith({ name: 'Project Discussion', isGroupChat: true });
+      expect(conversationRepository.create).toHaveBeenCalledWith({
+        name: 'Project Discussion',
+        isGroupChat: true,
+      });
     });
   });
 
@@ -59,7 +74,11 @@ describe('MessagingService', () => {
         content: 'Hello world',
       };
       const mockConversation = { id: 'conversation-id' };
-      const mockMessage = { id: 'message-id', senderId: 'sender-id', content: 'Hello world' };
+      const mockMessage = {
+        id: 'message-id',
+        senderId: 'sender-id',
+        content: 'Hello world',
+      };
 
       conversationRepository.findOne.mockResolvedValue(mockConversation);
       messageRepository.create.mockReturnValue(mockMessage);

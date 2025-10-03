@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
-  ConflictException
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner, DataSource } from 'typeorm';
@@ -12,7 +12,7 @@ import { UpdateProjectDto } from './dto/update-projects.dto';
 import { Project } from './entities/projects.entity';
 import { Client } from '../../crm/clients/entities/clients.entity';
 import { User } from '../../users/entities/user.entity';
-import { SafeLogger } from "../../../common/utils/logger.util"
+import { SafeLogger } from '../../../common/utils/logger.util';
 import { SupabaseService } from '../../../common/services/supabase.service';
 
 @Injectable()
@@ -31,7 +31,10 @@ export class ProjectsService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, images?: Express.Multer.File[]): Promise<Project> {
+  async create(
+    createProjectDto: CreateProjectDto,
+    images?: Express.Multer.File[],
+  ): Promise<Project> {
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -59,15 +62,22 @@ export class ProjectsService {
       let imageUrls: string[] = [];
       if (images && images.length > 0) {
         for (const image of images) {
-          const imageUrl = await this.supabaseService.uploadImage(image, 'projects');
+          const imageUrl = await this.supabaseService.uploadImage(
+            image,
+            'projects',
+          );
           imageUrls.push(imageUrl);
         }
       }
 
       const project = this.projectRepository.create({
         ...createProjectDto,
-        startDate: createProjectDto.startDate ? new Date(createProjectDto.startDate) : null,
-        endDate: createProjectDto.endDate ? new Date(createProjectDto.endDate) : null,
+        startDate: createProjectDto.startDate
+          ? new Date(createProjectDto.startDate)
+          : null,
+        endDate: createProjectDto.endDate
+          ? new Date(createProjectDto.endDate)
+          : null,
         images: imageUrls,
       });
 
@@ -75,17 +85,19 @@ export class ProjectsService {
         const savedProject = await queryRunner.manager.save(Project, project);
         await queryRunner.commitTransaction();
 
-      SafeLogger.log(`Project created successfully: ${savedProject.id}`, 'ProjectsService');
-      // Re-fetch the newly created project with its relations to return a complete object.
-      // Note: Technologies are associated in a separate service, so this will only show
-      // technologies linked *after* this call.
-      const projectWithRelations = await this.projectRepository.findOne({
-        where: { id: savedProject.id },
-        relations: ['projectTechnologies', 'projectTechnologies.technology'],
-      });
+        SafeLogger.log(
+          `Project created successfully: ${savedProject.id}`,
+          'ProjectsService',
+        );
+        // Re-fetch the newly created project with its relations to return a complete object.
+        // Note: Technologies are associated in a separate service, so this will only show
+        // technologies linked *after* this call.
+        const projectWithRelations = await this.projectRepository.findOne({
+          where: { id: savedProject.id },
+          relations: ['projectTechnologies', 'projectTechnologies.technology'],
+        });
 
-      return projectWithRelations;
-
+        return projectWithRelations;
       } catch (dbError) {
         for (const imageUrl of imageUrls) {
           await this.supabaseService.deleteImage(imageUrl);
@@ -94,9 +106,15 @@ export class ProjectsService {
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      SafeLogger.error(`Failed to create project: ${error.message}`, 'ProjectsService');
+      SafeLogger.error(
+        `Failed to create project: ${error.message}`,
+        'ProjectsService',
+      );
 
-      if (error instanceof BadRequestException || error instanceof ConflictException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
         throw error;
       }
 
@@ -118,11 +136,18 @@ export class ProjectsService {
         order: { createdAt: 'DESC' },
       });
 
-      SafeLogger.log(`Retrieved ${projects.length} projects`, 'ProjectsService');
+      SafeLogger.log(
+        `Retrieved ${projects.length} projects`,
+        'ProjectsService',
+      );
 
       return projects;
     } catch (error) {
-      SafeLogger.error(`Failed to retrieve projects: ${error.message}`, 'ProjectsService', error.stack);
+      SafeLogger.error(
+        `Failed to retrieve projects: ${error.message}`,
+        'ProjectsService',
+        error.stack,
+      );
       throw new InternalServerErrorException('Failed to retrieve projects');
     }
   }
@@ -147,11 +172,16 @@ export class ProjectsService {
 
       SafeLogger.log(`Project retrieved: ${project.id}`, 'ProjectsService');
       return project;
-
     } catch (error) {
-      SafeLogger.error(`Failed to find project ${id}: ${error.message}`, 'ProjectsService');
+      SafeLogger.error(
+        `Failed to find project ${id}: ${error.message}`,
+        'ProjectsService',
+      );
 
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
 
@@ -162,7 +192,10 @@ export class ProjectsService {
   /**
    * Update a project with validation
    */
-  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+  ): Promise<Project> {
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -172,29 +205,42 @@ export class ProjectsService {
       const existingProject = await this.findOne(id);
 
       // Validate date logic if dates are being updated
-      const startDate = updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : existingProject.startDate;
-      const endDate = updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : existingProject.endDate;
+      const startDate = updateProjectDto.startDate
+        ? new Date(updateProjectDto.startDate)
+        : existingProject.startDate;
+      const endDate = updateProjectDto.endDate
+        ? new Date(updateProjectDto.endDate)
+        : existingProject.endDate;
 
       if (startDate && endDate && startDate >= endDate) {
         throw new BadRequestException('Start date must be before end date');
       }
 
       // Check for name conflicts (if name is being updated)
-      if (updateProjectDto.name && updateProjectDto.name !== existingProject.name) {
+      if (
+        updateProjectDto.name &&
+        updateProjectDto.name !== existingProject.name
+      ) {
         const nameConflict = await this.projectRepository.findOne({
           where: { name: updateProjectDto.name },
         });
 
         if (nameConflict) {
-          throw new ConflictException('A project with this name already exists');
+          throw new ConflictException(
+            'A project with this name already exists',
+          );
         }
       }
 
       // Prepare update data
       const updateData = {
         ...updateProjectDto,
-        startDate: updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : undefined,
-        endDate: updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : undefined,
+        startDate: updateProjectDto.startDate
+          ? new Date(updateProjectDto.startDate)
+          : undefined,
+        endDate: updateProjectDto.endDate
+          ? new Date(updateProjectDto.endDate)
+          : undefined,
       };
 
       // Update the project
@@ -210,12 +256,18 @@ export class ProjectsService {
 
       SafeLogger.log(`Project updated successfully: ${id}`, 'ProjectsService');
       return updatedProject;
-
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      SafeLogger.error(`Failed to update project ${id}: ${error.message}`, 'ProjectsService');
+      SafeLogger.error(
+        `Failed to update project ${id}: ${error.message}`,
+        'ProjectsService',
+      );
 
-      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ConflictException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
         throw error;
       }
 
@@ -251,10 +303,12 @@ export class ProjectsService {
         success: true,
         message: 'Project deleted successfully',
       };
-
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      SafeLogger.error(`Failed to delete project ${id}: ${error.message}`, 'ProjectsService');
+      SafeLogger.error(
+        `Failed to delete project ${id}: ${error.message}`,
+        'ProjectsService',
+      );
 
       if (error instanceof NotFoundException) {
         throw error;

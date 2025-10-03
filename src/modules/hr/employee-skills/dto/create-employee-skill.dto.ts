@@ -17,17 +17,16 @@ export class CreateEmployeeSkillDto {
   skillId: string;
 
   @ApiPropertyOptional({
-  description: 'Proficiency level of the skill (1-5 scale)',
-  example: 3,
-  minimum: 1,
-  maximum: 5,
-})
-@IsInt()
-@Min(1)
-@Max(5)
-@IsOptional()
-proficiencyLevel?: number;
-
+    description: 'Proficiency level of the skill (1-5 scale)',
+    example: 3,
+    minimum: 1,
+    maximum: 5,
+  })
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  @IsOptional()
+  proficiencyLevel?: number;
 
   @ApiPropertyOptional({
     description: 'Years of experience with this skill',

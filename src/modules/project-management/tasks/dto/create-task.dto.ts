@@ -1,4 +1,10 @@
-import { IsUUID, IsString, IsOptional, IsDateString, IsNotEmpty } from 'class-validator';
+import {
+  IsUUID,
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsNotEmpty,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTaskDto {

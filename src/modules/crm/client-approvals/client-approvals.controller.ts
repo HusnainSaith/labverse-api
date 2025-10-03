@@ -11,7 +11,7 @@ import {
 import { ClientApprovalsService } from './client-approvals.service';
 import { CreateClientApprovalDto } from './dto/create-client-approval.dto';
 import { UpdateClientApprovalDto } from './dto/update-client-approval.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Client Approvals')
@@ -22,7 +22,7 @@ export class ClientApprovalsController {
   ) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new client approval' })
   async createApproval(
@@ -32,7 +32,7 @@ export class ClientApprovalsController {
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all client plan quotations' })
   async findAllApprovals() {
@@ -40,7 +40,7 @@ export class ClientApprovalsController {
   }
 
   @Get('client/:clientId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all approvals for a specific client' })
   async findApprovalsByClient(@Param('clientId') clientId: string) {
@@ -48,7 +48,7 @@ export class ClientApprovalsController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get a specific client approval by ID' })
   async findApprovalById(@Param('id') id: string) {
@@ -56,7 +56,7 @@ export class ClientApprovalsController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Respond to a specific client approval by ID' })
   async respondToApproval(
@@ -70,7 +70,7 @@ export class ClientApprovalsController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a specific client approval by ID' })
   async deleteApproval(@Param('id') id: string) {

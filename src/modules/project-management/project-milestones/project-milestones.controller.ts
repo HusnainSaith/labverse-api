@@ -11,7 +11,7 @@ import {
 import { ProjectMilestoneService } from './project-milestones.service';
 import { CreateProjectMilestoneDto } from './dto/create-project-milestone.dto';
 import { UpdateProjectMilestoneDto } from './dto/update-project-milestone.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('Project Milestones')
@@ -21,7 +21,7 @@ export class ProjectMilestoneController {
   constructor(private readonly milestoneService: ProjectMilestoneService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new project milestone' })
   create(@Body() dto: CreateProjectMilestoneDto) {
@@ -29,7 +29,7 @@ export class ProjectMilestoneController {
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all project milestones' })
   findAll() {
@@ -37,7 +37,7 @@ export class ProjectMilestoneController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a project milestone by ID' })
   findOne(@Param('id') id: string) {
@@ -45,7 +45,7 @@ export class ProjectMilestoneController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a project milestone by ID' })
   update(@Param('id') id: string, @Body() dto: UpdateProjectMilestoneDto) {
@@ -53,7 +53,7 @@ export class ProjectMilestoneController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a project milestone by ID' })
   remove(@Param('id') id: string) {

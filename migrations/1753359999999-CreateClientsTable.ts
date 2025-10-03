@@ -3,24 +3,25 @@ import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 export class CreateClientsTable1753359999999 implements MigrationInterface {
   name = 'CreateClientsTable1753359999999';
 
-public async up(queryRunner: QueryRunner): Promise<void> {
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
         name: 'clients',
         columns: [
           // In your CreateClientsTable migration, change the id column to:
           {
-             name: 'id',
+            name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
 
           {
             name: 'profile_photo',
             type: 'varchar',
             length: '255',
-            isNullable: true,},
+            isNullable: true,
+          },
           {
             name: 'name',
             type: 'varchar',

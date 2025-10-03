@@ -19,9 +19,9 @@ export class BlogCommentsController {
   constructor(private readonly blogCommentsService: BlogCommentsService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new blog comment' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new blog comment' })
   create(@Body() createBlogCommentDto: CreateBlogCommentDto) {
     return this.blogCommentsService.create(createBlogCommentDto);
   }
@@ -35,7 +35,7 @@ export class BlogCommentsController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a specific blog comment by ID' })
   findOne(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class BlogCommentsController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an existing blog comment' })
   update(
@@ -54,7 +54,7 @@ export class BlogCommentsController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete an existing blog comment' })
   remove(@Param('id') id: string) {

@@ -12,7 +12,7 @@ export class CreateCategoriesTable1753360000023 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'name',

@@ -11,7 +11,8 @@ export class CreateCategoryDto {
   name: string;
 
   @ApiProperty({
-    description: 'SEO-friendly slug for the category (lowercase letters, numbers, and hyphens only)',
+    description:
+      'SEO-friendly slug for the category (lowercase letters, numbers, and hyphens only)',
     example: 'technology-news',
     pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$',
   })

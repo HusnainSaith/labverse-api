@@ -48,7 +48,8 @@ export class CreateServiceDto {
   duration_in_days?: number;
 
   @ApiPropertyOptional({
-    description: 'Category of the service (e.g., "Web Development", "Consulting")',
+    description:
+      'Category of the service (e.g., "Web Development", "Consulting")',
     example: 'Web Development',
     maxLength: 100,
   })

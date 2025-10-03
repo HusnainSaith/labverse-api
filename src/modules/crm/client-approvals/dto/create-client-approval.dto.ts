@@ -20,7 +20,8 @@ export class CreateClientApprovalDto {
 
   @ApiProperty({
     description: 'Details about the approval request',
-    example: 'Requesting approval for the final version of the mobile app UI/UX design.',
+    example:
+      'Requesting approval for the final version of the mobile app UI/UX design.',
   })
   @IsString()
   @IsNotEmpty()

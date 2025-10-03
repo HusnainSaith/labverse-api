@@ -1,6 +1,13 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
-export class CreateClientInteractionsTable1753360000025 implements MigrationInterface {
+export class CreateClientInteractionsTable1753360000025
+  implements MigrationInterface
+{
   name = 'CreateClientInteractionsTable1753360000025';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -12,7 +19,7 @@ export class CreateClientInteractionsTable1753360000025 implements MigrationInte
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'client_id',
@@ -83,11 +90,20 @@ export class CreateClientInteractionsTable1753360000025 implements MigrationInte
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('client_interactions');
-    const foreignKeyClient = table.foreignKeys.find(fk => fk.columnNames.indexOf('client_id') !== -1);
-    const foreignKeyInteractedBy = table.foreignKeys.find(fk => fk.columnNames.indexOf('interacted_by') !== -1);
+    const foreignKeyClient = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('client_id') !== -1,
+    );
+    const foreignKeyInteractedBy = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('interacted_by') !== -1,
+    );
 
-    if (foreignKeyClient) await queryRunner.dropForeignKey('client_interactions', foreignKeyClient);
-    if (foreignKeyInteractedBy) await queryRunner.dropForeignKey('client_interactions', foreignKeyInteractedBy);
+    if (foreignKeyClient)
+      await queryRunner.dropForeignKey('client_interactions', foreignKeyClient);
+    if (foreignKeyInteractedBy)
+      await queryRunner.dropForeignKey(
+        'client_interactions',
+        foreignKeyInteractedBy,
+      );
 
     await queryRunner.dropTable('client_interactions');
   }

@@ -15,7 +15,7 @@ import { EmployeeStatus } from '../dto/employee-status.enum';
 // import { TaskComment } from '../../../project-management/tasks/entities/task-comment.entity';
 // import { TimeEntry } from '../../../project-management/time-entries/entities/time-entry.entity';
 // import { ProjectUpdate } from '../../../project-management/project-updates/entities/project-update.entity';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 @Entity({ name: 'employee_profiles' })
 export class EmployeeProfile {
   @PrimaryGeneratedColumn('uuid')
@@ -43,8 +43,6 @@ export class EmployeeProfile {
   @Column({ name: 'profile_image', length: 2048, nullable: true })
   profileImage: string;
 
- 
-
   @Column({ type: 'varchar', length: 50, default: EmployeeStatus.ACTIVE })
   status: EmployeeStatus;
 
@@ -54,7 +52,7 @@ export class EmployeeProfile {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-   @BeforeInsert()
+  @BeforeInsert()
   generateEmployeeCode() {
     this.employeeCode = `EMP-${uuidv4()}`;
   }

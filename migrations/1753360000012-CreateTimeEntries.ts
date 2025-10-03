@@ -38,8 +38,12 @@ export class CreateTimeEntries1753360000012 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX IF EXISTS idx_time_entries_date;`);
     await queryRunner.query(`DROP INDEX IF EXISTS idx_time_entries_task_id;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_time_entries_project_id;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_time_entries_employee_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_time_entries_project_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_time_entries_employee_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS time_entries;`);
   }
 }

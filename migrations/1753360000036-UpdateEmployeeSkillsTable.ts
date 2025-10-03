@@ -1,12 +1,14 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateEmployeeSkillsTable1753360000036 implements MigrationInterface {
+export class UpdateEmployeeSkillsTable1753360000036
+  implements MigrationInterface
+{
   name = 'UpdateEmployeeSkillsTable1753360000036';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Drop existing table and recreate with proper structure
     await queryRunner.query(`DROP TABLE IF EXISTS employee_skills CASCADE;`);
-    
+
     await queryRunner.query(`
       CREATE TABLE employee_skills (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -23,8 +25,12 @@ export class UpdateEmployeeSkillsTable1753360000036 implements MigrationInterfac
     `);
 
     // Add indexes
-    await queryRunner.query(`CREATE INDEX idx_employee_skills_employee_id ON employee_skills(employee_id);`);
-    await queryRunner.query(`CREATE INDEX idx_employee_skills_skill_id ON employee_skills(skill_id);`);
+    await queryRunner.query(
+      `CREATE INDEX idx_employee_skills_employee_id ON employee_skills(employee_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX idx_employee_skills_skill_id ON employee_skills(skill_id);`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

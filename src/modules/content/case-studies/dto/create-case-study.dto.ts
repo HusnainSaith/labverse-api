@@ -18,7 +18,8 @@ export class CreateCaseStudyDto {
 
   @ApiPropertyOptional({
     description: 'Introduction or summary of the case study',
-    example: 'This case study highlights how we improved performance and scalability for a leading e-commerce client.',
+    example:
+      'This case study highlights how we improved performance and scalability for a leading e-commerce client.',
   })
   @IsOptional()
   @IsString()
@@ -26,21 +27,24 @@ export class CreateCaseStudyDto {
 
   @ApiProperty({
     description: 'Challenges faced by the client',
-    example: 'The client struggled with slow checkout processes and database bottlenecks during peak sales.',
+    example:
+      'The client struggled with slow checkout processes and database bottlenecks during peak sales.',
   })
   @IsString()
   challenge: string;
 
   @ApiProperty({
     description: 'Solution implemented to address the challenge',
-    example: 'We migrated the system to NestJS with PostgreSQL, optimized queries, and introduced caching.',
+    example:
+      'We migrated the system to NestJS with PostgreSQL, optimized queries, and introduced caching.',
   })
   @IsString()
   solution: string;
 
   @ApiProperty({
     description: 'Results achieved after implementing the solution',
-    example: 'Checkout speed improved by 60%, and the platform handled 5x more concurrent users.',
+    example:
+      'Checkout speed improved by 60%, and the platform handled 5x more concurrent users.',
   })
   @IsString()
   results: string;

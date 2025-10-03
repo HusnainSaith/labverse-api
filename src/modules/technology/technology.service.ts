@@ -19,7 +19,10 @@ export class TechnologiesService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  async create(createTechnologyDto: CreateTechnologyDto, logoFile?: Express.Multer.File): Promise<Technology> {
+  async create(
+    createTechnologyDto: CreateTechnologyDto,
+    logoFile?: Express.Multer.File,
+  ): Promise<Technology> {
     SecurityUtil.validateObject(createTechnologyDto);
     const { name } = createTechnologyDto;
     const sanitizedName = SecurityUtil.sanitizeString(name);
@@ -28,18 +31,23 @@ export class TechnologiesService {
       where: { name: sanitizedName },
     });
     if (existingTechnology) {
-      throw new ConflictException(`Technology with name "${name}" already exists.`);
+      throw new ConflictException(
+        `Technology with name "${name}" already exists.`,
+      );
     }
 
     let logoUrl: string | undefined;
     if (logoFile) {
-      logoUrl = await this.supabaseService.uploadImage(logoFile, 'technologies');
+      logoUrl = await this.supabaseService.uploadImage(
+        logoFile,
+        'technologies',
+      );
     }
 
     try {
       const technology = this.technologyRepository.create({
         ...createTechnologyDto,
-        logo: logoUrl
+        logo: logoUrl,
       });
       return await this.technologyRepository.save(technology);
     } catch (error) {
@@ -73,35 +81,45 @@ export class TechnologiesService {
     SecurityUtil.validateObject(updateTechnologyDto);
     const technology = await this.findOne(id);
 
-    if (updateTechnologyDto.name && updateTechnologyDto.name !== technology.name) {
-      const sanitizedName = SecurityUtil.sanitizeString(updateTechnologyDto.name);
+    if (
+      updateTechnologyDto.name &&
+      updateTechnologyDto.name !== technology.name
+    ) {
+      const sanitizedName = SecurityUtil.sanitizeString(
+        updateTechnologyDto.name,
+      );
       const existingTechnology = await this.technologyRepository.findOne({
         where: { name: sanitizedName },
       });
       if (existingTechnology && existingTechnology.id !== id) {
-        throw new ConflictException(`Technology with name "${updateTechnologyDto.name}" already exists.`);
+        throw new ConflictException(
+          `Technology with name "${updateTechnologyDto.name}" already exists.`,
+        );
       }
     }
 
     let logoUrl: string | undefined;
     let oldLogoUrl: string | undefined;
-    
+
     if (logoFile) {
       oldLogoUrl = technology.logo;
-      logoUrl = await this.supabaseService.uploadImage(logoFile, 'technologies');
+      logoUrl = await this.supabaseService.uploadImage(
+        logoFile,
+        'technologies',
+      );
     }
 
     try {
       Object.assign(technology, {
         ...updateTechnologyDto,
-        logo: logoUrl ?? technology.logo
+        logo: logoUrl ?? technology.logo,
       });
       const savedTechnology = await this.technologyRepository.save(technology);
-      
+
       if (oldLogoUrl && logoUrl) {
         await this.supabaseService.deleteImage(oldLogoUrl);
       }
-      
+
       return savedTechnology;
     } catch (error) {
       if (logoUrl) {

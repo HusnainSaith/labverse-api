@@ -67,26 +67,28 @@ describe('ProjectsController', () => {
 
   describe('findAll', () => {
     it('should return array of projects', async () => {
-      const mockProjects = [{
-        id: 'project-id',
-        name: 'Test Project',
-        description: null,
-        startDate: null,
-        endDate: null,
-        status: ProjectStatus.PLANNING,
-        budget: null,
-        creatorId: 'client-id',
-        creator: null,
-        tasks: [],
-        timeEntries: [],
-        updates: [],
-        milestones: [],
-        members: [],
-        projectTechnologies: [],
-        invoices: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }];
+      const mockProjects = [
+        {
+          id: 'project-id',
+          name: 'Test Project',
+          description: null,
+          startDate: null,
+          endDate: null,
+          status: ProjectStatus.PLANNING,
+          budget: null,
+          creatorId: 'client-id',
+          creator: null,
+          tasks: [],
+          timeEntries: [],
+          updates: [],
+          milestones: [],
+          members: [],
+          projectTechnologies: [],
+          invoices: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
       jest.spyOn(projectsService, 'findAll').mockResolvedValue(mockProjects);
 
       const result = await controller.findAll();

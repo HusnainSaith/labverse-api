@@ -18,7 +18,8 @@ export class CreateBlogPostDto {
 
   @ApiProperty({
     description: 'Content of the blog post',
-    example: 'NestJS is a progressive Node.js framework for building efficient server-side applications...',
+    example:
+      'NestJS is a progressive Node.js framework for building efficient server-side applications...',
   })
   @IsString()
   content: string;

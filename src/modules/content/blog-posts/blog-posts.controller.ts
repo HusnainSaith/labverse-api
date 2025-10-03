@@ -19,15 +19,15 @@ export class BlogPostsController {
   constructor(private readonly blogPostsService: BlogPostsService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new blog post' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new blog post' })
   create(@Body() createBlogPostDto: CreateBlogPostDto) {
     return this.blogPostsService.create(createBlogPostDto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'get all blog posts' })
   findAll() {
@@ -35,7 +35,7 @@ export class BlogPostsController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'get a blog post by id' })
   findOne(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class BlogPostsController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'update a blog post by id' })
   update(

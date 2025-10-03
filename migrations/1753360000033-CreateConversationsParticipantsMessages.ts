@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateConversationsParticipantsMessages1753360000033 implements MigrationInterface {
+export class CreateConversationsParticipantsMessages1753360000033
+  implements MigrationInterface
+{
   name = 'CreateConversationsParticipantsMessages1753360000033';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -58,9 +60,15 @@ export class CreateConversationsParticipantsMessages1753360000033 implements Mig
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop foreign key constraints first
-    await queryRunner.query(`ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_55726210f81d1152a5598285514"`);
-    await queryRunner.query(`ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_286419f96b341f48039c9413222"`);
-    await queryRunner.query(`ALTER TABLE "messages" DROP CONSTRAINT "FK_c9688432a29d5b0c95029e2467d"`);
+    await queryRunner.query(
+      `ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_55726210f81d1152a5598285514"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "conversation_participants" DROP CONSTRAINT "FK_286419f96b341f48039c9413222"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "messages" DROP CONSTRAINT "FK_c9688432a29d5b0c95029e2467d"`,
+    );
 
     // Drop tables in the reverse order of creation
     await queryRunner.query(`DROP TABLE IF EXISTS "conversation_participants"`);

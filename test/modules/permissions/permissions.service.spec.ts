@@ -40,7 +40,9 @@ describe('PermissionsService', () => {
       const result = await service.create(createPermissionDto);
 
       expect(result).toEqual(mockPermission);
-      expect(permissionRepository.create).toHaveBeenCalledWith(createPermissionDto);
+      expect(permissionRepository.create).toHaveBeenCalledWith(
+        createPermissionDto,
+      );
     });
   });
 });

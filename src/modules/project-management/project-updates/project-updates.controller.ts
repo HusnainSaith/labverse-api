@@ -11,22 +11,22 @@ import {
 import { ProjectUpdatesService } from './project-updates.service';
 import { CreateProjectUpdateDto } from './dto/create-project-update.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 @ApiTags('Project Updates')
 @Controller('project-updates')
 export class ProjectUpdatesController {
   constructor(private readonly projectUpdatesService: ProjectUpdatesService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new project update' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new project update' })
   async create(@Body() dto: CreateProjectUpdateDto) {
     return await this.projectUpdatesService.create(dto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all project updates' })
   async findAll() {
@@ -34,7 +34,7 @@ export class ProjectUpdatesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get an project update by ID' })
   async findOne(@Param('id') id: string) {

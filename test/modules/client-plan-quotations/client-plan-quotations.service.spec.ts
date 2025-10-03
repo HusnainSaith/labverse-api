@@ -12,11 +12,16 @@ describe('ClientPlanQuotationsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClientPlanQuotationsService,
-        { provide: getRepositoryToken(ClientPlanQuotation), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(ClientPlanQuotation),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
-    service = module.get<ClientPlanQuotationsService>(ClientPlanQuotationsService);
+    service = module.get<ClientPlanQuotationsService>(
+      ClientPlanQuotationsService,
+    );
     quotationRepository = module.get(getRepositoryToken(ClientPlanQuotation));
   });
 
@@ -40,7 +45,9 @@ describe('ClientPlanQuotationsService', () => {
       const result = await service.create(createQuotationDto);
 
       expect(result).toEqual(mockQuotation);
-      expect(quotationRepository.create).toHaveBeenCalledWith(createQuotationDto);
+      expect(quotationRepository.create).toHaveBeenCalledWith(
+        createQuotationDto,
+      );
     });
   });
 });

@@ -39,7 +39,9 @@ describe('TechnologiesService', () => {
       const result = await service.create(createTechnologyDto);
 
       expect(result).toEqual(mockTechnology);
-      expect(technologyRepository.create).toHaveBeenCalledWith(createTechnologyDto);
+      expect(technologyRepository.create).toHaveBeenCalledWith(
+        createTechnologyDto,
+      );
     });
   });
 

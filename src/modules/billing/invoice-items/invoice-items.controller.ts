@@ -5,7 +5,6 @@ import {
   Body,
   Param,
   Delete,
-  Put,
   UseGuards,
   Patch,
 } from '@nestjs/common';
@@ -46,7 +45,10 @@ export class InvoiceItemsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update an invoice item by ID' })
-  async update(@Param('id') id: string, @Body() dto: Partial<CreateInvoiceItemDto>) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateInvoiceItemDto>,
+  ) {
     return await this.invoiceItemsService.update(id, dto);
   }
 

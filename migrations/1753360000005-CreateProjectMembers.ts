@@ -3,16 +3,18 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class CreateProjectMembers1753360000005 implements MigrationInterface {
   name = 'CreateProjectMembers1753360000005';
 
-  
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes if they exist from a previous run to ensure clean creation
-    // This is useful during development but should be handled carefully in production.
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_role_on_project;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_user_id;`); // Drop old user_id index
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_project_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_role_on_project;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_user_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_project_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS project_members;`);
 
-    // Create project_members junction table
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS project_members (
         project_id UUID NOT NULL,
@@ -27,7 +29,6 @@ export class CreateProjectMembers1753360000005 implements MigrationInterface {
       );
     `);
 
-    // Add indexes for project_members
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_project_members_project_id ON project_members(project_id);
     `);
@@ -40,9 +41,15 @@ export class CreateProjectMembers1753360000005 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes in order to not break FK constraints
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_role_on_project;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_employee_profile_id;`); // Drop new index name
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_members_project_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_role_on_project;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_employee_profile_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_members_project_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS project_members;`);
-  }}
+  }
+}

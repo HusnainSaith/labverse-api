@@ -32,8 +32,7 @@ export class PaymentsController {
   }
 
   @Get()
-  
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all payments' })
   findAll() {
@@ -41,8 +40,7 @@ export class PaymentsController {
   }
 
   @Get(':id')
-  
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get a payment by ID' })
   findOne(@Param('id') id: string) {

@@ -15,7 +15,10 @@ describe('SupportTicketsService', () => {
       providers: [
         SupportTicketsService,
         { provide: getRepositoryToken(Ticket), useValue: mockRepository() },
-        { provide: getRepositoryToken(TicketReply), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(TicketReply),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
@@ -64,7 +67,10 @@ describe('SupportTicketsService', () => {
       const result = await service.addReplyToTicket(ticketId, createReplyDto);
 
       expect(result).toEqual(mockReply);
-      expect(ticketReplyRepository.create).toHaveBeenCalledWith({ ...createReplyDto, ticketId });
+      expect(ticketReplyRepository.create).toHaveBeenCalledWith({
+        ...createReplyDto,
+        ticketId,
+      });
     });
   });
 });

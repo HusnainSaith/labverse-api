@@ -27,8 +27,10 @@ export class ClientsService {
     ValidationUtil.validateString(dto.name, 'name', 2, 100);
     if (dto.email) ValidationUtil.validateEmail(dto.email);
     if (dto.phone) ValidationUtil.validatePhone(dto.phone);
-    if (dto.company) ValidationUtil.validateString(dto.company, 'company', 2, 100);
-    if (dto.address) ValidationUtil.validateString(dto.address, 'address', 5, 255);
+    if (dto.company)
+      ValidationUtil.validateString(dto.company, 'company', 2, 100);
+    if (dto.address)
+      ValidationUtil.validateString(dto.address, 'address', 5, 255);
     if (dto.website) ValidationUtil.validateUrl(dto.website, 'website');
 
     if (dto.email) {
@@ -42,22 +44,37 @@ export class ClientsService {
 
     let profilePhotoUrl: string | undefined;
     if (profile_photo) {
-      profilePhotoUrl = await this.supabaseService.uploadImage(profile_photo, 'clients');
+      profilePhotoUrl = await this.supabaseService.uploadImage(
+        profile_photo,
+        'clients',
+      );
     }
 
     try {
       const client = this.clientsRepository.create({
         ...dto,
         name: ValidationUtil.sanitizeString(dto.name),
-        email: dto.email ? ValidationUtil.sanitizeString(dto.email.toLowerCase()) : null,
-        company: dto.company ? ValidationUtil.sanitizeString(dto.company) : undefined,
-        address: dto.address ? ValidationUtil.sanitizeString(dto.address) : undefined,
+        email: dto.email
+          ? ValidationUtil.sanitizeString(dto.email.toLowerCase())
+          : null,
+        company: dto.company
+          ? ValidationUtil.sanitizeString(dto.company)
+          : undefined,
+        address: dto.address
+          ? ValidationUtil.sanitizeString(dto.address)
+          : undefined,
         profilePhoto: profilePhotoUrl,
       });
 
       const savedClient = await this.clientsRepository.save(client);
-      SafeLogger.log(`Client created: ${dto.name} (${dto.email})`, 'ClientsService');
-      return ValidationUtil.createSuccessResponse('Client created successfully', savedClient);
+      SafeLogger.log(
+        `Client created: ${dto.name} (${dto.email})`,
+        'ClientsService',
+      );
+      return ValidationUtil.createSuccessResponse(
+        'Client created successfully',
+        savedClient,
+      );
     } catch (error) {
       if (profilePhotoUrl) {
         await this.supabaseService.deleteImage(profilePhotoUrl);
@@ -66,7 +83,11 @@ export class ClientsService {
     }
   }
 
-  async findAll(): Promise<{ success: boolean; message: string; data: Client[] }> {
+  async findAll(): Promise<{
+    success: boolean;
+    message: string;
+    data: Client[];
+  }> {
     const clients = await this.clientsRepository.find({
       order: { created_at: 'DESC' },
     });
@@ -92,7 +113,7 @@ export class ClientsService {
     );
   }
 
- async update(
+  async update(
     id: string,
     dto: UpdateClientDto,
     profile_photo?: Express.Multer.File,
@@ -102,8 +123,10 @@ export class ClientsService {
     if (dto.name) ValidationUtil.validateString(dto.name, 'name', 2, 100);
     if (dto.email) ValidationUtil.validateEmail(dto.email);
     if (dto.phone) ValidationUtil.validatePhone(dto.phone);
-    if (dto.company) ValidationUtil.validateString(dto.company, 'company', 2, 100);
-    if (dto.address) ValidationUtil.validateString(dto.address, 'address', 5, 255);
+    if (dto.company)
+      ValidationUtil.validateString(dto.company, 'company', 2, 100);
+    if (dto.address)
+      ValidationUtil.validateString(dto.address, 'address', 5, 255);
     if (dto.website) ValidationUtil.validateUrl(dto.website, 'website');
 
     const client = await this.clientsRepository.findOneBy({ id });
@@ -122,30 +145,45 @@ export class ClientsService {
 
     let profilePhotoUrl: string | undefined;
     let oldPhotoUrl: string | undefined;
-    
+
     if (profile_photo) {
       oldPhotoUrl = client.profilePhoto;
-      profilePhotoUrl = await this.supabaseService.uploadImage(profile_photo, 'clients');
+      profilePhotoUrl = await this.supabaseService.uploadImage(
+        profile_photo,
+        'clients',
+      );
     }
 
     try {
       Object.assign(client, {
         ...dto,
         name: dto.name ? ValidationUtil.sanitizeString(dto.name) : client.name,
-        email: dto.email ? ValidationUtil.sanitizeString(dto.email.toLowerCase()) : client.email,
-        company: dto.company ? ValidationUtil.sanitizeString(dto.company) : client.company,
-        address: dto.address ? ValidationUtil.sanitizeString(dto.address) : client.address,
+        email: dto.email
+          ? ValidationUtil.sanitizeString(dto.email.toLowerCase())
+          : client.email,
+        company: dto.company
+          ? ValidationUtil.sanitizeString(dto.company)
+          : client.company,
+        address: dto.address
+          ? ValidationUtil.sanitizeString(dto.address)
+          : client.address,
         profilePhoto: profilePhotoUrl ?? client.profilePhoto,
       });
 
       const updatedClient = await this.clientsRepository.save(client);
-      
+
       if (oldPhotoUrl && profilePhotoUrl) {
         await this.supabaseService.deleteImage(oldPhotoUrl);
       }
 
-      SafeLogger.log(`Client updated: ${client.name} (ID: ${id})`, 'ClientsService');
-      return ValidationUtil.createSuccessResponse('Client updated successfully', updatedClient);
+      SafeLogger.log(
+        `Client updated: ${client.name} (ID: ${id})`,
+        'ClientsService',
+      );
+      return ValidationUtil.createSuccessResponse(
+        'Client updated successfully',
+        updatedClient,
+      );
     } catch (error) {
       if (profilePhotoUrl) {
         await this.supabaseService.deleteImage(profilePhotoUrl);

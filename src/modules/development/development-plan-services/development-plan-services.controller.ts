@@ -13,8 +13,13 @@ import {
 import { DevelopmentPlanServicesService } from './development-plan-services.service';
 import { CreateDevelopmentPlanServiceDto } from './dto/create-development-plan-service.dto';
 import { UpdateDevelopmentPlanServiceDto } from './dto/update-development-plan-service.dto';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plan-services')
 @Controller('development-plan-services')
@@ -90,7 +95,7 @@ export class DevelopmentPlanServicesController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan service association' })

@@ -101,7 +101,6 @@ export class ClientsController {
     return this.clientsService.findOne(id);
   }
 
-
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')

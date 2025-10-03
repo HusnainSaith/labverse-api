@@ -10,7 +10,6 @@ import { Permission } from '../permissions/entities/permission.entity';
 import { RolePermission } from '../role-permissions/entities/role-permission.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignRolePermissionsDto } from '../role-permissions/dto/assign-role-permissions.dto';
 import { SecurityUtil } from '../../common/utils/security.util';
 import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 
@@ -53,8 +52,6 @@ export class RolesService {
     }
   }
 
- 
-
   async findOneWithPermissions(id: string): Promise<Role> {
     const validId = SecurityUtil.validateId(id);
 
@@ -70,8 +67,6 @@ export class RolesService {
 
     return role;
   }
-
- 
 
   async findAll(): Promise<ServiceResponse<Role[]>> {
     try {

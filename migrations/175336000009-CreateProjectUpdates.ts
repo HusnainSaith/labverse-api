@@ -28,8 +28,12 @@ export class CreateProjectUpdates1753360000009 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_updates_created_by_id;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_updates_project_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_updates_created_by_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_updates_project_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS project_updates;`);
   }
 }

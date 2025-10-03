@@ -24,7 +24,8 @@ export class CreateTimeEntryDto {
   projectId: string;
 
   @ApiPropertyOptional({
-    description: 'UUID of the task the time entry is associated with (optional)',
+    description:
+      'UUID of the task the time entry is associated with (optional)',
     example: '22222222-2222-2222-2222-222222222222',
   })
   @IsOptional()

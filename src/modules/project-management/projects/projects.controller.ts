@@ -12,10 +12,15 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   BadRequestException,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
 import { SupabaseService } from 'src/common/services/supabase.service';
 import { CreateProjectDto } from './dto/create-projects.dto';
@@ -34,7 +39,9 @@ export class ProjectsController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new project with optional multiple image uploads' })
+  @ApiOperation({
+    summary: 'Create a new project with optional multiple image uploads',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 201, description: 'Project created successfully' })
   @UseInterceptors(FilesInterceptor('files', 10))
@@ -56,7 +63,10 @@ export class ProjectsController {
 
       // Manually parse the JSON string from the 'data' field
       if (body.data) {
-        createProjectDto = plainToClass(CreateProjectDto, JSON.parse(body.data));
+        createProjectDto = plainToClass(
+          CreateProjectDto,
+          JSON.parse(body.data),
+        );
       } else {
         // Fallback for non-multipart requests
         createProjectDto = plainToClass(CreateProjectDto, body);
@@ -65,14 +75,16 @@ export class ProjectsController {
       // Explicitly validate the DTO
       const errors = await validate(createProjectDto);
       if (errors.length > 0) {
-        const messages = errors.flatMap(error => Object.values(error.constraints));
+        const messages = errors.flatMap((error) =>
+          Object.values(error.constraints),
+        );
         throw new BadRequestException(messages);
       }
 
       if (files && files.length > 0) {
         // Upload all files concurrently using Promise.all
-        const uploadPromises = files.map(file =>
-          this.supabaseService.uploadImage(file, 'projects')
+        const uploadPromises = files.map((file) =>
+          this.supabaseService.uploadImage(file, 'projects'),
         );
         const imageUrls = await Promise.all(uploadPromises);
         createProjectDto.images = imageUrls;
@@ -116,7 +128,10 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Update a project' })
   @ApiResponse({ status: 200, description: 'Project updated successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
     try {
       return await this.projectsService.update(id, updateProjectDto);
     } catch (error) {

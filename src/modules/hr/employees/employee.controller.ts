@@ -1,5 +1,3 @@
-
-
 import {
   Controller,
   Get,
@@ -22,7 +20,13 @@ import { RoleEnum } from '../../roles/role.enum';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { UuidValidationPipe } from '../../../common/pipes/uuid-validation.pipe';
 import { SecurityUtil } from '../../../common/utils/security.util';
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Employee Profiles')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,7 +39,9 @@ export class EmployeeProfilesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new employee profile with an optional image' })
+  @ApiOperation({
+    summary: 'Create a new employee profile with an optional image',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -45,7 +51,7 @@ export class EmployeeProfilesController {
         hireDate: { type: 'string', format: 'date' },
         jobTitle: { type: 'string' },
         department: { type: 'string' },
-        status: { 
+        status: {
           type: 'string',
           enum: ['active', 'inactive', 'on_leave', 'terminated'], // ✅ proper enum values
         },

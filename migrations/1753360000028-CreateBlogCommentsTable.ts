@@ -1,6 +1,13 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
-export class CreateBlogCommentsTable1753360000028 implements MigrationInterface {
+export class CreateBlogCommentsTable1753360000028
+  implements MigrationInterface
+{
   name = 'CreateBlogCommentsTable1753360000028';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -12,7 +19,7 @@ export class CreateBlogCommentsTable1753360000028 implements MigrationInterface 
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'post_id',
@@ -99,13 +106,22 @@ export class CreateBlogCommentsTable1753360000028 implements MigrationInterface 
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('blog_comments');
-    const foreignKeyPost = table.foreignKeys.find(fk => fk.columnNames.indexOf('post_id') !== -1);
-    const foreignKeyUser = table.foreignKeys.find(fk => fk.columnNames.indexOf('user_id') !== -1);
-    const foreignKeyParent = table.foreignKeys.find(fk => fk.columnNames.indexOf('parent_comment_id') !== -1);
+    const foreignKeyPost = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('post_id') !== -1,
+    );
+    const foreignKeyUser = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('user_id') !== -1,
+    );
+    const foreignKeyParent = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('parent_comment_id') !== -1,
+    );
 
-    if (foreignKeyPost) await queryRunner.dropForeignKey('blog_comments', foreignKeyPost);
-    if (foreignKeyUser) await queryRunner.dropForeignKey('blog_comments', foreignKeyUser);
-    if (foreignKeyParent) await queryRunner.dropForeignKey('blog_comments', foreignKeyParent);
+    if (foreignKeyPost)
+      await queryRunner.dropForeignKey('blog_comments', foreignKeyPost);
+    if (foreignKeyUser)
+      await queryRunner.dropForeignKey('blog_comments', foreignKeyUser);
+    if (foreignKeyParent)
+      await queryRunner.dropForeignKey('blog_comments', foreignKeyParent);
 
     await queryRunner.dropTable('blog_comments');
   }

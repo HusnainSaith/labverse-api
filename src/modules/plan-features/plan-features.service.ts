@@ -27,7 +27,9 @@ export class PlanFeaturesService {
 
   async findOne(id: string): Promise<PlanFeature> {
     const validId = SecurityUtil.validateId(id);
-    const feature = await this.planFeaturesRepository.findOneBy({ id: validId });
+    const feature = await this.planFeaturesRepository.findOneBy({
+      id: validId,
+    });
     if (!feature) {
       throw new NotFoundException(`Plan Feature with ID "${id}" not found`);
     }

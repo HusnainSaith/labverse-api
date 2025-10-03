@@ -13,9 +13,13 @@ import {
 import { DevelopmentPlansService } from './development-plans.service';
 import { CreateDevelopmentPlanDto } from './dto/create-development-plan.dto';
 import { UpdateDevelopmentPlanDto } from './dto/update-development-plan.dto';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
-
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plans')
 @Controller('development-plans')
@@ -25,7 +29,7 @@ export class DevelopmentPlansController {
   ) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new development plan' })
@@ -89,7 +93,7 @@ export class DevelopmentPlansController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan' })

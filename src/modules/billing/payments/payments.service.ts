@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
@@ -73,7 +69,9 @@ export class PaymentsService {
     try {
       SecurityUtil.validateObject(updatePaymentDto);
       if (updatePaymentDto.invoiceId) {
-        const validInvoiceId = SecurityUtil.validateId(updatePaymentDto.invoiceId);
+        const validInvoiceId = SecurityUtil.validateId(
+          updatePaymentDto.invoiceId,
+        );
         const invoice = await this.invoiceRepository.findOne({
           where: { id: validInvoiceId },
         });

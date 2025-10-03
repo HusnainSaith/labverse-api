@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateBlogPostsTable1753360000027 implements MigrationInterface {
   name = 'CreateBlogPostsTable1753360000027';
@@ -12,7 +17,7 @@ export class CreateBlogPostsTable1753360000027 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'title',
@@ -94,11 +99,17 @@ export class CreateBlogPostsTable1753360000027 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('blog_posts');
-    const foreignKeyAuthor = table.foreignKeys.find(fk => fk.columnNames.indexOf('author_id') !== -1);
-    const foreignKeyCategory = table.foreignKeys.find(fk => fk.columnNames.indexOf('category_id') !== -1);
+    const foreignKeyAuthor = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('author_id') !== -1,
+    );
+    const foreignKeyCategory = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('category_id') !== -1,
+    );
 
-    if (foreignKeyAuthor) await queryRunner.dropForeignKey('blog_posts', foreignKeyAuthor);
-    if (foreignKeyCategory) await queryRunner.dropForeignKey('blog_posts', foreignKeyCategory);
+    if (foreignKeyAuthor)
+      await queryRunner.dropForeignKey('blog_posts', foreignKeyAuthor);
+    if (foreignKeyCategory)
+      await queryRunner.dropForeignKey('blog_posts', foreignKeyCategory);
 
     await queryRunner.dropTable('blog_posts');
   }

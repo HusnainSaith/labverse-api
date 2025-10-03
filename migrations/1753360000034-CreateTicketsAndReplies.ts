@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTicketsAndReplies1753360000034 implements MigrationInterface {
+export class CreateTicketsAndReplies1753360000034
+  implements MigrationInterface
+{
   name = 'CreateTicketsAndReplies1753360000034';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

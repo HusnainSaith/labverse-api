@@ -17,7 +17,7 @@ const FEATURE_PERMISSIONS = {
       PermissionActionEnum.DELETE,
       PermissionActionEnum.EXPORT,
       PermissionActionEnum.IMPORT,
-      PermissionActionEnum.ASSIGN, 
+      PermissionActionEnum.ASSIGN,
       PermissionActionEnum.VIEW_ALL,
       PermissionActionEnum.ARCHIVE,
       PermissionActionEnum.RESTORE,
@@ -646,18 +646,30 @@ export async function seedPermissions() {
     const clientRole = await roleRepo.findOneBy({ name: RoleEnum.CLIENT });
     const employeeRole = await roleRepo.findOneBy({ name: RoleEnum.EMPLOYEE });
     const supportRole = await roleRepo.findOneBy({ name: RoleEnum.SUPPORT }); // Don't forget to fetch the support role.
-    const managerRole = await roleRepo.findOneBy({ name: RoleEnum.PROJECT_MANAGER });
-    
+    const managerRole = await roleRepo.findOneBy({
+      name: RoleEnum.PROJECT_MANAGER,
+    });
+
     // Check if roles exist
-    if (!adminRole || !clientRole || !employeeRole || !supportRole || !managerRole) {
-      throw new Error('❌ One or more roles not found. Please ensure the main seed script runs correctly first.');
+    if (
+      !adminRole ||
+      !clientRole ||
+      !employeeRole ||
+      !supportRole ||
+      !managerRole
+    ) {
+      throw new Error(
+        '❌ One or more roles not found. Please ensure the main seed script runs correctly first.',
+      );
     }
 
     console.log('📜 Defining permissions...');
     const allPermissions = [];
     // ... (your permission creation logic) ...
     for (const resourceName in FEATURE_PERMISSIONS) {
-      if (Object.prototype.hasOwnProperty.call(FEATURE_PERMISSIONS, resourceName)) {
+      if (
+        Object.prototype.hasOwnProperty.call(FEATURE_PERMISSIONS, resourceName)
+      ) {
         const feature = FEATURE_PERMISSIONS[resourceName];
         for (const action of feature.actions) {
           const permission = new Permission();
@@ -669,33 +681,40 @@ export async function seedPermissions() {
         }
       }
     }
-    
+
     console.log('💾 Saving permissions...');
     const savedPermissions = await permissionRepo.save(allPermissions);
 
     console.log('🔗 Linking permissions to roles...');
     const rolePermissions = [
-        ...savedPermissions.map((perm) => ({
-            roleId: adminRole.id,
-            permissionId: perm.id,
-        })),
-        ...savedPermissions
-        .filter((perm) => perm.resource === 'projects' && perm.action === PermissionActionEnum.READ)
-        .map((perm) => ({
-            roleId: clientRole.id,
-            permissionId: perm.id,
-        })),
-        ...savedPermissions
+      ...savedPermissions.map((perm) => ({
+        roleId: adminRole.id,
+        permissionId: perm.id,
+      })),
+      ...savedPermissions
         .filter(
-            (perm) =>
-            (perm.resource === 'tasks' && (perm.action === PermissionActionEnum.READ || perm.action === PermissionActionEnum.VIEW_OWN)) ||
-            (perm.resource === 'time-entries' && perm.action === PermissionActionEnum.CREATE)
+          (perm) =>
+            perm.resource === 'projects' &&
+            perm.action === PermissionActionEnum.READ,
         )
         .map((perm) => ({
-            roleId: employeeRole.id,
-            permissionId: perm.id,
+          roleId: clientRole.id,
+          permissionId: perm.id,
         })),
-        // Add more permissions for other roles if needed
+      ...savedPermissions
+        .filter(
+          (perm) =>
+            (perm.resource === 'tasks' &&
+              (perm.action === PermissionActionEnum.READ ||
+                perm.action === PermissionActionEnum.VIEW_OWN)) ||
+            (perm.resource === 'time-entries' &&
+              perm.action === PermissionActionEnum.CREATE),
+        )
+        .map((perm) => ({
+          roleId: employeeRole.id,
+          permissionId: perm.id,
+        })),
+      // Add more permissions for other roles if needed
     ];
 
     await rolePermissionRepo.save(rolePermissionRepo.create(rolePermissions));

@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ContactInquiryStatus } from '../entities/contact-inquiry.entity';
 
@@ -45,7 +51,6 @@ export class CreateContactInquiryDto {
   @ApiPropertyOptional({
     description: 'Status of the inquiry',
     enum: ContactInquiryStatus,
-    
   })
   @IsOptional()
   @IsEnum(ContactInquiryStatus)

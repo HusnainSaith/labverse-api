@@ -15,7 +15,8 @@ export class CreateTechnologyDto {
 
   @ApiPropertyOptional({
     description: 'Short description of the technology',
-    example: 'A progressive Node.js framework for building efficient, reliable, and scalable server-side applications.',
+    example:
+      'A progressive Node.js framework for building efficient, reliable, and scalable server-side applications.',
     maxLength: 255,
   })
   @IsOptional()

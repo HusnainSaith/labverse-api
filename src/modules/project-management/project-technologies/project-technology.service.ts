@@ -33,11 +33,15 @@ export class ProjectTechnologiesService {
     const { projectId, technologyIds } = dto;
 
     if (!projectId || technologyIds.length === 0) {
-      throw new BadRequestException('Project ID and at least one Technology ID are required.');
+      throw new BadRequestException(
+        'Project ID and at least one Technology ID are required.',
+      );
     }
 
     const validProjectId = SecurityUtil.validateId(projectId);
-    const validTechnologyIds = technologyIds.map(id => SecurityUtil.validateId(id));
+    const validTechnologyIds = technologyIds.map((id) =>
+      SecurityUtil.validateId(id),
+    );
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -48,31 +52,38 @@ export class ProjectTechnologiesService {
         where: { id: validProjectId },
       });
       if (!project) {
-        throw new NotFoundException(`Project with ID "${projectId}" not found.`);
+        throw new NotFoundException(
+          `Project with ID "${projectId}" not found.`,
+        );
       }
 
       const technologies = await queryRunner.manager.find(Technology, {
-        where: validTechnologyIds.map(id => ({ id })),
+        where: validTechnologyIds.map((id) => ({ id })),
       });
       if (technologies.length !== validTechnologyIds.length) {
         throw new NotFoundException('One or more technologies were not found.');
       }
 
-      const existingAssociations = await queryRunner.manager.find(ProjectTechnology, {
-        where: {
-          projectId: validProjectId,
-          technologyId: In(validTechnologyIds),
+      const existingAssociations = await queryRunner.manager.find(
+        ProjectTechnology,
+        {
+          where: {
+            projectId: validProjectId,
+            technologyId: In(validTechnologyIds),
+          },
         },
-      });
+      );
 
       if (existingAssociations.length > 0) {
         const existingMessage = existingAssociations
-          .map(assoc => `(Technology ID: ${assoc.technologyId})`)
+          .map((assoc) => `(Technology ID: ${assoc.technologyId})`)
           .join(', ');
-        throw new ConflictException(`One or more project-technology associations already exist for this project: ${existingMessage}`);
+        throw new ConflictException(
+          `One or more project-technology associations already exist for this project: ${existingMessage}`,
+        );
       }
 
-      const newAssociations = validTechnologyIds.map(techId =>
+      const newAssociations = validTechnologyIds.map((techId) =>
         this.projectTechnologyRepository.create({
           projectId: validProjectId,
           technologyId: techId,
@@ -105,15 +116,20 @@ export class ProjectTechnologiesService {
       const validOldTechnologyId = SecurityUtil.validateId(oldTechnologyId);
       const validNewTechnologyId = SecurityUtil.validateId(dto.newTechnologyId);
 
-      const existingAssociation = await queryRunner.manager.findOne(ProjectTechnology, {
-        where: {
-          projectId: validProjectId,
-          technologyId: validOldTechnologyId,
+      const existingAssociation = await queryRunner.manager.findOne(
+        ProjectTechnology,
+        {
+          where: {
+            projectId: validProjectId,
+            technologyId: validOldTechnologyId,
+          },
         },
-      });
+      );
 
       if (!existingAssociation) {
-        throw new NotFoundException('Project technology association not found.');
+        throw new NotFoundException(
+          'Project technology association not found.',
+        );
       }
 
       const newTechnology = await queryRunner.manager.findOne(Technology, {
@@ -124,15 +140,20 @@ export class ProjectTechnologiesService {
         throw new NotFoundException('New technology not found.');
       }
 
-      const conflictAssociation = await queryRunner.manager.findOne(ProjectTechnology, {
-        where: {
-          projectId: validProjectId,
-          technologyId: validNewTechnologyId,
+      const conflictAssociation = await queryRunner.manager.findOne(
+        ProjectTechnology,
+        {
+          where: {
+            projectId: validProjectId,
+            technologyId: validNewTechnologyId,
+          },
         },
-      });
+      );
 
       if (conflictAssociation) {
-        throw new ConflictException('A project technology association with the new technology already exists.');
+        throw new ConflictException(
+          'A project technology association with the new technology already exists.',
+        );
       }
 
       await queryRunner.manager.remove(existingAssociation);

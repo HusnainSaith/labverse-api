@@ -1,6 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-
-export class CreateProjectMilestones1753360000008 implements MigrationInterface {
+export class CreateProjectMilestones1753360000008
+  implements MigrationInterface
+{
   name = 'CreateProjectMilestones1753360000008';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -27,8 +28,12 @@ export class CreateProjectMilestones1753360000008 implements MigrationInterface 
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_milestones_status;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_milestones_project_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_milestones_status;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_milestones_project_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS project_milestones;`);
   }
 }

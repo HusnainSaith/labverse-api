@@ -4,7 +4,7 @@ import { DevelopmentPlanTechnologiesService } from './development-plan-technolog
 import { DevelopmentPlanTechnologiesController } from './development-plan-technologies.controller';
 import { DevelopmentPlanTechnology } from './entities/development-plan-technology.entity';
 import { DevelopmentPlansModule } from '../development-plans/development-plans.module';
-import { TechnologiesModule } from "../../technology/technology.module"
+import { TechnologiesModule } from '../../technology/technology.module';
 
 @Module({
   imports: [

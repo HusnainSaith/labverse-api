@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import {DevelopmentPlanTechnology} from '../../development/development-plan-technologies/entities/development-plan-technology.entity';
+import { DevelopmentPlanTechnology } from '../../development/development-plan-technologies/entities/development-plan-technology.entity';
 
 @Entity({ name: 'technologies' })
 export class Technology {

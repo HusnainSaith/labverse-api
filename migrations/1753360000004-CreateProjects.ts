@@ -4,7 +4,6 @@ export class CreateProjects1753360000004 implements MigrationInterface {
   name = 'CreateProjects1753360000004';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create projects table
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS projects (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -22,7 +21,6 @@ export class CreateProjects1753360000004 implements MigrationInterface {
       );
     `);
 
-    // Add indexes for projects
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_projects_name ON projects(name);
     `);
@@ -35,7 +33,6 @@ export class CreateProjects1753360000004 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes
     await queryRunner.query(`DROP INDEX IF EXISTS idx_projects_creator_id;`);
     await queryRunner.query(`DROP INDEX IF EXISTS idx_projects_status;`);
     await queryRunner.query(`DROP INDEX IF EXISTS idx_projects_name;`);

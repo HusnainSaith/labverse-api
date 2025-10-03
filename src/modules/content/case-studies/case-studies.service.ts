@@ -20,7 +20,9 @@ export class CaseStudiesService {
   async create(createCaseStudyDto: CreateCaseStudyDto): Promise<CaseStudy> {
     try {
       SecurityUtil.validateObject(createCaseStudyDto);
-      const sanitizedSlug = SecurityUtil.sanitizeString(createCaseStudyDto.slug);
+      const sanitizedSlug = SecurityUtil.sanitizeString(
+        createCaseStudyDto.slug,
+      );
       const existingSlug = await this.caseStudyRepository.findOne({
         where: { slug: sanitizedSlug },
       });
@@ -66,7 +68,9 @@ export class CaseStudiesService {
     try {
       SecurityUtil.validateObject(updateCaseStudyDto);
       if (updateCaseStudyDto.slug) {
-        const sanitizedSlug = SecurityUtil.sanitizeString(updateCaseStudyDto.slug);
+        const sanitizedSlug = SecurityUtil.sanitizeString(
+          updateCaseStudyDto.slug,
+        );
         const existingSlug = await this.caseStudyRepository.findOne({
           where: { slug: sanitizedSlug },
         });

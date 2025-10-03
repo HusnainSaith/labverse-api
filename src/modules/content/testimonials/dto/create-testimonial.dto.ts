@@ -4,7 +4,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateTestimonialDto {
   @ApiProperty({
     description: 'Content of the testimonial (the client’s feedback/quote)',
-    example: 'This company transformed our digital presence with a scalable solution!',
+    example:
+      'This company transformed our digital presence with a scalable solution!',
   })
   @IsString()
   quoteContent: string;

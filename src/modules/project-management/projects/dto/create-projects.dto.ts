@@ -32,7 +32,8 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional({
     description: 'Detailed description of the project',
-    example: 'This project involves redesigning the corporate website for better UX.',
+    example:
+      'This project involves redesigning the corporate website for better UX.',
     maxLength: 5000,
   })
   @IsOptional()

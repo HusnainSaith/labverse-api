@@ -36,7 +36,7 @@ export class SupportTicketsController {
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all support tickets' })
   async findAllTickets() {
@@ -44,7 +44,7 @@ export class SupportTicketsController {
   }
 
   @Get('client/:clientId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all support tickets for a client' })
   async findTicketsByClient(@Param('clientId') clientId: string) {
@@ -52,7 +52,7 @@ export class SupportTicketsController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a support ticket by ID' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT, RoleEnum.CLIENT)
@@ -61,7 +61,7 @@ export class SupportTicketsController {
   }
 
   @Get(':id/messages')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all messages for a support ticket' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT, RoleEnum.CLIENT)
@@ -81,7 +81,7 @@ export class SupportTicketsController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a support ticket' })
   async deleteTicket(@Param('id') id: string) {
@@ -90,7 +90,7 @@ export class SupportTicketsController {
   }
 
   @Post(':ticketId/replies')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Add a reply to a support ticket' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT, RoleEnum.CLIENT)
@@ -105,7 +105,7 @@ export class SupportTicketsController {
   }
 
   @Patch('replies/:replyId')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a reply to a support ticket' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT)
@@ -117,7 +117,7 @@ export class SupportTicketsController {
   }
 
   @Patch(':ticketId/mark-read')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Mark a support ticket as read' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT, RoleEnum.CLIENT)
@@ -129,7 +129,7 @@ export class SupportTicketsController {
   }
 
   @Get(':ticketId/unread-count')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get the unread count for a support ticket' })
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT, RoleEnum.CLIENT)

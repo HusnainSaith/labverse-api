@@ -25,16 +25,16 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('JWT-auth')
-    @ApiOperation({ summary: 'Create a new task' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new task' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER)
   create(@Body() dto: CreateTaskDto) {
     return this.taskService.create(dto);
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve all tasks' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.EMPLOYEE)
@@ -43,7 +43,7 @@ export class TaskController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Retrieve a task by ID' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.EMPLOYEE)
@@ -52,7 +52,7 @@ export class TaskController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a task' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER)
@@ -64,7 +64,7 @@ export class TaskController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete a task' })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER)

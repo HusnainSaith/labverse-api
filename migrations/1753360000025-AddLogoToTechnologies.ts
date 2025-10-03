@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-
 export class AddLogoToTechnologies1753360000025 implements MigrationInterface {
   name = 'AddLogoToTechnologies1753360000025';
 

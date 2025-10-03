@@ -67,7 +67,7 @@ export class PermissionsController {
   @Get('by-resource')
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-   @Permissions('permissions.read')
+  @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve all permissions by resource' })
   findByResource(@Query('resource') resource: string) {
     return this.permissionsService.findByResource(resource);
@@ -76,7 +76,7 @@ export class PermissionsController {
   @Get(':id')
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-   @Permissions('permissions.read')
+  @Permissions('permissions.read')
   @ApiOperation({ summary: 'Retrieve a specific permission' })
   findOne(@Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
@@ -86,7 +86,7 @@ export class PermissionsController {
   @Patch(':id')
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-   @Permissions('permission.update')
+  @Permissions('permission.update')
   @ApiOperation({ summary: 'Update a specific permission' })
   @Roles(RoleEnum.ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
@@ -97,7 +97,7 @@ export class PermissionsController {
   @Delete(':id')
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-   @Permissions('permissions.delete')
+  @Permissions('permissions.delete')
   @ApiOperation({ summary: 'Delete a specific permission' })
   @Roles(RoleEnum.ADMIN)
   remove(@Param('id') id: string) {

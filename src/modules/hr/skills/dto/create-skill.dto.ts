@@ -13,7 +13,8 @@ export class CreateSkillDto {
 
   @ApiPropertyOptional({
     description: 'Detailed description of the skill',
-    example: 'A high-level, versatile programming language primarily used for web development',
+    example:
+      'A high-level, versatile programming language primarily used for web development',
     maxLength: 255,
   })
   @IsString()
@@ -29,4 +30,3 @@ export class CreateSkillDto {
   @IsOptional()
   category?: string;
 }
-  

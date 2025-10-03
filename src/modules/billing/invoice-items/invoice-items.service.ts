@@ -27,11 +27,15 @@ export class InvoiceItemsService {
       where: { id },
       relations: ['invoice', 'service'],
     });
-    if (!item) throw new NotFoundException(`Invoice item with ID ${id} not found`);
+    if (!item)
+      throw new NotFoundException(`Invoice item with ID ${id} not found`);
     return item;
   }
 
-  async update(id: string, dto: Partial<CreateInvoiceItemDto>): Promise<InvoiceItem> {
+  async update(
+    id: string,
+    dto: Partial<CreateInvoiceItemDto>,
+  ): Promise<InvoiceItem> {
     const item = await this.findOne(id);
     Object.assign(item, dto);
     return await this.invoiceItemRepository.save(item);

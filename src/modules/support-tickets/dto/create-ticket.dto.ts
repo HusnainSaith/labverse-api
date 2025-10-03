@@ -1,4 +1,10 @@
-import { IsString, IsUUID, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTicketDto {
@@ -30,7 +36,8 @@ export class CreateTicketDto {
 
   @ApiProperty({
     description: 'Detailed description of the ticket issue',
-    example: 'The main website is not loading on any browser since yesterday evening.',
+    example:
+      'The main website is not loading on any browser since yesterday evening.',
   })
   @IsString()
   @IsNotEmpty()

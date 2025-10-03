@@ -4,7 +4,6 @@ export class CreateEmployeeSkills1753360000003 implements MigrationInterface {
   name = 'CreateEmployeeSkills1753360000003';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create employee_skills junction table
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS employee_skills (
         employee_profile_id UUID NOT NULL,
@@ -19,7 +18,6 @@ export class CreateEmployeeSkills1753360000003 implements MigrationInterface {
       );
     `);
 
-    // Add indexes for employee_skills
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_employee_skills_profile_id ON employee_skills(employee_profile_id);
     `);
@@ -32,10 +30,15 @@ export class CreateEmployeeSkills1753360000003 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_skills_proficiency_level;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_skills_skill_id;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_employee_skills_profile_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_skills_proficiency_level;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_skills_skill_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_employee_skills_profile_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS employee_skills;`);
   }
 }

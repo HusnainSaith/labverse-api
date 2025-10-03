@@ -11,7 +11,7 @@ import {
 import { ContactInquiriesService } from './contact-inquiries.service';
 import { CreateContactInquiryDto } from './dto/create-contact-inquiry.dto';
 import { UpdateContactInquiryDto } from './dto/update-contact-inquiry.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Contact Inquiries')
@@ -22,7 +22,7 @@ export class ContactInquiriesController {
   ) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new client plan quotation' })
   create(@Body() createContactInquiryDto: CreateContactInquiryDto) {

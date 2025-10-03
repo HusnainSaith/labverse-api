@@ -1,10 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateProjectTechnologies1753360000007 implements MigrationInterface {
+export class CreateProjectTechnologies1753360000007
+  implements MigrationInterface
+{
   name = 'CreateProjectTechnologies1753360000007';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create project_technologies junction table
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS project_technologies (
         project_id UUID NOT NULL,
@@ -17,7 +18,6 @@ export class CreateProjectTechnologies1753360000007 implements MigrationInterfac
       );
     `);
 
-    // Add indexes for project_technologies
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_project_technologies_project_id ON project_technologies(project_id);
     `);
@@ -27,9 +27,12 @@ export class CreateProjectTechnologies1753360000007 implements MigrationInterfac
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables and indexes
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_technologies_technology_id;`);
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_project_technologies_project_id;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_technologies_technology_id;`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_project_technologies_project_id;`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS project_technologies;`);
   }
 }

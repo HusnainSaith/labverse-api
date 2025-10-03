@@ -12,7 +12,10 @@ describe('DevelopmentPlansService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DevelopmentPlansService,
-        { provide: getRepositoryToken(DevelopmentPlan), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(DevelopmentPlan),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
@@ -40,7 +43,9 @@ describe('DevelopmentPlansService', () => {
       const result = await service.create(createPlanDto);
 
       expect(result).toEqual(mockPlan);
-      expect(developmentPlanRepository.create).toHaveBeenCalledWith(createPlanDto);
+      expect(developmentPlanRepository.create).toHaveBeenCalledWith(
+        createPlanDto,
+      );
     });
   });
 

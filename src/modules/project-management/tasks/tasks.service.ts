@@ -15,7 +15,9 @@ export class TaskService {
     private taskRepo: Repository<Task>,
   ) {}
 
-  async create(dto: CreateTaskDto): Promise<{ success: boolean; message: string; data: Task }> {
+  async create(
+    dto: CreateTaskDto,
+  ): Promise<{ success: boolean; message: string; data: Task }> {
     ValidationUtil.validateString(dto.name, 'name', 2, 200);
     if (dto.description) {
       ValidationUtil.validateString(dto.description, 'description', 0, 1000);
@@ -31,18 +33,29 @@ export class TaskService {
     }
     ValidationUtil.validateUUID(dto.project_id, 'project_id');
     if (dto.project_milestone_id) {
-      ValidationUtil.validateUUID(dto.project_milestone_id, 'project_milestone_id');
+      ValidationUtil.validateUUID(
+        dto.project_milestone_id,
+        'project_milestone_id',
+      );
     }
     if (dto.created_by_employee_profile_id) {
-      ValidationUtil.validateUUID(dto.created_by_employee_profile_id, 'created_by_employee_profile_id');
+      ValidationUtil.validateUUID(
+        dto.created_by_employee_profile_id,
+        'created_by_employee_profile_id',
+      );
     }
     if (dto.assigned_to_employee_profile_id) {
-      ValidationUtil.validateUUID(dto.assigned_to_employee_profile_id, 'assigned_to_employee_profile_id');
+      ValidationUtil.validateUUID(
+        dto.assigned_to_employee_profile_id,
+        'assigned_to_employee_profile_id',
+      );
     }
 
     const task = this.taskRepo.create({
       name: ValidationUtil.sanitizeString(dto.name),
-      description: dto.description ? ValidationUtil.sanitizeString(dto.description) : undefined,
+      description: dto.description
+        ? ValidationUtil.sanitizeString(dto.description)
+        : undefined,
       status: dto.status,
       priority: dto.priority,
       due_date: dto.due_date,
@@ -59,16 +72,20 @@ export class TaskService {
     });
 
     const savedTask = await this.taskRepo.save(task);
-    
+
     SafeLogger.log(`Task created successfully: ${dto.name}`, 'TaskService');
     return {
       success: true,
       message: 'Task created successfully',
-      data: savedTask
+      data: savedTask,
     };
   }
 
-  async findAll(): Promise<{ success: boolean; message: string; data: Task[] }> {
+  async findAll(): Promise<{
+    success: boolean;
+    message: string;
+    data: Task[];
+  }> {
     const tasks = await this.taskRepo.find({
       relations: [
         'project',
@@ -76,17 +93,19 @@ export class TaskService {
         'assigned_to_employee_profile',
       ],
     });
-    
+
     return {
       success: true,
       message: 'Tasks retrieved successfully',
-      data: tasks
+      data: tasks,
     };
   }
 
-  async findOne(id: string): Promise<{ success: boolean; message: string; data: Task }> {
+  async findOne(
+    id: string,
+  ): Promise<{ success: boolean; message: string; data: Task }> {
     ValidationUtil.validateUUID(id, 'taskId');
-    
+
     const task = await this.taskRepo.findOne({
       where: { id },
       relations: [
@@ -98,17 +117,20 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`Task with ID "${id}" not found`);
     }
-    
+
     return {
       success: true,
       message: 'Task retrieved successfully',
-      data: task
+      data: task,
     };
   }
 
-  async update(id: string, dto: UpdateTaskDto): Promise<{ success: boolean; message: string; data: Task }> {
+  async update(
+    id: string,
+    dto: UpdateTaskDto,
+  ): Promise<{ success: boolean; message: string; data: Task }> {
     ValidationUtil.validateUUID(id, 'taskId');
-    
+
     if (dto.name) {
       ValidationUtil.validateString(dto.name, 'name', 2, 200);
     }
@@ -130,13 +152,22 @@ export class TaskService {
       ValidationUtil.validateUUID(dto.project_id, 'project_id');
     }
     if (dto.project_milestone_id) {
-      ValidationUtil.validateUUID(dto.project_milestone_id, 'project_milestone_id');
+      ValidationUtil.validateUUID(
+        dto.project_milestone_id,
+        'project_milestone_id',
+      );
     }
     if (dto.created_by_employee_profile_id) {
-      ValidationUtil.validateUUID(dto.created_by_employee_profile_id, 'created_by_employee_profile_id');
+      ValidationUtil.validateUUID(
+        dto.created_by_employee_profile_id,
+        'created_by_employee_profile_id',
+      );
     }
     if (dto.assigned_to_employee_profile_id) {
-      ValidationUtil.validateUUID(dto.assigned_to_employee_profile_id, 'assigned_to_employee_profile_id');
+      ValidationUtil.validateUUID(
+        dto.assigned_to_employee_profile_id,
+        'assigned_to_employee_profile_id',
+      );
     }
 
     const taskResult = await this.findOne(id);
@@ -144,8 +175,12 @@ export class TaskService {
 
     // Update scalar fields
     task.name = dto.name ? ValidationUtil.sanitizeString(dto.name) : task.name;
-    task.description = dto.description !== undefined ? 
-      (dto.description ? ValidationUtil.sanitizeString(dto.description) : null) : task.description;
+    task.description =
+      dto.description !== undefined
+        ? dto.description
+          ? ValidationUtil.sanitizeString(dto.description)
+          : null
+        : task.description;
     task.status = dto.status ?? task.status;
     task.priority = dto.priority ?? task.priority;
     task.due_date = dto.due_date ?? task.due_date;
@@ -174,26 +209,26 @@ export class TaskService {
     }
 
     const updatedTask = await this.taskRepo.save(task);
-    
+
     SafeLogger.log(`Task updated successfully: ${id}`, 'TaskService');
     return {
       success: true,
       message: 'Task updated successfully',
-      data: updatedTask
+      data: updatedTask,
     };
   }
 
   async remove(id: string): Promise<{ success: boolean; message: string }> {
     ValidationUtil.validateUUID(id, 'taskId');
-    
+
     const taskResult = await this.findOne(id);
     const task = taskResult.data;
     await this.taskRepo.remove(task);
-    
+
     SafeLogger.log(`Task deleted successfully: ${id}`, 'TaskService');
     return {
       success: true,
-      message: 'Task deleted successfully'
+      message: 'Task deleted successfully',
     };
   }
 }

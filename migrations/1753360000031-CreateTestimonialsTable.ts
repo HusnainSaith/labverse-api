@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTestimonialsTable1753360000031 implements MigrationInterface {
+export class CreateTestimonialsTable1753360000031
+  implements MigrationInterface
+{
   name = 'CreateTestimonialsTable1753360000031';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -12,7 +14,7 @@ export class CreateTestimonialsTable1753360000031 implements MigrationInterface 
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-             default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'quote_content',

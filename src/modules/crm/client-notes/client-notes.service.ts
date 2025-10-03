@@ -55,7 +55,6 @@ export class ClientNotesService {
   }
 
   async remove(id: string): Promise<void> {
-    const validId = SecurityUtil.validateId(id);
     const clientNote = await this.findOne(id);
     await this.clientNoteRepository.remove(clientNote);
   }

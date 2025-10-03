@@ -15,7 +15,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard'; // Adjust path
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { RoleEnum } from '../../roles/role.enum'
+import { RoleEnum } from '../../roles/role.enum';
 
 @ApiTags('Project Technologies')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,7 +28,9 @@ export class ProjectTechnologiesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new project technology association (bulk)' })
+  @ApiOperation({
+    summary: 'Create a new project technology association (bulk)',
+  })
   @Roles(RoleEnum.ADMIN, RoleEnum.PROJECT_MANAGER, RoleEnum.DEVELOPER)
   create(@Body() createProjectTechnologiesDto: CreateProjectTechnologiesDto) {
     return this.projectTechnologiesService.create(createProjectTechnologiesDto);
@@ -44,7 +46,11 @@ export class ProjectTechnologiesController {
     @Param('oldTechnologyId') oldTechnologyId: string,
     @Body() dto: UpdateProjectTechnologyDto,
   ) {
-    return this.projectTechnologiesService.update(projectId, oldTechnologyId, dto);
+    return this.projectTechnologiesService.update(
+      projectId,
+      oldTechnologyId,
+      dto,
+    );
   }
 
   @Get()

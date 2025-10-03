@@ -13,7 +13,7 @@ import { CreateClientNoteDto } from './dto/create-client-note.dto';
 import { UpdateClientNoteDto } from './dto/update-client-note.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('Client Notes')
 @Controller('client-notes')
@@ -21,7 +21,7 @@ export class ClientNotesController {
   constructor(private readonly clientNotesService: ClientNotesService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new client note' })
   create(@Body() createClientNoteDto: CreateClientNoteDto) {
@@ -51,7 +51,7 @@ export class ClientNotesController {
   findOne(@Param('id') id: string) {
     return this.clientNotesService.findOne(id);
   }
-  
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')

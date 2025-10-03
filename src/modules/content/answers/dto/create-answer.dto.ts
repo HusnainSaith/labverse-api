@@ -11,7 +11,8 @@ export class CreateAnswerDto {
 
   @ApiProperty({
     description: 'Text content of the answer',
-    example: 'You can use NestJS with TypeORM to build scalable APIs efficiently.',
+    example:
+      'You can use NestJS with TypeORM to build scalable APIs efficiently.',
   })
   @IsString()
   answerText: string;

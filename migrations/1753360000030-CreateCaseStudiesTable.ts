@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateCaseStudiesTable1753360000030 implements MigrationInterface {
   name = 'CreateCaseStudiesTable1753360000030';
@@ -12,7 +17,7 @@ export class CreateCaseStudiesTable1753360000030 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-         default: 'gen_random_uuid()'
+            default: 'gen_random_uuid()',
           },
           {
             name: 'title',
@@ -93,9 +98,12 @@ export class CreateCaseStudiesTable1753360000030 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('case_studies');
-    const foreignKeyCategory = table.foreignKeys.find(fk => fk.columnNames.indexOf('category_id') !== -1);
+    const foreignKeyCategory = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('category_id') !== -1,
+    );
 
-    if (foreignKeyCategory) await queryRunner.dropForeignKey('case_studies', foreignKeyCategory);
+    if (foreignKeyCategory)
+      await queryRunner.dropForeignKey('case_studies', foreignKeyCategory);
 
     await queryRunner.dropTable('case_studies');
   }

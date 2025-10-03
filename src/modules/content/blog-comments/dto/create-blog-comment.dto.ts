@@ -10,7 +10,8 @@ export class CreateBlogCommentDto {
   postId: string;
 
   @ApiPropertyOptional({
-    description: 'ID of the user making the comment (UUID v4). Used if the commenter is a registered user.',
+    description:
+      'ID of the user making the comment (UUID v4). Used if the commenter is a registered user.',
     example: '11111111-1111-1111-1111-111111111111',
   })
   @IsOptional()

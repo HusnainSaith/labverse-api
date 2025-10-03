@@ -10,12 +10,13 @@ export class CreateProjectTechnologiesDto {
   projectId: string;
 
   @ApiProperty({
-    description: 'Array of UUIDs of technologies to be associated with the project',
+    description:
+      'Array of UUIDs of technologies to be associated with the project',
     type: [String],
     example: [
       '11111111-1111-1111-1111-111111111111',
-      '22222222-2222-2222-2222-222222222222'
-    ]
+      '22222222-2222-2222-2222-222222222222',
+    ],
   })
   @IsArray()
   @ArrayNotEmpty()

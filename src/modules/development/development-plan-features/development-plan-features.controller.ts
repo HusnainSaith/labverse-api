@@ -13,8 +13,13 @@ import {
 import { DevelopmentPlanFeaturesService } from './development-plan-features.service';
 import { CreateDevelopmentPlanFeatureDto } from './dto/create-development-plan-feature.dto';
 import { UpdateDevelopmentPlanFeatureDto } from './dto/update-development-plan-feature.dto';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plan-features')
 @Controller('development-plan-features')
@@ -22,7 +27,7 @@ export class DevelopmentPlanFeaturesController {
   constructor(private readonly dpfService: DevelopmentPlanFeaturesService) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Associate a feature with a development plan' })
@@ -36,7 +41,7 @@ export class DevelopmentPlanFeaturesController {
   }
 
   @Get()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve all development plan feature associations',
@@ -51,7 +56,7 @@ export class DevelopmentPlanFeaturesController {
   }
 
   @Get(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Retrieve a development plan feature association by ID',
@@ -70,7 +75,7 @@ export class DevelopmentPlanFeaturesController {
   }
 
   @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a development plan feature association' })
   @ApiResponse({
@@ -90,7 +95,7 @@ export class DevelopmentPlanFeaturesController {
   }
 
   @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a development plan feature association' })

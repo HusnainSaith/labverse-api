@@ -15,7 +15,10 @@ describe('EmployeeProfilesService', () => {
     module = await Test.createTestingModule({
       providers: [
         EmployeeProfilesService,
-        { provide: getRepositoryToken(EmployeeProfile), useValue: mockRepository() },
+        {
+          provide: getRepositoryToken(EmployeeProfile),
+          useValue: mockRepository(),
+        },
         { provide: getRepositoryToken(User), useValue: mockRepository() },
       ],
     }).compile();
@@ -39,7 +42,6 @@ describe('EmployeeProfilesService', () => {
       };
       const mockEmployee = { id: 'employee-id', ...createEmployeeDto };
       const mockUser = { id: 'user-id' };
-
 
       userRepository.findOne.mockResolvedValue(mockUser);
       employeeRepository.findOne.mockResolvedValue(null); // No existing profile

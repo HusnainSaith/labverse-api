@@ -1,5 +1,9 @@
 // token.util.ts
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -15,17 +19,19 @@ export class TokenUtil {
     try {
       // Remove 'Bearer ' prefix if present
       const cleanToken = token.replace(/^Bearer\s+/, '');
-      
+
       // Decode and verify the token
       const payload = this.jwtService.verify(cleanToken);
-      
+
       // Extract user ID (adjust the property name based on your JWT payload structure)
       const userId = payload.sub || payload.id || payload.userId;
-      
+
       if (!userId) {
-        throw new UnauthorizedException('Invalid token: User ID not found in token payload');
+        throw new UnauthorizedException(
+          'Invalid token: User ID not found in token payload',
+        );
       }
-      
+
       return userId;
     } catch (error) {
       if (error.name === 'JsonWebTokenError') {
@@ -45,11 +51,11 @@ export class TokenUtil {
    */
   extractUserIdFromRequest(request: any): string {
     const authHeader = request.headers.authorization;
-    
+
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is missing');
     }
-    
+
     return this.extractUserIdFromToken(authHeader);
   }
 
@@ -91,28 +97,30 @@ export class UserService {
     try {
       // Extract user ID from token
       const userId = this.tokenUtil.extractUserIdFromRequest(request);
-      
+
       // Validate the extracted ID
       const validId = SecurityUtil.validateId(userId);
 
       const user = await this.userRepository.findOne({
         where: { id: validId },
       });
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
       await this.userRepository.remove(user);
-      
+
       return {
         success: true,
         message: 'User account deleted successfully',
         data: undefined,
       };
-
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      ) {
         throw error;
       }
       throw new Error(`Failed to delete user account: ${error.message}`);
@@ -130,19 +138,18 @@ export class UserService {
       const user = await this.userRepository.findOne({
         where: { id: validId },
       });
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
       await this.userRepository.remove(user);
-      
+
       return {
         success: true,
         message: 'User deleted successfully',
         data: undefined,
       };
-
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -174,9 +181,11 @@ export class UserService {
         message: 'User profile retrieved successfully',
         data: user,
       };
-
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      ) {
         throw error;
       }
       throw new Error(`Failed to get user profile: ${error.message}`);

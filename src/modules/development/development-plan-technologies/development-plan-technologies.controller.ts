@@ -13,9 +13,14 @@ import {
 import { DevelopmentPlanTechnologiesService } from './development-plan-technologies.service';
 import { CreateDevelopmentPlanTechnologyDto } from './dto/create-development-plan-technology.dto';
 import { UpdateDevelopmentPlanTechnologyDto } from './dto/update-development-plan-technology.dto';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { SecurityUtil } from '../../../common/utils/security.util';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('development-plan-technologies')
 @Controller('development-plan-technologies')
@@ -25,7 +30,7 @@ export class DevelopmentPlanTechnologiesController {
   ) {}
 
   @Post()
-    @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Associate a technology with a development plan' })
@@ -93,7 +98,7 @@ export class DevelopmentPlanTechnologiesController {
     return this.dptService.update(id, updateDptDto);
   }
 
-  @Delete(':id')  
+  @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)

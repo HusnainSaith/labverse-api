@@ -27,11 +27,15 @@ export class ProjectMembersService {
       where: { id },
       relations: ['project', 'employee'],
     });
-    if (!member) throw new NotFoundException(`ProjectMember with ID ${id} not found`);
+    if (!member)
+      throw new NotFoundException(`ProjectMember with ID ${id} not found`);
     return member;
   }
 
-  async update(id: string, dto: Partial<CreateProjectMemberDto>): Promise<ProjectMember> {
+  async update(
+    id: string,
+    dto: Partial<CreateProjectMemberDto>,
+  ): Promise<ProjectMember> {
     const member = await this.findOne(id);
     Object.assign(member, dto);
     return await this.projectMemberRepository.save(member);
