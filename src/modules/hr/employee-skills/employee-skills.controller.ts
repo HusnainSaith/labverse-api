@@ -13,8 +13,6 @@ import { CreateEmployeeSkillDto } from './dto/create-employee-skill.dto';
 import { UpdateEmployeeSkillDto } from './dto/update-employee-skill.dto';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RoleEnum } from '../../roles/role.enum';
-import { Roles } from '../../../common/decorators/roles.decorator';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Employee Skills')

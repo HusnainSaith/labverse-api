@@ -77,9 +77,18 @@ export class EmployeeSkillsService {
       relations: ['employee', 'skill'],
     });
   }
-
   async findByEmployee(employeeId: string): Promise<EmployeeSkill[]> {
     const validEmployeeId = SecurityUtil.validateId(employeeId);
+
+    const employee = await this.employeeRepository.findOne({
+      where: { id: validEmployeeId },
+    });
+    if (!employee) {
+      throw new NotFoundException(
+        `Employee profile with ID "${employeeId}" not found.`,
+      );
+    }
+
     return this.employeeSkillRepository.find({
       where: { employeeId: validEmployeeId },
       relations: ['skill'],

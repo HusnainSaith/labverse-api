@@ -1,4 +1,4 @@
-import { IsUUID, IsInt, Min, IsOptional, IsString, Max } from 'class-validator';
+import { IsUUID, IsInt, Min, IsOptional, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateEmployeeSkillDto {
