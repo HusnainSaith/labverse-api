@@ -34,7 +34,7 @@ export class ClientApprovalsController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Get all client plan quotations' })
+  @ApiOperation({ summary: 'Get all client approvals' })
   async findAllApprovals() {
     return this.clientApprovalsService.findAllApprovals();
   }

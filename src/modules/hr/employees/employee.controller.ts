@@ -53,7 +53,7 @@ export class EmployeeProfilesController {
         department: { type: 'string' },
         status: {
           type: 'string',
-          enum: ['active', 'inactive', 'on_leave', 'terminated'], // ✅ proper enum values
+          enum: ['active', 'inactive', 'on_leave', 'terminated'],
         },
         file: { type: 'string', format: 'binary' },
       },

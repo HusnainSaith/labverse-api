@@ -22,7 +22,7 @@ export class CategoriesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new client plan quotation' })
+  @ApiOperation({ summary: 'Create a new category' })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
