@@ -20,6 +20,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiConsumes,
+  ApiBody,
+  ApiProperty,
 } from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
 import { SupabaseService } from 'src/common/services/supabase.service';
@@ -27,6 +29,19 @@ import { CreateProjectDto } from './dto/create-projects.dto';
 import { UpdateProjectDto } from './dto/update-projects.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+
+class CreateProjectWithFilesDto {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+    isArray: true,
+  })
+  files?: any[];
+
+  @ApiProperty({ type: 'string', description: 'JSON string of project data' })
+  data: string;
+}
 
 @ApiTags('projects')
 @Controller('projects')
@@ -43,6 +58,10 @@ export class ProjectsController {
     summary: 'Create a new project with optional multiple image uploads',
   })
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: CreateProjectWithFilesDto,
+    description: 'Project data and optional image files',
+  })
   @ApiResponse({ status: 201, description: 'Project created successfully' })
   @UseInterceptors(FilesInterceptor('files', 10))
   async create(
